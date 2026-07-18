@@ -44,7 +44,7 @@ export function BeerMug({ color = '#e9a62f', dirty = false, scale = 1 }: { color
     <group scale={scale}>
       <mesh castShadow position={[0, 0.13, 0]}>
         <cylinderGeometry args={[0.12, 0.1, 0.3, 12]} />
-        <meshPhysicalMaterial color={dirty ? '#c7c1ae' : '#d9f5f2'} roughness={0.16} transmission={dirty ? 0 : 0.24} thickness={0.08} transparent opacity={dirty ? 0.82 : 0.58} />
+        <meshStandardMaterial color={dirty ? '#c7c1ae' : '#d9f5f2'} roughness={0.2} metalness={0.03} transparent opacity={dirty ? 0.82 : 0.52} />
       </mesh>
       {!dirty && (
         <mesh position={[0, 0.125, 0]}>
@@ -65,6 +65,12 @@ export function BeerMug({ color = '#e9a62f', dirty = false, scale = 1 }: { color
             </mesh>
           ))}
         </group>
+      )}
+      {!dirty && (
+        <mesh position={[-0.055, 0.16, 0.098]}>
+          <boxGeometry args={[0.018, 0.19, 0.012]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.68} depthWrite={false} />
+        </mesh>
       )}
       <mesh position={[0, 0.29, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.11, 0.012, 7, 16]} />
@@ -94,7 +100,10 @@ type HumanoidProps = {
 function Humanoid({ position, target, palette, moving, seated = false, drinking = false, bartender = false, carryingDrink, carryingDirty, activity }: HumanoidProps) {
   const root = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
+  const chest = useRef<THREE.Group>(null);
   const head = useRef<THREE.Group>(null);
+  const leftEye = useRef<THREE.Mesh>(null);
+  const rightEye = useRef<THREE.Mesh>(null);
   const leftArm = useRef<THREE.Group>(null);
   const rightArm = useRef<THREE.Group>(null);
   const leftLeg = useRef<THREE.Group>(null);
@@ -102,6 +111,8 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
   const leftKnee = useRef<THREE.Group>(null);
   const rightKnee = useRef<THREE.Group>(null);
   const mug = useRef<THREE.Group>(null);
+  const coin = useRef<THREE.Group>(null);
+  const cleaningCloth = useRef<THREE.Group>(null);
   const phase = useRef(Math.random() * Math.PI * 2);
   const colors = bartender
     ? { shirt: '#f5efe3', trousers: '#173d47', hair: '#3c2a22', skin: '#d9956c' }
@@ -109,11 +120,15 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
   const desired = useMemo(() => new THREE.Vector3(), []);
   const mugDesired = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     if (!root.current) return;
     phase.current += delta * (moving ? 8.5 : 2.2);
     const wave = Math.sin(phase.current);
     const fastWave = Math.sin(phase.current * 2.4);
+    const drinkCycle = (clock.elapsedTime * 0.42 + palette * 0.13) % 1;
+    const drinkRise = THREE.MathUtils.smootherstep(drinkCycle, 0.12, 0.34);
+    const drinkFall = 1 - THREE.MathUtils.smootherstep(drinkCycle, 0.7, 0.92);
+    const sipAmount = drinking ? drinkRise * drinkFall : 0;
     const walkBob = moving && !seated ? Math.abs(Math.sin(phase.current * 2)) * 0.045 : 0;
     desired.set(position.x, (seated ? 0.015 : 0.05) + walkBob, position.z);
     root.current.position.lerp(desired, 1 - Math.exp(-delta * 12));
@@ -139,9 +154,9 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
       leftArmX = -0.74 + fastWave * 0.08;
       rightArmX = -0.92 - fastWave * 0.1;
     } else if (drinking) {
-      leftArmX = -0.38;
-      rightArmX = -1.42 + fastWave * 0.04;
-      rightArmZ = -0.11;
+      leftArmX = THREE.MathUtils.lerp(-0.34, -0.52, sipAmount);
+      rightArmX = THREE.MathUtils.lerp(-0.42, -1.42, sipAmount) + fastWave * 0.025;
+      rightArmZ = -0.11 * sipAmount;
     } else if (activity === 'ready_to_pay') {
       leftArmX = -1.22 + fastWave * 0.12;
       leftArmZ = -0.28;
@@ -183,19 +198,37 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
     if (body.current) {
       const actionLean = activity === 'preparing' || activity === 'cleaning' ? -0.08 : moving ? 0.045 : 0;
       body.current.rotation.x = THREE.MathUtils.damp(body.current.rotation.x, actionLean, 9, delta);
+      body.current.rotation.z = THREE.MathUtils.damp(body.current.rotation.z, moving ? wave * 0.045 : activity === 'cleaning' ? fastWave * 0.025 : 0, 10, delta);
+    }
+    if (chest.current) {
       const breath = 1 + Math.sin(phase.current * 0.72) * 0.008;
-      body.current.scale.set(1 / Math.sqrt(breath), breath, 1 / Math.sqrt(breath));
+      chest.current.scale.set(1 / Math.sqrt(breath), breath, 1 / Math.sqrt(breath));
     }
     if (head.current) {
       const look = seated && !drinking ? Math.sin(phase.current * 0.48) * 0.08 : 0;
       head.current.rotation.y = THREE.MathUtils.damp(head.current.rotation.y, look, 7, delta);
-      head.current.rotation.x = THREE.MathUtils.damp(head.current.rotation.x, drinking ? -0.09 : 0, 8, delta);
+      const orderNod = activity === 'ordering' || activity === 'taking_order' ? Math.sin(clock.elapsedTime * 4.2 + palette) * 0.08 : 0;
+      head.current.rotation.x = THREE.MathUtils.damp(head.current.rotation.x, drinking ? -0.11 * sipAmount : orderNod, 8, delta);
+      head.current.rotation.z = THREE.MathUtils.damp(head.current.rotation.z, moving ? -wave * 0.025 : 0, 8, delta);
+    }
+    const blinkPeriod = 3.45 + (palette % 3) * 0.42 + (bartender ? 0.2 : 0);
+    const blinkPhase = (clock.elapsedTime + palette * 0.71 + (bartender ? 0.35 : 0)) % blinkPeriod;
+    const blinkTarget = blinkPhase < 0.14 ? Math.max(0.08, Math.abs(blinkPhase - 0.07) / 0.07) : 1;
+    if (leftEye.current) leftEye.current.scale.y = THREE.MathUtils.damp(leftEye.current.scale.y, blinkTarget, 28, delta);
+    if (rightEye.current) rightEye.current.scale.y = THREE.MathUtils.damp(rightEye.current.scale.y, blinkTarget, 28, delta);
+    if (coin.current) {
+      coin.current.rotation.y += delta * 5.2;
+      coin.current.position.y = 1.02 + Math.sin(clock.elapsedTime * 4.5 + palette) * 0.035;
+    }
+    if (cleaningCloth.current) {
+      cleaningCloth.current.position.x = 0.32 + fastWave * 0.12;
+      cleaningCloth.current.rotation.y = fastWave * 0.18;
     }
     if (mug.current) {
-      const mugY = drinking ? 1.31 + Math.sin(phase.current * 1.4) * 0.025 : 0.84;
-      mugDesired.set(0.48, mugY, drinking ? 0.34 : 0.28);
+      const mugY = drinking ? THREE.MathUtils.lerp(0.92, 1.31, sipAmount) : 0.84;
+      mugDesired.set(0.48, mugY, drinking ? THREE.MathUtils.lerp(0.52, 0.34, sipAmount) : 0.28);
       mug.current.position.lerp(mugDesired, 1 - Math.exp(-delta * 14));
-      mug.current.rotation.z = THREE.MathUtils.damp(mug.current.rotation.z, drinking ? -0.25 : 0, 12, delta);
+      mug.current.rotation.z = THREE.MathUtils.damp(mug.current.rotation.z, drinking ? -0.28 * sipAmount : 0, 12, delta);
     }
   });
 
@@ -211,11 +244,23 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
             <sphereGeometry args={[0.31, 16, 10]} />
             <meshStandardMaterial color={colors.hair} roughness={0.9} />
           </mesh>
-          <mesh position={[-0.11, 0.02, 0.285]}>
+          {!bartender && palette % 2 === 1 && (
+            <mesh castShadow position={[0.2, 0.18, -0.2]}>
+              <sphereGeometry args={[0.14, 12, 9]} />
+              <meshStandardMaterial color={colors.hair} roughness={0.88} />
+            </mesh>
+          )}
+          {!bartender && palette % 2 === 0 && (
+            <mesh castShadow position={[-0.12, 0.3, 0.02]} rotation={[0.05, 0, -0.28]}>
+              <coneGeometry args={[0.1, 0.26, 10]} />
+              <meshStandardMaterial color={colors.hair} roughness={0.86} />
+            </mesh>
+          )}
+          <mesh ref={leftEye} position={[-0.11, 0.02, 0.285]}>
             <sphereGeometry args={[0.035, 8, 8]} />
             <meshStandardMaterial color="#152e39" />
           </mesh>
-          <mesh position={[0.11, 0.02, 0.285]}>
+          <mesh ref={rightEye} position={[0.11, 0.02, 0.285]}>
             <sphereGeometry args={[0.035, 8, 8]} />
             <meshStandardMaterial color="#152e39" />
           </mesh>
@@ -244,39 +289,51 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
             <meshStandardMaterial color={colors.hair} roughness={0.82} />
           </mesh>
           {bartender && (
-            <mesh position={[0, 0.28, -0.02]} rotation={[0.08, 0, 0]}>
-              <cylinderGeometry args={[0.28, 0.33, 0.12, 16]} />
-              <meshStandardMaterial color="#0e7e7d" roughness={0.6} />
-            </mesh>
+            <>
+              <mesh position={[0, 0.28, -0.02]} rotation={[0.08, 0, 0]}>
+                <cylinderGeometry args={[0.28, 0.33, 0.12, 16]} />
+                <meshStandardMaterial color="#0e7e7d" roughness={0.6} />
+              </mesh>
+              <mesh position={[-0.055, -0.095, 0.309]} rotation={[0, 0, -0.18]}>
+                <boxGeometry args={[0.11, 0.035, 0.02]} />
+                <meshStandardMaterial color="#493027" roughness={0.82} />
+              </mesh>
+              <mesh position={[0.055, -0.095, 0.309]} rotation={[0, 0, 0.18]}>
+                <boxGeometry args={[0.11, 0.035, 0.02]} />
+                <meshStandardMaterial color="#493027" roughness={0.82} />
+              </mesh>
+            </>
           )}
         </group>
 
-        <RoundedBox args={[0.62, 0.78, 0.36]} radius={0.16} smoothness={3} position={[0, 1.03, 0]} castShadow>
-          <meshStandardMaterial color={colors.shirt} roughness={0.72} />
-        </RoundedBox>
-        <mesh position={[-0.1, 1.34, 0.2]} rotation={[0, 0, 0.58]}>
-          <boxGeometry args={[0.2, 0.08, 0.035]} />
-          <meshStandardMaterial color="#fff1cf" roughness={0.74} />
-        </mesh>
-        <mesh position={[0.1, 1.34, 0.2]} rotation={[0, 0, -0.58]}>
-          <boxGeometry args={[0.2, 0.08, 0.035]} />
-          <meshStandardMaterial color="#fff1cf" roughness={0.74} />
-        </mesh>
-        {bartender && (
-          <group>
-            <RoundedBox args={[0.48, 0.52, 0.08]} radius={0.08} smoothness={3} position={[0, 0.91, 0.22]}>
-              <meshStandardMaterial color="#ef663e" roughness={0.68} />
-            </RoundedBox>
-            <mesh position={[0, 1.18, 0.23]}>
-              <boxGeometry args={[0.07, 0.1, 0.035]} />
-              <meshStandardMaterial color="#ffeab8" />
-            </mesh>
-            <mesh position={[0, 0.76, 0.265]}>
-              <boxGeometry args={[0.25, 0.13, 0.025]} />
-              <meshStandardMaterial color="#ffd784" roughness={0.64} />
-            </mesh>
-          </group>
-        )}
+        <group ref={chest}>
+          <RoundedBox args={[0.62, 0.78, 0.36]} radius={0.16} smoothness={3} position={[0, 1.03, 0]} castShadow>
+            <meshStandardMaterial color={colors.shirt} roughness={0.72} />
+          </RoundedBox>
+          <mesh position={[-0.1, 1.34, 0.2]} rotation={[0, 0, 0.58]}>
+            <boxGeometry args={[0.2, 0.08, 0.035]} />
+            <meshStandardMaterial color="#fff1cf" roughness={0.74} />
+          </mesh>
+          <mesh position={[0.1, 1.34, 0.2]} rotation={[0, 0, -0.58]}>
+            <boxGeometry args={[0.2, 0.08, 0.035]} />
+            <meshStandardMaterial color="#fff1cf" roughness={0.74} />
+          </mesh>
+          {bartender && (
+            <group>
+              <RoundedBox args={[0.48, 0.52, 0.08]} radius={0.08} smoothness={3} position={[0, 0.91, 0.22]}>
+                <meshStandardMaterial color="#ef663e" roughness={0.68} />
+              </RoundedBox>
+              <mesh position={[0, 1.18, 0.23]}>
+                <boxGeometry args={[0.07, 0.1, 0.035]} />
+                <meshStandardMaterial color="#ffeab8" />
+              </mesh>
+              <mesh position={[0, 0.76, 0.265]}>
+                <boxGeometry args={[0.25, 0.13, 0.025]} />
+                <meshStandardMaterial color="#ffd784" roughness={0.64} />
+              </mesh>
+            </group>
+          )}
+        </group>
 
         <group ref={leftArm} position={[-0.39, 1.28, 0]}>
           <mesh castShadow position={[0, -0.3, 0]}>
@@ -334,12 +391,54 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
 
         {(drinking || carryingDrink) && (
           <group ref={mug} position={[0.48, drinking ? 1.31 : 0.84, drinking ? 0.34 : 0.28]}>
+            {carryingDrink && (
+              <mesh position={[0, -0.015, 0]}>
+                <cylinderGeometry args={[0.24, 0.24, 0.035, 20]} />
+                <meshStandardMaterial color="#f1c36b" metalness={0.28} roughness={0.38} />
+              </mesh>
+            )}
             <BeerMug color={carryingDrink ?? '#eca72c'} scale={0.92} />
+          </group>
+        )}
+        {(activity === 'ordering' || activity === 'taking_order') && (
+          <group position={[0.02, 1.02, 0.47]} rotation={[-0.12, 0, 0.05]}>
+            <RoundedBox args={[0.29, 0.39, 0.035]} radius={0.035} smoothness={2}>
+              <meshStandardMaterial color="#f8e8bb" roughness={0.75} />
+            </RoundedBox>
+            {[0.08, 0, -0.08].map((y) => (
+              <mesh key={y} position={[-0.015, y, 0.021]}>
+                <boxGeometry args={[0.17, 0.018, 0.009]} />
+                <meshBasicMaterial color="#43a99a" />
+              </mesh>
+            ))}
+            <mesh position={[0.17, 0.02, 0.04]} rotation={[0, 0, -0.18]}>
+              <cylinderGeometry args={[0.018, 0.018, 0.33, 8]} />
+              <meshStandardMaterial color="#ed6a43" roughness={0.62} />
+            </mesh>
+          </group>
+        )}
+        {(activity === 'ready_to_pay' || activity === 'paying' || activity === 'taking_payment') && (
+          <group ref={coin} position={[0.38, 1.02, 0.46]} rotation={[Math.PI / 2, 0, 0]}>
+            <mesh>
+              <cylinderGeometry args={[0.11, 0.11, 0.045, 18]} />
+              <meshStandardMaterial color="#ffd34f" emissive="#d58b17" emissiveIntensity={0.35} metalness={0.55} roughness={0.26} />
+            </mesh>
+            <mesh position={[0, 0.026, 0]}>
+              <torusGeometry args={[0.068, 0.011, 6, 16]} />
+              <meshStandardMaterial color="#fff0a5" metalness={0.4} roughness={0.3} />
+            </mesh>
           </group>
         )}
         {(activity === 'ready_to_pay' || activity === 'paying') && (
           <group position={[0.26, 0.91, 0.6]}>
             <BeerMug color="#d88c27" scale={0.82} />
+          </group>
+        )}
+        {activity === 'cleaning' && (
+          <group ref={cleaningCloth} position={[0.32, 0.78, 0.38]}>
+            <RoundedBox args={[0.3, 0.055, 0.22]} radius={0.04} smoothness={2} rotation={[0.08, 0, 0.04]}>
+              <meshStandardMaterial color="#64e0c8" roughness={0.9} />
+            </RoundedBox>
           </group>
         )}
         {carryingDirty && (
@@ -353,6 +452,9 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
         )}
         {moving && (
           <Sparkles count={4} scale={[0.7, 0.18, 0.5]} position={[0, 0.13, -0.1]} size={1.8} speed={0.35} color="#f2d2a0" />
+        )}
+        {activity === 'leaving' && (
+          <Sparkles count={5} scale={[0.72, 0.75, 0.48]} position={[0, 1.45, 0]} size={2.3} speed={0.42} color="#ffd66f" />
         )}
       </group>
     </group>

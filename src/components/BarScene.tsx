@@ -41,7 +41,7 @@ function CanvasPresenter({
   const failureReported = useRef(false);
 
   useFrame(({ clock }) => {
-    if (clock.elapsedTime - lastPresentedAt.current < 1 / 30) return;
+    if (clock.elapsedTime - lastPresentedAt.current < 1 / 40) return;
     lastPresentedAt.current = clock.elapsedTime;
     gl.render(scene, camera);
     const source = gl.domElement;
@@ -196,7 +196,10 @@ function CameraRig() {
   useFrame(() => {
     if (!(camera instanceof THREE.OrthographicCamera)) return;
     camera.position.set(11.8, 14.2, 16.2);
-    const baseZoom = size.width < 560 ? 33 : size.width < 900 ? 43 : size.width < 1250 ? 51 : 58;
+    const portrait = size.height > size.width * 1.2;
+    const baseZoom = portrait
+      ? THREE.MathUtils.clamp(size.width / 11.75, 30.5, 36.5)
+      : size.width < 560 ? 33 : size.width < 900 ? 43 : size.width < 1250 ? 51 : 58;
     if (camera.zoom !== baseZoom) {
       camera.zoom = baseZoom;
       camera.updateProjectionMatrix();
@@ -209,6 +212,7 @@ function CameraRig() {
 
 function PourEffect() {
   const bubbles = useRef<THREE.Group>(null);
+  const stream = useRef<THREE.Mesh>(null);
   const bubbleData = useMemo(() => Array.from({ length: 8 }, (_, index) => ({
     x: ((index * 37) % 7 - 3) * 0.025,
     z: ((index * 53) % 5 - 2) * 0.025,
@@ -219,6 +223,10 @@ function PourEffect() {
   useFrame(({ clock }) => {
     if (!bubbles.current) return;
     const time = clock.elapsedTime;
+    if (stream.current) {
+      const pulse = 0.88 + Math.sin(time * 8.5) * 0.12;
+      stream.current.scale.set(pulse, 1, pulse);
+    }
     bubbles.current.children.forEach((child, index) => {
       const data = bubbleData[index];
       const progress = (time * data.speed + data.offset) % 1;
@@ -230,7 +238,7 @@ function PourEffect() {
 
   return (
     <group position={[-1.07, 1.24, -3.43]}>
-      <mesh position={[0, 0.18, 0]}>
+      <mesh ref={stream} position={[0, 0.18, 0]}>
         <cylinderGeometry args={[0.035, 0.026, 0.48, 8]} />
         <meshStandardMaterial color="#f4a92f" emissive="#d56f18" emissiveIntensity={0.7} transparent opacity={0.82} />
       </mesh>
@@ -250,22 +258,73 @@ function PourEffect() {
   );
 }
 
+function TableActionEffect({ position, kind }: { position: Vec2; kind: 'delivering' | 'cleaning' }) {
+  const ring = useRef<THREE.Mesh>(null);
+  const particles = useRef<THREE.Group>(null);
+  const color = kind === 'cleaning' ? '#76f1d6' : '#ffd86d';
+
+  useFrame(({ clock }) => {
+    const progress = (clock.elapsedTime * 1.35) % 1;
+    if (ring.current) {
+      ring.current.scale.setScalar(0.72 + progress * 0.72);
+      (ring.current.material as THREE.MeshBasicMaterial).opacity = (1 - progress) * 0.62;
+    }
+    if (particles.current) {
+      particles.current.children.forEach((child, index) => {
+        const local = (progress + index / particles.current!.children.length) % 1;
+        child.position.y = 0.12 + local * 0.62;
+        child.position.x = Math.cos(index * 2.2) * (0.24 + local * 0.14);
+        child.position.z = Math.sin(index * 2.2) * (0.24 + local * 0.14);
+        child.scale.setScalar(Math.sin(local * Math.PI) * 0.9 + 0.08);
+      });
+    }
+  });
+
+  return (
+    <group position={[position.x, 0.92, position.z]}>
+      <mesh ref={ring} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.72, 0.035, 6, 30]} />
+        <meshBasicMaterial color={color} transparent opacity={0.6} depthWrite={false} />
+      </mesh>
+      <group ref={particles}>
+        {[0, 1, 2, 3, 4].map((index) => (
+          <mesh key={index}>
+            {kind === 'cleaning' ? <sphereGeometry args={[0.065, 8, 6]} /> : <octahedronGeometry args={[0.07, 0]} />}
+            <meshBasicMaterial color={color} transparent opacity={0.78} depthWrite={false} />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
+
 function EventBurst({ event, position }: { event: GameEvent; position: Vec2 }) {
   const root = useRef<THREE.Group>(null);
   const ring = useRef<THREE.Mesh>(null);
   const elapsed = useRef(0);
-  const particles = useMemo(() => Array.from({ length: 12 }, (_, index) => {
-    const angle = (index / 12) * Math.PI * 2;
+  const particles = useMemo(() => Array.from({ length: 10 }, (_, index) => {
+    const angle = (index / 10) * Math.PI * 2;
     const speed = 0.95 + (index % 4) * 0.17;
     return new THREE.Vector3(Math.cos(angle) * speed, 1.25 + (index % 3) * 0.22, Math.sin(angle) * speed);
   }), [event.id]);
-  const color = event.kind === 'payment' ? '#ffd24d' : event.kind === 'reputation' ? '#fff09b' : '#71f0cf';
+  const color = event.kind === 'payment'
+    ? '#ffd24d'
+    : event.kind === 'reputation'
+      ? '#fff09b'
+      : event.kind === 'upgrade'
+        ? '#55e878'
+        : event.kind === 'day'
+          ? '#ff9b58'
+          : '#71f0cf';
 
   useFrame((_, delta) => {
     elapsed.current += delta;
     const t = elapsed.current;
     if (!root.current) return;
-    root.current.visible = t < 1.35;
+    if (t >= 1.35) {
+      root.current.visible = false;
+      return;
+    }
     root.current.children.slice(0, particles.length).forEach((child, index) => {
       const velocity = particles[index];
       child.position.set(velocity.x * t, velocity.y * t - 1.5 * t * t, velocity.z * t);
@@ -286,7 +345,15 @@ function EventBurst({ event, position }: { event: GameEvent; position: Vec2 }) {
     <group ref={root} position={[position.x, 0.65, position.z]}>
       {particles.map((_, index) => (
         <mesh key={index}>
-          {index % 3 === 0 ? <octahedronGeometry args={[0.09, 0]} /> : <sphereGeometry args={[0.065, 7, 6]} />}
+          {event.kind === 'payment' ? (
+            <cylinderGeometry args={[0.075, 0.075, 0.035, 10]} />
+          ) : event.kind === 'upgrade' ? (
+            <coneGeometry args={[0.085, 0.18, 8]} />
+          ) : event.kind === 'reputation' || event.kind === 'day' ? (
+            <octahedronGeometry args={[0.09, 0]} />
+          ) : (
+            <sphereGeometry args={[0.065, 7, 6]} />
+          )}
           <meshBasicMaterial color={color} transparent depthWrite={false} />
         </mesh>
       ))}
@@ -299,6 +366,15 @@ function EventBurst({ event, position }: { event: GameEvent; position: Vec2 }) {
 }
 
 function World({ snapshot }: { snapshot: GameSnapshot }) {
+  const serviceKind = snapshot.bartender.state === 'delivering'
+    ? 'delivering'
+    : snapshot.bartender.state === 'cleaning'
+      ? 'cleaning'
+      : null;
+  const serviceTable = serviceKind && snapshot.bartender.targetTableId !== null
+    ? snapshot.tables.find((table) => table.id === snapshot.bartender.targetTableId)
+    : null;
+
   return (
     <>
       <color attach="background" args={['#bde8df']} />
@@ -309,8 +385,8 @@ function World({ snapshot }: { snapshot: GameSnapshot }) {
         position={[7, 14, 8]}
         intensity={2.6}
         color="#fff0cf"
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
         shadow-camera-near={0.5}
         shadow-camera-far={45}
         shadow-camera-left={-13}
@@ -325,6 +401,7 @@ function World({ snapshot }: { snapshot: GameSnapshot }) {
       {snapshot.bartender.state === 'preparing' && <PourEffect />}
       {snapshot.patrons.map((patron) => <PatronCharacter key={patron.id} patron={patron} />)}
       <BartenderCharacter bartender={snapshot.bartender} />
+      {serviceKind && serviceTable && <TableActionEffect position={serviceTable.position} kind={serviceKind} />}
       {snapshot.lastEvent && (
         <EventBurst key={snapshot.lastEvent.id} event={snapshot.lastEvent} position={snapshot.bartender.position} />
       )}
@@ -351,7 +428,7 @@ export function BarScene({ engine, snapshot, onContextLost }: Props) {
         className={`game-canvas ${presentationUnavailable ? 'is-direct-visible' : ''}`}
         orthographic
         shadows
-        dpr={1}
+        dpr={[1, 1.35]}
         camera={{
           position: [11.8, 14.2, 16.2],
           rotation: [-0.7070944888, 0.5159883889, 0.3989877261],

@@ -60,6 +60,11 @@ function UpgradeCard({ definition, snapshot, engine }: { definition: UpgradeDefi
           <em>ур. {level}</em>
         </span>
         <span className="upgrade-description">{definition.description}</span>
+        <span className="level-pips" aria-hidden="true">
+          {Array.from({ length: definition.maxLevel }, (_, index) => (
+            <i key={index} className={index < level ? 'is-filled' : ''} />
+          ))}
+        </span>
       </span>
       <span className={`upgrade-price ${maxed ? 'is-maxed' : ''}`}>
         {maxed ? (
@@ -94,7 +99,7 @@ export function Hud({ engine, snapshot }: Props) {
   };
 
   return (
-    <div className="hud" aria-live="polite">
+    <div className={`hud ${snapshot.started ? 'is-running' : 'is-welcome'}`}>
       <header className="top-hud" inert={!snapshot.started}>
         <div className="brand-card">
           <span className="brand-mark">H&amp;H</span>
@@ -117,9 +122,11 @@ export function Hud({ engine, snapshot }: Props) {
           <button className="icon-button speed-button" onClick={() => click(engine.toggleSpeed)} aria-label={`Скорость игры x${snapshot.speedMultiplier}`}>
             <Icon name="time-speed" />
             <b>×{snapshot.speedMultiplier}</b>
+            <span className="control-label" aria-hidden="true">Скорость</span>
           </button>
           <button className="icon-button" onClick={() => click(engine.togglePause)} aria-label={snapshot.paused ? 'Продолжить' : 'Пауза'}>
             <Icon name={snapshot.paused ? 'play' : 'pause'} />
+            <span className="control-label" aria-hidden="true">{snapshot.paused ? 'Играть' : 'Пауза'}</span>
           </button>
           <button
             className={`icon-button ${snapshot.soundEnabled ? '' : 'is-muted'}`}
@@ -130,24 +137,53 @@ export function Hud({ engine, snapshot }: Props) {
             aria-label={snapshot.soundEnabled ? 'Выключить звук' : 'Включить звук'}
           >
             <Icon name="sound" />
+            <span className="control-label" aria-hidden="true">Звук</span>
           </button>
-          <button className={`icon-button upgrades-toggle ${upgradesOpen ? 'is-active' : ''}`} onClick={() => click(() => setUpgradesOpen((value) => !value))} aria-label="Улучшения бара">
-            <Icon name="upgrades" />
+          <button
+            className={`icon-button upgrades-toggle ${upgradesOpen ? 'is-active' : ''}`}
+            onClick={() => click(() => setUpgradesOpen((value) => !value))}
+            aria-label="Улучшения бара"
+            aria-expanded={snapshot.started && upgradesOpen}
+            aria-controls="upgrade-panel"
+          >
+            <Icon name="upgrade-arrow" />
+            <span className="control-label" aria-hidden="true">Апгрейд</span>
           </button>
         </nav>
       </header>
 
+      <button
+        type="button"
+        className={`upgrade-backdrop ${snapshot.started && upgradesOpen ? 'is-open' : ''}`}
+        onClick={() => click(() => setUpgradesOpen(false))}
+        aria-label="Закрыть меню улучшений"
+        aria-hidden={!snapshot.started || !upgradesOpen}
+        tabIndex={snapshot.started && upgradesOpen ? 0 : -1}
+        inert={!snapshot.started || !upgradesOpen}
+      />
+
       <aside
+        id="upgrade-panel"
         className={`upgrade-panel ${upgradesOpen ? 'is-open' : ''}`}
         aria-hidden={!snapshot.started || !upgradesOpen}
         inert={!snapshot.started || !upgradesOpen}
+        aria-labelledby="upgrade-panel-title"
       >
+        <span className="panel-handle" aria-hidden="true" />
         <div className="panel-heading">
           <div>
             <span className="eyebrow">МЕНЮ РАЗВИТИЯ</span>
-            <h2>Улучшения бара</h2>
+            <h2 id="upgrade-panel-title">Улучшения бара</h2>
           </div>
-          <Icon name="upgrades" />
+          <Icon name="upgrade-arrow" />
+          <button
+            type="button"
+            className="panel-close"
+            onClick={() => click(() => setUpgradesOpen(false))}
+            aria-label="Закрыть улучшения"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
         </div>
         <div className="drink-ribbon">
           <Icon name="assortment" />
@@ -167,25 +203,27 @@ export function Hud({ engine, snapshot }: Props) {
         </button>
       </aside>
 
-      <div className="bottom-status">
-        <div className="bartender-pill">
-          <span className="status-emoji">{bartenderStatus.emoji}</span>
-          <span>
-            <small>БАРМЕН</small>
-            <b>{bartenderStatus.label}</b>
-          </span>
+      {snapshot.started && (
+        <div className="bottom-status">
+          <div className="bartender-pill">
+            <span className="status-emoji">{bartenderStatus.emoji}</span>
+            <span>
+              <small>БАРМЕН</small>
+              <b>{bartenderStatus.label}</b>
+            </span>
+          </div>
+          <div className="room-pill">
+            <Icon name="customers" />
+            <span>
+              <small>ЗАЛ</small>
+              <b>{snapshot.patrons.length}/6 гостей · {snapshot.queueCount} ждут</b>
+            </span>
+          </div>
         </div>
-        <div className="room-pill">
-          <Icon name="customers" />
-          <span>
-            <small>ЗАЛ</small>
-            <b>{snapshot.patrons.length}/6 гостей · {snapshot.queueCount} ждут</b>
-          </span>
-        </div>
-      </div>
+      )}
 
       {snapshot.lastEvent && (
-        <div className={`event-toast event-${snapshot.lastEvent.kind}`} key={snapshot.lastEvent.id}>
+        <div className={`event-toast event-${snapshot.lastEvent.kind}`} key={snapshot.lastEvent.id} aria-live="polite" role="status">
           <span>{snapshot.lastEvent.kind === 'payment' ? '🪙' : snapshot.lastEvent.kind === 'upgrade' ? '⬆️' : snapshot.lastEvent.kind === 'reputation' ? '⭐' : '🎉'}</span>
           {snapshot.lastEvent.message}
         </div>

@@ -1,6 +1,6 @@
 import { RoundedBox, Sparkles } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { GUEST_CHAIR_OFFSET, TABLE_RADIUS } from '../game/config';
 import type { TableState } from '../game/types';
@@ -9,6 +9,7 @@ import { BeerMug } from './Character';
 const tileColors = ['#f7e1bb', '#ffd9b9', '#f2cda4'];
 
 function FloorTiles() {
+  const floor = useRef<THREE.InstancedMesh>(null);
   const tiles = useMemo(() => {
     const result: { x: number; z: number; color: string }[] = [];
     for (let x = -7; x <= 7; x += 1) {
@@ -18,15 +19,25 @@ function FloorTiles() {
     }
     return result;
   }, []);
+
+  useLayoutEffect(() => {
+    if (!floor.current) return;
+    const transform = new THREE.Object3D();
+    tiles.forEach((tile, index) => {
+      transform.position.set(tile.x, 0, tile.z);
+      transform.updateMatrix();
+      floor.current?.setMatrixAt(index, transform.matrix);
+      floor.current?.setColorAt(index, new THREE.Color(tile.color));
+    });
+    floor.current.instanceMatrix.needsUpdate = true;
+    if (floor.current.instanceColor) floor.current.instanceColor.needsUpdate = true;
+  }, [tiles]);
+
   return (
-    <group position={[0, 0.015, 0]}>
-      {tiles.map((tile) => (
-        <mesh key={`${tile.x}-${tile.z}`} receiveShadow position={[tile.x, 0, tile.z]}>
-          <boxGeometry args={[0.94, 0.035, 0.94]} />
-          <meshStandardMaterial color={tile.color} roughness={0.92} />
-        </mesh>
-      ))}
-    </group>
+    <instancedMesh ref={floor} args={[undefined, undefined, tiles.length]} receiveShadow position={[0, 0.015, 0]}>
+      <boxGeometry args={[0.94, 0.035, 0.94]} />
+      <meshStandardMaterial roughness={0.92} />
+    </instancedMesh>
   );
 }
 
@@ -80,6 +91,34 @@ function DirtyWisps() {
   );
 }
 
+function TableCandle({ seed }: { seed: number }) {
+  const flame = useRef<THREE.MeshStandardMaterial>(null);
+  const glow = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    const pulse = 0.92 + Math.sin(clock.elapsedTime * 4.7 + seed * 1.73) * 0.08 + Math.sin(clock.elapsedTime * 7.9 + seed) * 0.04;
+    if (flame.current) flame.current.emissiveIntensity = 1.35 + pulse * 0.75;
+    if (glow.current) glow.current.scale.setScalar(pulse);
+  });
+
+  return (
+    <group position={[0.29, 0.91, -0.18]}>
+      <mesh castShadow position={[0, 0.11, 0]}>
+        <cylinderGeometry args={[0.07, 0.08, 0.22, 10]} />
+        <meshStandardMaterial color="#fff0c9" roughness={0.6} />
+      </mesh>
+      <mesh position={[0, 0.25, 0]}>
+        <sphereGeometry args={[0.07, 10, 8]} />
+        <meshStandardMaterial ref={flame} color="#ffd35c" emissive="#ff9d3d" emissiveIntensity={2} roughness={0.35} />
+      </mesh>
+      <mesh ref={glow} position={[0, 0.25, 0]}>
+        <sphereGeometry args={[0.15, 10, 8]} />
+        <meshBasicMaterial color="#ffc55c" transparent opacity={0.1} depthWrite={false} />
+      </mesh>
+    </group>
+  );
+}
+
 function Table({ table }: { table: TableState }) {
   return (
     <group position={[table.position.x, 0, table.position.z]}>
@@ -103,16 +142,7 @@ function Table({ table }: { table: TableState }) {
         <circleGeometry args={[0.18, 20]} />
         <meshStandardMaterial color="#ffe4a7" roughness={0.8} />
       </mesh>
-      <group position={[0.29, 0.91, -0.18]}>
-        <mesh castShadow position={[0, 0.11, 0]}>
-          <cylinderGeometry args={[0.07, 0.08, 0.22, 10]} />
-          <meshStandardMaterial color="#fff0c9" roughness={0.6} />
-        </mesh>
-        <mesh position={[0, 0.25, 0]}>
-          <sphereGeometry args={[0.07, 10, 8]} />
-          <meshStandardMaterial color="#ffd35c" emissive="#ff9d3d" emissiveIntensity={1.4} roughness={0.35} />
-        </mesh>
-      </group>
+      <TableCandle seed={table.id} />
       <Chair position={[0, 0, GUEST_CHAIR_OFFSET]} rotation={Math.PI} />
       <Chair position={[-0.96, 0, -0.05]} rotation={-Math.PI / 2} />
       {table.dirty && (
@@ -208,6 +238,15 @@ function BarCounter() {
 }
 
 function PendantLamp({ position, color }: { position: [number, number, number]; color: string }) {
+  const bulb = useRef<THREE.MeshStandardMaterial>(null);
+  const glow = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    const pulse = 0.96 + Math.sin(clock.elapsedTime * 2.1 + position[0]) * 0.04;
+    if (bulb.current) bulb.current.emissiveIntensity = 2.2 + pulse * 0.7;
+    if (glow.current) glow.current.scale.setScalar(pulse);
+  });
+
   return (
     <group position={position}>
       <mesh castShadow position={[0, 0.78, 0]}>
@@ -220,9 +259,12 @@ function PendantLamp({ position, color }: { position: [number, number, number]; 
       </mesh>
       <mesh position={[0, -0.21, 0]}>
         <sphereGeometry args={[0.13, 12, 9]} />
-        <meshStandardMaterial color="#fff1b2" emissive="#ffb545" emissiveIntensity={2.4} roughness={0.3} />
+        <meshStandardMaterial ref={bulb} color="#fff1b2" emissive="#ffb545" emissiveIntensity={2.8} roughness={0.3} />
       </mesh>
-      <pointLight position={[0, -0.35, 0]} intensity={5.5} distance={4.2} color="#ffd17a" decay={2} />
+      <mesh ref={glow} position={[0, -0.21, 0]}>
+        <sphereGeometry args={[0.28, 12, 9]} />
+        <meshBasicMaterial color="#ffd27a" transparent opacity={0.08} depthWrite={false} />
+      </mesh>
     </group>
   );
 }

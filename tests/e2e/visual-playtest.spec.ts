@@ -32,7 +32,16 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
   await expect(page.locator('.pause-scrim')).toHaveCount(0);
 
   const panel = page.locator('.upgrade-panel');
-  if (await panel.evaluate((element) => element.classList.contains('is-open'))) {
+  if (testInfo.project.name === 'mobile-chromium') {
+    await page.getByRole('button', { name: 'Улучшения бара' }).click();
+    await expect(panel).toHaveClass(/is-open/);
+    await page.waitForTimeout(350);
+    await page.screenshot({
+      path: `output/playwright/upgrades-${testInfo.project.name}.png`,
+      fullPage: false,
+    });
+    await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
+  } else if (await panel.evaluate((element) => element.classList.contains('is-open'))) {
     await page.getByRole('button', { name: 'Улучшения бара' }).click();
   }
 
@@ -40,7 +49,7 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
   await expect(page.locator('.game-canvas')).toHaveCSS('visibility', 'hidden');
   await expect(page.locator('.world-status-marker').first()).toBeVisible();
   await expect(page.locator('.pause-scrim')).toHaveCount(0);
-  await expect(page.getByText('БАРМЕН', { exact: true })).toBeVisible();
+  await expect(page.locator('.bottom-status')).toBeVisible();
 
   const pageImage = await page.screenshot({
     path: `output/playwright/running-${testInfo.project.name}.png`,

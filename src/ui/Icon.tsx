@@ -11,6 +11,7 @@ export type IconName =
   | 'advertising'
   | 'cash'
   | 'upgrades'
+  | 'upgrade-arrow'
   | 'pause'
   | 'play'
   | 'sound'

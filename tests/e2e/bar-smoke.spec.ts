@@ -4,7 +4,7 @@ test('opens the bar and exposes the full upgrade surface', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /Хмель/ })).toBeVisible();
   await page.getByRole('button', { name: 'Открыть бар' }).click();
-  await expect(page.getByText('БАРМЕН', { exact: true })).toBeVisible();
+  await expect(page.locator('.bottom-status')).toBeVisible();
   const panel = page.locator('.upgrade-panel');
   if (!(await panel.evaluate((element) => element.classList.contains('is-open')))) {
     await page.getByRole('button', { name: 'Улучшения бара' }).click();
@@ -35,6 +35,57 @@ test('keeps sound available and collapsed upgrades inert on mobile', async ({ pa
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   await expect(page.getByRole('button', { name: /звук/i })).toBeVisible();
   await expect(page.locator('.upgrade-panel')).toHaveAttribute('inert', '');
+});
+
+test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({ page }) => {
+  test.setTimeout(90_000);
+  for (const viewport of [
+    { width: 360, height: 800 },
+    { width: 390, height: 844 },
+    { width: 430, height: 932 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Открыть бар' }).click();
+
+    const dock = page.locator('.control-strip');
+    const dockBounds = await dock.boundingBox();
+    expect(dockBounds).not.toBeNull();
+    expect(dockBounds!.y + dockBounds!.height).toBeLessThanOrEqual(viewport.height + 1);
+    expect(dockBounds!.height).toBeGreaterThanOrEqual(70);
+
+    const buttons = dock.locator('.icon-button');
+    await expect(buttons).toHaveCount(4);
+    for (let index = 0; index < 4; index += 1) {
+      const bounds = await buttons.nth(index).boundingBox();
+      expect(bounds).not.toBeNull();
+      expect(bounds!.width).toBeGreaterThanOrEqual(44);
+      expect(bounds!.height).toBeGreaterThanOrEqual(44);
+    }
+
+    const statusBounds = await page.locator('.bottom-status').boundingBox();
+    expect(statusBounds).not.toBeNull();
+    expect(statusBounds!.y + statusBounds!.height).toBeLessThanOrEqual(dockBounds!.y + 1);
+
+    const upgradeButton = page.getByRole('button', { name: 'Улучшения бара' });
+    await expect(upgradeButton).toHaveAttribute('aria-expanded', 'false');
+    await upgradeButton.click();
+    await expect(upgradeButton).toHaveAttribute('aria-expanded', 'true');
+    await expect(upgradeButton.locator('img')).toHaveAttribute('src', /upgrade-arrow\.webp$/);
+
+    const panel = page.locator('.upgrade-panel');
+    await expect(panel).toHaveClass(/is-open/);
+    const panelBounds = await panel.boundingBox();
+    expect(panelBounds).not.toBeNull();
+    expect(panelBounds!.x).toBeGreaterThanOrEqual(0);
+    expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(viewport.width + 1);
+    expect(panelBounds!.y + panelBounds!.height).toBeLessThanOrEqual(dockBounds!.y + 1);
+
+    await panel.locator('.upgrade-card').last().scrollIntoViewIfNeeded();
+    await expect(panel.locator('.upgrade-card').last()).toBeVisible();
+    await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
+    await expect(upgradeButton).toHaveAttribute('aria-expanded', 'false');
+  }
 });
 
 test('fits the welcome card in a landscape phone viewport', async ({ page }) => {

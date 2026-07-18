@@ -24,8 +24,10 @@ body,
 #root {
   width: 100%;
   height: 100%;
+  min-height: 100dvh;
   margin: 0;
   overflow: hidden;
+  overscroll-behavior: none;
   background: #bde8df;
 }
 
@@ -42,12 +44,14 @@ input {
 
 button {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .game-shell {
   position: relative;
   width: 100%;
   height: 100%;
+  min-height: 100dvh;
   isolation: isolate;
   background:
     radial-gradient(circle at 50% 14%, rgba(255, 247, 206, 0.7), transparent 38%),
@@ -255,6 +259,10 @@ button {
   gap: 8px;
 }
 
+.control-label {
+  display: none;
+}
+
 .icon-button {
   position: relative;
   display: grid;
@@ -328,8 +336,22 @@ button {
   object-fit: cover;
 }
 
+.upgrade-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  padding: 0;
+  pointer-events: none;
+  background: rgba(3, 34, 42, 0.46);
+  border: 0;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
 .upgrade-panel {
   position: absolute;
+  z-index: 30;
   top: 94px;
   right: max(16px, env(safe-area-inset-right));
   bottom: max(18px, env(safe-area-inset-bottom));
@@ -360,7 +382,17 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   padding: 2px 4px 12px;
+}
+
+.panel-heading > div {
+  min-width: 0;
+  margin-right: auto;
+}
+
+.panel-handle {
+  display: none;
 }
 
 .panel-heading h2 {
@@ -375,6 +407,36 @@ button {
   border: 2px solid rgba(255, 255, 255, 0.55);
   border-radius: 17px;
   box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18);
+}
+
+.panel-close {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  padding: 0;
+  cursor: pointer;
+  place-items: center;
+  color: #fff9e7;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.11);
+  border: 2px solid rgba(255, 255, 255, 0.34);
+  border-radius: 14px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 0.14s ease, background 0.14s ease;
+}
+
+.panel-close:hover,
+.panel-close:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.panel-close:active {
+  transform: translateY(1px);
 }
 
 .eyebrow {
@@ -505,6 +567,25 @@ button {
   line-height: 1.25;
 }
 
+.level-pips {
+  display: flex;
+  gap: 3px;
+  margin-top: 6px;
+}
+
+.level-pips i {
+  width: 14px;
+  height: 4px;
+  background: rgba(8, 47, 57, 0.16);
+  border-radius: 99px;
+  box-shadow: inset 0 1px 1px rgba(8, 47, 57, 0.14);
+}
+
+.level-pips i.is-filled {
+  background: linear-gradient(90deg, #20bd75, #76e493);
+  box-shadow: 0 1px 3px rgba(15, 143, 90, 0.32);
+}
+
 .upgrade-price {
   display: flex;
   min-width: 54px;
@@ -571,6 +652,7 @@ button {
 
 .bottom-status {
   position: absolute;
+  z-index: 10;
   bottom: max(18px, env(safe-area-inset-bottom));
   left: max(18px, env(safe-area-inset-left));
   display: flex;
@@ -628,6 +710,7 @@ button {
 
 .event-toast {
   position: absolute;
+  z-index: 15;
   top: 96px;
   left: 50%;
   display: flex;
@@ -646,6 +729,13 @@ button {
   box-shadow: var(--shadow);
   animation: toast-pop 2.6s both;
   transform: translateX(-50%);
+}
+
+.event-toast.event-upgrade {
+  color: #073f31;
+  background: linear-gradient(145deg, #eaffc8, #68e48a);
+  border-color: #f5ffd9;
+  box-shadow: 0 14px 34px rgba(14, 109, 73, 0.28), 0 4px 0 #218b5a;
 }
 
 .event-toast span {
@@ -1126,6 +1216,345 @@ button {
   .control-strip { gap: 3px; }
   .icon-button { width: 38px; height: 44px; }
   .icon-button .game-icon { width: 31px; height: 34px; }
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+  .scene-vignette {
+    box-shadow: inset 0 0 54px rgba(7, 63, 70, 0.17);
+  }
+
+  .world-decoration-marker { scale: 0.36; }
+
+  .top-hud {
+    top: 0;
+    display: grid;
+    grid-template-columns: minmax(136px, 36vw) minmax(0, 1fr);
+    gap: 6px;
+    padding: max(7px, env(safe-area-inset-top)) max(7px, env(safe-area-inset-right)) 0 max(7px, env(safe-area-inset-left));
+    align-items: stretch;
+  }
+
+  .brand-card {
+    width: 100%;
+    min-width: 0;
+    height: 58px;
+    gap: 6px;
+    padding: 6px 7px 8px 6px;
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(8, 47, 57, 0.22), 0 2px 0 rgba(8, 47, 57, 0.18);
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    font-size: 12px;
+    border-radius: 11px 11px 15px 11px;
+  }
+
+  .brand-copy strong { font-size: clamp(8px, 2.4vw, 11px); letter-spacing: 0.04em; }
+  .brand-copy small { margin-top: 3px; font-size: 7px; }
+  .day-track { right: 7px; bottom: 4px; left: 50px; height: 3px; }
+
+  .currency-strip {
+    grid-row: 1;
+    grid-column: 2;
+    width: 100%;
+    height: 58px;
+    gap: 3px;
+    padding: 4px;
+    margin: 0;
+    align-self: stretch;
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(8, 47, 57, 0.22), 0 2px 0 rgba(8, 47, 57, 0.18);
+  }
+
+  .currency-chip {
+    min-width: 0;
+    height: 48px;
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 3px 4px 3px 2px;
+    overflow: hidden;
+    border-radius: 11px;
+  }
+
+  .currency-chip .game-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    margin-right: 3px;
+    border-radius: 8px;
+  }
+
+  .currency-chip strong {
+    min-width: 0;
+    overflow: hidden;
+    font-size: clamp(10px, 3.1vw, 13px);
+    text-overflow: ellipsis;
+  }
+
+  .control-strip {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    display: grid;
+    min-height: calc(74px + env(safe-area-inset-bottom));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding: 6px max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    background: linear-gradient(180deg, rgba(7, 67, 75, 0.95), rgba(4, 44, 54, 0.98));
+    border-top: 2px solid rgba(255, 245, 215, 0.88);
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -12px 34px rgba(4, 37, 45, 0.25);
+  }
+
+  .hud.is-welcome .control-strip {
+    display: none;
+  }
+
+  .icon-button {
+    display: grid;
+    width: auto;
+    min-width: 0;
+    height: 62px;
+    grid-template-rows: 38px 12px;
+    gap: 2px;
+    padding: 4px 3px 3px;
+    place-items: center;
+    border-radius: 15px;
+    box-shadow: 0 4px 0 rgba(2, 30, 37, 0.42), inset 0 1px 0 #fff;
+  }
+
+  .icon-button:hover,
+  .icon-button:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(2, 30, 37, 0.38), inset 0 1px 0 #fff;
+  }
+
+  .icon-button .game-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  .control-label {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--ink);
+    font-size: 9px;
+    font-weight: 1000;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .speed-button b {
+    top: 1px;
+    right: 3px;
+    bottom: auto;
+    min-width: 24px;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+
+  .icon-button.is-muted::after {
+    top: 22px;
+    width: 36px;
+  }
+
+  .upgrades-toggle.is-active {
+    background: #ddffc8;
+    box-shadow: 0 0 0 2px rgba(96, 235, 133, 0.42), 0 4px 0 rgba(2, 30, 37, 0.42);
+  }
+
+  .upgrade-backdrop {
+    right: 0;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    left: 0;
+    display: block;
+  }
+
+  .upgrade-backdrop.is-open {
+    pointer-events: auto;
+    opacity: 1;
+  }
+
+  .upgrade-panel {
+    top: auto;
+    right: max(6px, env(safe-area-inset-right));
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    left: max(6px, env(safe-area-inset-left));
+    width: auto;
+    height: min(70dvh, 640px);
+    max-height: calc(100dvh - 154px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding: 9px 11px 11px;
+    border-radius: 26px 26px 18px 18px;
+    transform: translateY(calc(100% + 24px)) scale(0.985);
+    transition: transform 0.28s cubic-bezier(0.2, 0.82, 0.2, 1), opacity 0.18s ease;
+  }
+
+  .upgrade-panel.is-open {
+    transform: translateY(0) scale(1);
+  }
+
+  .panel-handle {
+    display: block;
+    width: 46px;
+    height: 5px;
+    flex: 0 0 5px;
+    margin: 0 auto 5px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 99px;
+  }
+
+  .panel-heading {
+    gap: 7px;
+    padding: 0 2px 8px;
+  }
+
+  .panel-heading h2 { font-size: 20px; }
+  .panel-heading > .game-icon { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; }
+  .panel-close { width: 44px; height: 44px; flex-basis: 44px; }
+
+  .drink-ribbon {
+    min-height: 55px;
+    padding: 5px 8px;
+    margin-bottom: 7px;
+    border-radius: 14px;
+  }
+
+  .drink-ribbon .game-icon { width: 42px; height: 42px; }
+
+  .upgrade-list {
+    padding-right: 3px;
+    overscroll-behavior: contain;
+  }
+
+  .upgrade-card {
+    min-height: 74px;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 7px;
+    padding: 7px;
+    margin-bottom: 7px;
+    border-radius: 15px;
+  }
+
+  .upgrade-icon { width: 50px; height: 50px; border-radius: 13px; }
+  .upgrade-description { max-width: none; font-size: 9px; }
+  .level-pips { margin-top: 4px; }
+  .level-pips i { width: 11px; }
+  .upgrade-price { min-width: 48px; height: 32px; padding: 2px 5px; }
+  .reset-button { min-height: 48px; flex: 0 0 48px; }
+
+  .bottom-status {
+    right: max(7px, env(safe-area-inset-right));
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    left: max(7px, env(safe-area-inset-left));
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 5px;
+  }
+
+  .bartender-pill,
+  .room-pill {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    gap: 6px;
+    padding: 4px 7px 4px 4px;
+    border-radius: 13px;
+    box-shadow: 0 6px 18px rgba(8, 47, 57, 0.2), 0 2px 0 rgba(8, 47, 57, 0.18);
+  }
+
+  .status-emoji,
+  .room-pill .game-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    font-size: 18px;
+    border-radius: 9px;
+  }
+
+  .bartender-pill small,
+  .room-pill small { display: none; }
+
+  .bartender-pill b,
+  .room-pill b {
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .upgrade-panel.is-open ~ .bottom-status {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  .event-toast {
+    top: calc(72px + env(safe-area-inset-top));
+    width: max-content;
+    min-width: 154px;
+    max-width: calc(100vw - 28px);
+    min-height: 42px;
+    padding: 7px 12px;
+    font-size: 11px;
+  }
+
+  .pause-scrim {
+    padding: 70px 10px calc(82px + env(safe-area-inset-bottom));
+  }
+
+  .pause-card {
+    width: min(260px, calc(100vw - 32px));
+    padding: 18px;
+  }
+
+  .welcome-layer {
+    padding: calc(74px + env(safe-area-inset-top)) 9px max(12px, env(safe-area-inset-bottom));
+    place-items: center;
+  }
+
+  .welcome-card {
+    width: min(430px, calc(100vw - 18px));
+    max-height: calc(100dvh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding: 20px 17px;
+    border-radius: 24px;
+  }
+
+  .welcome-card h1 { font-size: clamp(34px, 10vw, 42px); }
+  .welcome-card p { font-size: 12px; }
+  .start-button { min-height: 56px; }
+
+  .world-emoji {
+    height: 38px;
+    border-radius: 13px 13px 13px 5px;
+  }
+
+  .world-emoji > span {
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+  }
+
+  .world-emoji small { display: none; }
+}
+
+@media (max-width: 380px) and (max-height: 760px) and (orientation: portrait) {
+  .brand-card,
+  .currency-strip { height: 54px; }
+  .currency-chip { height: 44px; }
+  .brand-copy small { display: none; }
+  .upgrade-panel { height: 66dvh; }
+  .welcome-card p { margin-top: 8px; margin-bottom: 10px; }
+  .welcome-loop { margin-bottom: 11px; }
 }
 
 @media (max-height: 520px) and (orientation: landscape) {
