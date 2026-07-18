@@ -1,9 +1,10 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import * as THREE from 'three';
 import type { GameEngine } from '../game/GameEngine';
 import type { GameEvent, GameSnapshot, Vec2 } from '../game/types';
-import { BartenderCharacter, PatronCharacter } from './Character';
+import { BARTENDER_EMOJI, BartenderCharacter, CUSTOMER_EMOJI, PatronCharacter } from './Character';
 import { BarEnvironment } from './Environment';
 
 function SimulationLoop({ engine }: { engine: GameEngine }) {
@@ -27,18 +28,182 @@ function ContextLossGuard({ onContextLost }: { onContextLost: () => void }) {
   return null;
 }
 
+function CanvasPresenter({
+  target,
+  onUnavailable,
+}: {
+  target: { current: HTMLCanvasElement | null };
+  onUnavailable: () => void;
+}) {
+  const { gl, scene, camera } = useThree();
+  const context = useRef<CanvasRenderingContext2D | null>(null);
+  const lastPresentedAt = useRef(-Infinity);
+  const failureReported = useRef(false);
+
+  useFrame(({ clock }) => {
+    if (clock.elapsedTime - lastPresentedAt.current < 1 / 30) return;
+    lastPresentedAt.current = clock.elapsedTime;
+    gl.render(scene, camera);
+    const source = gl.domElement;
+    const destination = target.current;
+    if (!destination) return;
+    if (destination.width !== source.width || destination.height !== source.height) {
+      destination.width = source.width;
+      destination.height = source.height;
+    }
+    const drawingContext = context.current ?? destination.getContext('2d', { alpha: false });
+    if (!drawingContext) {
+      if (!failureReported.current) {
+        failureReported.current = true;
+        onUnavailable();
+      }
+      return;
+    }
+    context.current = drawingContext;
+    drawingContext.imageSmoothingEnabled = true;
+    drawingContext.drawImage(source, 0, 0, destination.width, destination.height);
+  }, 1);
+
+  return null;
+}
+
+function WorldStatusProjector({ target }: { target: RefObject<HTMLDivElement> }) {
+  const { camera, size } = useThree();
+  const projected = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame((_, delta) => {
+    const container = target.current;
+    if (!container) return;
+    container.querySelectorAll<HTMLElement>('[data-world-x]').forEach((marker) => {
+      projected
+        .set(
+          Number(marker.dataset.worldX),
+          Number(marker.dataset.worldY),
+          Number(marker.dataset.worldZ),
+        )
+        .project(camera);
+      const targetLeft = (projected.x * 0.5 + 0.5) * size.width;
+      const targetTop = (-projected.y * 0.5 + 0.5) * size.height;
+      const currentLeft = Number.parseFloat(marker.style.left);
+      const currentTop = Number.parseFloat(marker.style.top);
+      const blend = 1 - Math.exp(-delta * 12);
+      const nextLeft = Number.isFinite(currentLeft)
+        ? THREE.MathUtils.lerp(currentLeft, targetLeft, blend)
+        : targetLeft;
+      const nextTop = Number.isFinite(currentTop)
+        ? THREE.MathUtils.lerp(currentTop, targetTop, blend)
+        : targetTop;
+
+      marker.style.left = `${nextLeft}px`;
+      marker.style.top = `${nextTop}px`;
+      marker.style.visibility = projected.z >= -1 && projected.z <= 1 ? 'visible' : 'hidden';
+      marker.style.zIndex = String(Math.round((1 - projected.z) * 100));
+    });
+  }, 0.5);
+
+  return null;
+}
+
+function StatusMarker({
+  x,
+  y,
+  z,
+  emoji,
+  label,
+  bartender = false,
+}: {
+  x: number;
+  y: number;
+  z: number;
+  emoji: string;
+  label: string;
+  bartender?: boolean;
+}) {
+  return (
+    <div
+      className="world-status-marker"
+      data-world-x={x}
+      data-world-y={y}
+      data-world-z={z}
+    >
+      <div
+        className={`world-emoji ${bartender ? 'is-bartender' : ''}`}
+        title={label}
+        aria-label={label}
+      >
+        <span>{emoji}</span>
+        <small>{label}</small>
+      </div>
+    </div>
+  );
+}
+
+function DecorationMarker({ x, y, z, children }: { x: number; y: number; z: number; children: ReactNode }) {
+  return (
+    <div
+      className="world-decoration-marker"
+      data-world-x={x}
+      data-world-y={y}
+      data-world-z={z}
+      aria-hidden="true"
+    >
+      {children}
+    </div>
+  );
+}
+
+function WorldStatusOverlay({ snapshot, target }: { snapshot: GameSnapshot; target: RefObject<HTMLDivElement> }) {
+  return (
+    <div ref={target} className="world-status-overlay">
+      <DecorationMarker x={7.2} y={3.52} z={4.6}>
+        <div className="open-sign">OPEN</div>
+      </DecorationMarker>
+      <DecorationMarker x={-5.7} y={2.15} z={-5.68}>
+        <div className="wall-poster">GOOD<br /><b>VIBES</b></div>
+      </DecorationMarker>
+      <DecorationMarker x={3.6} y={2.65} z={-5.72}>
+        <div className="neon-logo"><span>ХМЕЛЬ</span><i>&amp;</i><b>МЁД</b></div>
+      </DecorationMarker>
+      {snapshot.patrons.map((patron) => {
+        const seated = !['walking_in', 'leaving'].includes(patron.state);
+        const status = CUSTOMER_EMOJI[patron.state];
+        return (
+          <StatusMarker
+            key={patron.id}
+            x={patron.position.x}
+            y={seated ? 2.16 : 2.47}
+            z={patron.position.z}
+            emoji={status.emoji}
+            label={status.label}
+          />
+        );
+      })}
+      <StatusMarker
+        x={snapshot.bartender.position.x}
+        y={2.47}
+        z={snapshot.bartender.position.z}
+        emoji={BARTENDER_EMOJI[snapshot.bartender.state].emoji}
+        label={BARTENDER_EMOJI[snapshot.bartender.state].label}
+        bartender
+      />
+    </div>
+  );
+}
+
 function CameraRig() {
   const { camera, size } = useThree();
 
-  useEffect(() => {
+  useFrame(() => {
     if (!(camera instanceof THREE.OrthographicCamera)) return;
     camera.position.set(11.8, 14.2, 16.2);
     const baseZoom = size.width < 560 ? 33 : size.width < 900 ? 43 : size.width < 1250 ? 51 : 58;
-    camera.zoom = baseZoom;
+    if (camera.zoom !== baseZoom) {
+      camera.zoom = baseZoom;
+      camera.updateProjectionMatrix();
+    }
     camera.lookAt(-0.25, 0.4, 0.05);
-    camera.updateProjectionMatrix();
     camera.updateMatrixWorld(true);
-  }, [camera, size.width]);
+  }, -2);
   return null;
 }
 
@@ -175,33 +340,50 @@ type Props = {
 };
 
 export function BarScene({ engine, snapshot, onContextLost }: Props) {
+  const presentationCanvas = useRef<HTMLCanvasElement>(null);
+  const statusOverlay = useRef<HTMLDivElement>(null!);
+  const [presentationUnavailable, setPresentationUnavailable] = useState(false);
+
   return (
-    <Canvas
-      key={snapshot.started ? 'running-bar' : 'welcome-bar'}
-      className="game-canvas"
-      orthographic
-      shadows
-      dpr={1}
-      camera={{
-        position: [11.8, 14.2, 16.2],
-        rotation: [-0.7070944888, 0.5159883889, 0.3989877261],
-        zoom: 58,
-        near: 0.1,
-        far: 80,
-      }}
-      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-      onCreated={({ gl }) => {
-        gl.outputColorSpace = THREE.SRGBColorSpace;
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 1.12;
-        gl.shadowMap.type = THREE.PCFSoftShadowMap;
-      }}
-    >
-      <Suspense fallback={null}>
-        <ContextLossGuard onContextLost={onContextLost} />
-        <SimulationLoop engine={engine} />
-        <World snapshot={snapshot} />
-      </Suspense>
-    </Canvas>
+    <>
+      <Canvas
+        key={snapshot.started ? 'running-bar' : 'welcome-bar'}
+        className={`game-canvas ${presentationUnavailable ? 'is-direct-visible' : ''}`}
+        orthographic
+        shadows
+        dpr={1}
+        camera={{
+          position: [11.8, 14.2, 16.2],
+          rotation: [-0.7070944888, 0.5159883889, 0.3989877261],
+          zoom: 58,
+          near: 0.1,
+          far: 80,
+        }}
+        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+        onCreated={({ gl }) => {
+          gl.outputColorSpace = THREE.SRGBColorSpace;
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.toneMappingExposure = 1.12;
+          gl.shadowMap.type = THREE.PCFSoftShadowMap;
+        }}
+      >
+        <Suspense fallback={null}>
+          <ContextLossGuard onContextLost={onContextLost} />
+          <SimulationLoop engine={engine} />
+          <World snapshot={snapshot} />
+          <WorldStatusProjector target={statusOverlay} />
+          <CanvasPresenter
+            target={presentationCanvas}
+            onUnavailable={() => setPresentationUnavailable(true)}
+          />
+        </Suspense>
+      </Canvas>
+      <canvas
+        ref={presentationCanvas}
+        className={`presentation-canvas ${presentationUnavailable ? 'is-disabled' : ''}`}
+        aria-hidden="true"
+      />
+      <WorldStatusOverlay snapshot={snapshot} target={statusOverlay} />
+    </>
   );
 }

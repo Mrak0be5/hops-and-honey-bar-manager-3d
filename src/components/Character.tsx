@@ -1,10 +1,10 @@
-import { Html, RoundedBox, Sparkles } from '@react-three/drei';
+import { RoundedBox, Sparkles } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { Bartender, Patron, PatronState, Vec2 } from '../game/types';
 
-const CUSTOMER_EMOJI: Record<PatronState, { emoji: string; label: string }> = {
+export const CUSTOMER_EMOJI: Record<PatronState, { emoji: string; label: string }> = {
   walking_in: { emoji: '🚪', label: 'Ищет столик' },
   waiting_order: { emoji: '🙋', label: 'Ждёт бармена' },
   ordering: { emoji: '📝', label: 'Делает заказ' },
@@ -15,7 +15,7 @@ const CUSTOMER_EMOJI: Record<PatronState, { emoji: string; label: string }> = {
   leaving: { emoji: '😊', label: 'Уходит счастливым' },
 };
 
-const BARTENDER_EMOJI: Record<Bartender['state'], { emoji: string; label: string }> = {
+export const BARTENDER_EMOJI: Record<Bartender['state'], { emoji: string; label: string }> = {
   idle: { emoji: '👀', label: 'Ищет задачу' },
   to_order: { emoji: '🏃', label: 'Идёт к гостю' },
   taking_order: { emoji: '📝', label: 'Принимает заказ' },
@@ -38,17 +38,6 @@ const PALETTES = [
   { shirt: '#5f76df', trousers: '#523c3b', hair: '#55311f', skin: '#c17b57' },
   { shirt: '#69b848', trousers: '#313754', hair: '#292423', skin: '#f0c1a0' },
 ];
-
-function WorldEmoji({ emoji, label, bartender = false, seated = false }: { emoji: string; label: string; bartender?: boolean; seated?: boolean }) {
-  return (
-    <Html position={[0, seated ? 2.14 : 2.42, 0]} center distanceFactor={9.5} zIndexRange={[4, 0]} wrapperClass="world-html-layer">
-      <div className={`world-emoji ${bartender ? 'is-bartender' : ''}`} title={label} aria-label={label}>
-        <span>{emoji}</span>
-        <small>{label}</small>
-      </div>
-    </Html>
-  );
-}
 
 export function BeerMug({ color = '#e9a62f', dirty = false, scale = 1 }: { color?: string; dirty?: boolean; scale?: number }) {
   return (
@@ -100,10 +89,9 @@ type HumanoidProps = {
   carryingDrink?: string | null;
   carryingDirty?: boolean;
   activity: PatronState | Bartender['state'];
-  emoji: { emoji: string; label: string };
 };
 
-function Humanoid({ position, target, palette, moving, seated = false, drinking = false, bartender = false, carryingDrink, carryingDirty, activity, emoji }: HumanoidProps) {
+function Humanoid({ position, target, palette, moving, seated = false, drinking = false, bartender = false, carryingDrink, carryingDirty, activity }: HumanoidProps) {
   const root = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
   const head = useRef<THREE.Group>(null);
@@ -213,7 +201,6 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
 
   return (
     <group ref={root} name={bartender ? 'bartender-character' : 'patron-character'} position={[position.x, seated ? 0.015 : 0.05, position.z]}>
-      <WorldEmoji emoji={emoji.emoji} label={emoji.label} bartender={bartender} seated={seated} />
       <group ref={body}>
         <group ref={head} position={[0, 1.62, 0]}>
           <mesh castShadow>
@@ -373,7 +360,6 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
 }
 
 export function PatronCharacter({ patron }: { patron: Patron }) {
-  const emoji = CUSTOMER_EMOJI[patron.state];
   const seated = !['walking_in', 'leaving'].includes(patron.state);
   const moving = patron.state === 'walking_in' || patron.state === 'leaving';
   return (
@@ -385,7 +371,6 @@ export function PatronCharacter({ patron }: { patron: Patron }) {
       seated={seated}
       drinking={patron.state === 'drinking'}
       activity={patron.state}
-      emoji={emoji}
     />
   );
 }
@@ -402,7 +387,6 @@ export function BartenderCharacter({ bartender }: { bartender: Bartender }) {
       carryingDrink={bartender.carryingDrink?.color ?? null}
       carryingDirty={bartender.carryingDirty}
       activity={bartender.state}
-      emoji={BARTENDER_EMOJI[bartender.state]}
     />
   );
 }

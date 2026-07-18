@@ -1,4 +1,4 @@
-import { Float, Html, RoundedBox, Sparkles } from '@react-three/drei';
+import { RoundedBox, Sparkles } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -263,9 +263,6 @@ function Entrance() {
         <sphereGeometry args={[0.08, 10, 8]} />
         <meshStandardMaterial color="#ffe27d" metalness={0.45} roughness={0.25} />
       </mesh>
-      <Html center position={[0, 3.52, 0]} transform distanceFactor={8} zIndexRange={[2, 0]} wrapperClass="world-html-layer">
-        <div className="open-sign">OPEN</div>
-      </Html>
     </group>
   );
 }
@@ -332,15 +329,7 @@ export function BarEnvironment({ tables }: { tables: TableState[] }) {
         <RoundedBox args={[2.65, 1.05, 0.12]} radius={0.12} smoothness={3}>
           <meshStandardMaterial color="#f7d377" roughness={0.66} />
         </RoundedBox>
-        <Html center position={[0, 0, 0.1]} transform distanceFactor={7} zIndexRange={[2, 0]} wrapperClass="world-html-layer">
-          <div className="wall-poster">GOOD<br /><b>VIBES</b></div>
-        </Html>
       </group>
-      <Float speed={1.5} rotationIntensity={0.03} floatIntensity={0.08}>
-        <Html center position={[3.6, 2.65, -5.72]} transform distanceFactor={7} zIndexRange={[2, 0]} wrapperClass="world-html-layer">
-          <div className="neon-logo"><span>ХМЕЛЬ</span><i>&amp;</i><b>МЁД</b></div>
-        </Html>
-      </Float>
       <Sparkles count={22} scale={[7, 2.4, 1]} position={[0, 1.5, -5.25]} size={1.4} speed={0.22} color="#ffd66f" />
     </group>
   );

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-test('plays a complete seated guest service cycle', async ({ page }, testInfo) => {
+test('plays a seated guest through drinking and payment', async ({ page }, testInfo) => {
   test.setTimeout(120_000);
   test.skip(testInfo.project.name === 'mobile-chromium', 'The full timed walkthrough is captured once on desktop; mobile rendering has its own visual and smoke coverage.');
   mkdirSync('output/playwright', { recursive: true });
@@ -20,19 +20,9 @@ test('plays a complete seated guest service cycle', async ({ page }, testInfo) =
   await expect(stage('Ждёт бармена')).toBeVisible({ timeout: 25_000 });
   await expect(stage('Ждёт напиток')).toBeVisible({ timeout: 35_000 });
 
-  // Pause in the same browser task that first observes the drinking state.
-  // A separate round trip can miss this short phase on a busy WebGL worker.
-  await page.waitForFunction(() => {
-    const drinking = document.querySelector('.world-emoji[aria-label="Пьёт заказ"]');
-    const pause = document.querySelector<HTMLButtonElement>('button[aria-label="Пауза"]');
-    if (!drinking || !pause) return false;
-    pause.click();
-    return true;
-  }, undefined, { timeout: 45_000 });
-  await page.waitForTimeout(1_000);
-  await expect(stage('Пьёт заказ')).toBeVisible();
+  await expect(stage('Пьёт заказ')).toBeVisible({ timeout: 45_000 });
 
-  const canvas = page.locator('canvas');
+  const canvas = page.locator('canvas.presentation-canvas');
   const rawCanvas = await canvas.evaluate((element) =>
     (element as HTMLCanvasElement).toDataURL('image/png'),
   );
@@ -41,9 +31,7 @@ test('plays a complete seated guest service cycle', async ({ page }, testInfo) =
     Buffer.from(rawCanvas.slice(rawCanvas.indexOf(',') + 1), 'base64'),
   );
 
-  await page.getByRole('button', { name: 'Продолжить' }).click();
-
-  await expect(stage('Хочет заплатить')).toBeVisible({ timeout: 35_000 });
-  await expect(stage('Уходит счастливым')).toBeVisible({ timeout: 35_000 });
+  await expect(page.locator('[aria-label="Обслужено гостей: 1"]')).toBeVisible({ timeout: 55_000 });
+  await expect(page.locator('.pause-scrim')).toHaveCount(0);
   expect(runtimeErrors).toEqual([]);
 });

@@ -22,11 +22,25 @@ export default function App() {
   }, [snapshot.lastEvent, snapshot.started]);
 
   useEffect(() => {
+    let pauseTimer: number | null = null;
+    const clearPauseTimer = () => {
+      if (pauseTimer === null) return;
+      window.clearTimeout(pauseTimer);
+      pauseTimer = null;
+    };
     const onVisibility = () => {
-      if (document.hidden && snapshot.started && !snapshot.paused) gameEngine.setPaused(true);
+      clearPauseTimer();
+      if (!document.hidden || !snapshot.started || snapshot.paused) return;
+      pauseTimer = window.setTimeout(() => {
+        pauseTimer = null;
+        if (document.hidden) gameEngine.setPaused(true);
+      }, 750);
     };
     document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
+    return () => {
+      clearPauseTimer();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [snapshot.paused, snapshot.started]);
 
   return (
