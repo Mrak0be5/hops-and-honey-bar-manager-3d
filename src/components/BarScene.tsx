@@ -11,28 +11,18 @@ function SimulationLoop({ engine }: { engine: GameEngine }) {
   return null;
 }
 
-function CameraRig({ event }: { event: GameEvent | null }) {
+function CameraRig() {
   const { camera, size } = useThree();
-  const kick = useRef(0);
 
   useEffect(() => {
-    if (event) kick.current = event.kind === 'payment' || event.kind === 'day' ? 1 : 0.55;
-  }, [event?.id, event?.kind]);
-
-  useFrame((_, delta) => {
     if (!(camera instanceof THREE.OrthographicCamera)) return;
     camera.position.set(11.8, 14.2, 16.2);
-    kick.current = Math.max(0, kick.current - delta * 2.8);
     const baseZoom = size.width < 560 ? 33 : size.width < 900 ? 43 : size.width < 1250 ? 51 : 58;
-    const pulse = Math.sin(kick.current * Math.PI) * kick.current;
-    const zoom = baseZoom * (1 + pulse * 0.012);
-    if (camera.zoom !== zoom) {
-      camera.zoom = zoom;
-      camera.updateProjectionMatrix();
-    }
-    camera.lookAt(-0.25, 0.4 + pulse * 0.035, 0.05);
+    camera.zoom = baseZoom;
+    camera.lookAt(-0.25, 0.4, 0.05);
+    camera.updateProjectionMatrix();
     camera.updateMatrixWorld(true);
-  }, -2);
+  }, [camera, size.width]);
   return null;
 }
 
@@ -157,7 +147,7 @@ function World({ snapshot }: { snapshot: GameSnapshot }) {
       {snapshot.lastEvent && (
         <EventBurst key={snapshot.lastEvent.id} event={snapshot.lastEvent} position={snapshot.bartender.position} />
       )}
-      <CameraRig event={snapshot.lastEvent} />
+      <CameraRig />
     </>
   );
 }
