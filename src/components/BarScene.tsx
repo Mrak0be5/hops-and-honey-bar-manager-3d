@@ -11,6 +11,22 @@ function SimulationLoop({ engine }: { engine: GameEngine }) {
   return null;
 }
 
+function ContextLossGuard({ onContextLost }: { onContextLost: () => void }) {
+  const { gl } = useThree();
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      onContextLost();
+    };
+    canvas.addEventListener('webglcontextlost', handleContextLost);
+    return () => canvas.removeEventListener('webglcontextlost', handleContextLost);
+  }, [gl, onContextLost]);
+
+  return null;
+}
+
 function CameraRig() {
   const { camera, size } = useThree();
 
@@ -179,13 +195,10 @@ export function BarScene({ engine, snapshot, onContextLost }: Props) {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.12;
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
-        gl.domElement.addEventListener('webglcontextlost', (event) => {
-          event.preventDefault();
-          onContextLost();
-        }, { once: true });
       }}
     >
       <Suspense fallback={null}>
+        <ContextLossGuard onContextLost={onContextLost} />
         <SimulationLoop engine={engine} />
         <World snapshot={snapshot} />
       </Suspense>
