@@ -161,6 +161,7 @@ type Props = {
 export function BarScene({ engine, snapshot, onContextLost }: Props) {
   return (
     <Canvas
+      key={snapshot.started ? 'running-bar' : 'welcome-bar'}
       className="game-canvas"
       orthographic
       shadows
