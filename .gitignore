@@ -1,0 +1,9 @@
+node_modules/
+dist/
+output/
+.wrangler/
+test-results/
+playwright-report/
+debug.log
+*.local
+*.tar.gz
