@@ -2,11 +2,11 @@ import type { Drink, TableState, UpgradeDefinition, UpgradeLevels, Vec2 } from '
 
 export const ENTRANCE: Vec2 = { x: 7.15, z: 4.5 };
 export const ENTRY_AISLE: Vec2 = { x: 5.35, z: 3.45 };
-export const BAR_STATION: Vec2 = { x: -1.25, z: -4.4 };
+export const BAR_STATION: Vec2 = { x: -1.25, z: -4.72 };
 export const SERVICE_GATE: Vec2 = { x: 3.55, z: -3.2 };
 export const SHIFT_DURATION = 150;
 export const TABLE_RADIUS = 0.76;
-export const GUEST_CHAIR_OFFSET = 1.04;
+export const GUEST_CHAIR_OFFSET = 1.16;
 
 const makeTable = (id: number, x: number, z: number): TableState => ({
   id,
@@ -18,12 +18,13 @@ const makeTable = (id: number, x: number, z: number): TableState => ({
 });
 
 export const TABLE_LAYOUT: TableState[] = [
-  makeTable(0, -4.65, -0.55),
-  makeTable(1, -1.65, -0.35),
-  makeTable(2, 1.35, -0.15),
-  makeTable(3, -4.25, 3.05),
-  makeTable(4, -1.1, 3.35),
-  makeTable(5, 2.2, 3.15),
+  // Two clean rows with a 1.45 m cross-aisle and a wide central service lane.
+  makeTable(0, -4.75, -0.45),
+  makeTable(1, -1.35, -0.45),
+  makeTable(2, 2.05, -0.45),
+  makeTable(3, -4.75, 3.15),
+  makeTable(4, -1.35, 3.15),
+  makeTable(5, 2.05, 3.15),
 ];
 
 export const DRINKS: Drink[] = [

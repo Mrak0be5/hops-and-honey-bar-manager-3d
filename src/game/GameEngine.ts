@@ -24,6 +24,7 @@ import type {
   UpgradeLevels,
   Vec2,
 } from './types';
+import { findGridPath, makeLevelObstacles } from './navigation';
 
 type Listener = () => void;
 type RandomSource = () => number;
@@ -237,7 +238,7 @@ export class GameEngine {
       state: 'walking_in',
       position: cloneVec(ENTRANCE),
       target: cloneVec(ENTRY_AISLE),
-      route: [cloneVec(ENTRY_AISLE), { x: table.seat.x + 1.1, z: ENTRY_AISLE.z }, cloneVec(table.seat)],
+      route: this.makeRoute(ENTRANCE, table.seat),
       timer: 0,
       patience: initialPatience,
       initialPatience,
@@ -329,12 +330,7 @@ export class GameEngine {
   }
 
   private startBartenderMove(state: BartenderState, destination: Vec2, explicitRoute?: Vec2[]) {
-    const behindBar = this.bartender.position.z < -3.5;
-    let route = explicitRoute?.map(cloneVec) ?? [];
-    if (route.length === 0) {
-      if (behindBar && destination.z > -3.4) route.push(cloneVec(SERVICE_GATE));
-      route.push(cloneVec(destination));
-    }
+    const route = this.makeRoute(this.bartender.position, destination, explicitRoute);
     this.bartender.state = state;
     this.bartender.route = route;
     this.bartender.target = cloneVec(route[0] ?? destination);
@@ -414,7 +410,7 @@ export class GameEngine {
           this.served += 1;
           table.dirty = true;
           patron.state = 'leaving';
-          patron.route = [{ x: ENTRY_AISLE.x, z: patron.position.z }, cloneVec(ENTRY_AISLE), cloneVec(ENTRANCE)];
+          patron.route = this.makeRoute(patron.position, ENTRANCE);
           patron.target = cloneVec(patron.route[0]);
           this.pushEvent('payment', `${patron.order.name} +${payment}`, payment);
           this.persist();
@@ -464,6 +460,20 @@ export class GameEngine {
     }
     entity.target = cloneVec(entity.route[0] ?? entity.position);
     return entity.route.length === 0;
+  }
+
+  private makeRoute(start: Vec2, destination: Vec2, requiredStops: Vec2[] = []) {
+    const obstacles = makeLevelObstacles(this.tables.map((table) => table.position));
+    const stops = requiredStops.length > 0 ? requiredStops : [destination];
+    const route: Vec2[] = [];
+    let cursor = cloneVec(start);
+    for (const stop of stops) {
+      const segment = findGridPath(cursor, stop, obstacles);
+      if (segment.length === 0) return [];
+      route.push(...segment);
+      cursor = cloneVec(stop);
+    }
+    return route;
   }
 
   private pushEvent(kind: GameEvent['kind'], message: string, amount?: number) {

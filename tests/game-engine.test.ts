@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { GUEST_CHAIR_OFFSET, TABLE_LAYOUT, TABLE_RADIUS } from '../src/game/config';
+import { BAR_STATION, ENTRANCE, SERVICE_GATE, GUEST_CHAIR_OFFSET, TABLE_LAYOUT, TABLE_RADIUS } from '../src/game/config';
 import { GameEngine } from '../src/game/GameEngine';
+import { findGridPath, isWalkable, makeLevelObstacles, NAV_CELL_SIZE } from '../src/game/navigation';
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>();
@@ -83,5 +84,34 @@ describe('GameEngine', () => {
     expect(seatedPatron).toBeDefined();
     const table = snapshot.tables[seatedPatron!.tableId];
     expect(seatedPatron!.target).toEqual(table.position);
+  });
+
+  it('finds obstacle-safe grid routes from the entrance to every seat', () => {
+    const obstacles = makeLevelObstacles(TABLE_LAYOUT.map((table) => table.position));
+    for (const table of TABLE_LAYOUT) {
+      const route = findGridPath(ENTRANCE, table.seat, obstacles);
+      expect(route.length, `table ${table.id} has no route`).toBeGreaterThan(0);
+      for (const point of route.slice(0, -1)) {
+        expect(isWalkable(point, obstacles), `table ${table.id} route clips at ${point.x},${point.z}`).toBe(true);
+      }
+      for (let index = 1; index < route.length; index += 1) {
+        const dx = Math.abs(route[index].x - route[index - 1].x);
+        const dz = Math.abs(route[index].z - route[index - 1].z);
+        expect(Math.hypot(dx, dz)).toBeLessThanOrEqual(NAV_CELL_SIZE * Math.SQRT2 + 0.06);
+      }
+    }
+  });
+
+  it('routes the bartender only through the open end of the counter', () => {
+    const obstacles = makeLevelObstacles(TABLE_LAYOUT.map((table) => table.position));
+    const toGate = findGridPath(BAR_STATION, SERVICE_GATE, obstacles);
+    expect(toGate.length).toBeGreaterThan(0);
+    for (const point of toGate.slice(0, -1)) expect(isWalkable(point, obstacles)).toBe(true);
+
+    for (const table of TABLE_LAYOUT) {
+      const route = findGridPath(SERVICE_GATE, table.service, obstacles);
+      expect(route.length, `bar to table ${table.id} has no route`).toBeGreaterThan(0);
+      for (const point of route) expect(isWalkable(point, obstacles, 0.26, [table.service])).toBe(true);
+    }
   });
 });
