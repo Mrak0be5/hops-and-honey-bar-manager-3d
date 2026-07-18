@@ -182,7 +182,7 @@ export function BarScene({ engine, snapshot, onContextLost }: Props) {
         near: 0.1,
         far: 80,
       }}
-      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: import.meta.env.DEV }}
+      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: true }}
       onCreated={({ gl }) => {
         gl.outputColorSpace = THREE.SRGBColorSpace;
         gl.toneMapping = THREE.ACESFilmicToneMapping;
