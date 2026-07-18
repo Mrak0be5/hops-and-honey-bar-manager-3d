@@ -164,7 +164,7 @@ export function BarScene({ engine, snapshot, onContextLost }: Props) {
       className="game-canvas"
       orthographic
       shadows
-      dpr={[1, 1.65]}
+      dpr={1}
       camera={{
         position: [11.8, 14.2, 16.2],
         rotation: [-0.7070944888, 0.5159883889, 0.3989877261],
