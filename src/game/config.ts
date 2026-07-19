@@ -1,4 +1,4 @@
-import type { Drink, TableState, UpgradeDefinition, UpgradeLevels, Vec2 } from './types';
+import type { Drink, RoomDefinition, RoomId, RoomLayout, RoomUpgradeDefinition, RoomUpgradeKey, TableState, UpgradeDefinition, UpgradeLevels, Vec2 } from './types';
 
 export const ENTRANCE: Vec2 = { x: 7.15, z: 4.5 };
 export const ENTRY_AISLE: Vec2 = { x: 5.35, z: 3.45 };
@@ -42,6 +42,117 @@ export const INITIAL_UPGRADES: UpgradeLevels = {
   cleanSpeed: 1,
   assortment: 1,
   advertising: 1,
+};
+
+export const ROOM_DEFINITIONS: RoomDefinition[] = [
+  {
+    id: 'karaoke',
+    name: 'Караоке-зал',
+    shortName: 'Караоке',
+    tagline: 'Песни, сцена и вечерние чаевые',
+    staffRole: 'Ведущий караоке',
+    icon: '🎤',
+    unlockCost: 280,
+    baseProfit: 20,
+    sessionDuration: 36,
+    maxCapacity: 3,
+    color: '#7357d9',
+    accent: '#ff74bf',
+  },
+  {
+    id: 'sauna',
+    name: 'Финская сауна',
+    shortName: 'Сауна',
+    tagline: 'Горячий пар и премиальные сеансы',
+    staffRole: 'Банщик',
+    icon: '♨️',
+    unlockCost: 750,
+    baseProfit: 42,
+    sessionDuration: 42,
+    maxCapacity: 4,
+    color: '#d97839',
+    accent: '#ffd36a',
+  },
+  {
+    id: 'massage',
+    name: 'Массажный кабинет',
+    shortName: 'Массаж',
+    tagline: 'Дорогой уход и высокий средний чек',
+    staffRole: 'Массажист',
+    icon: '💆',
+    unlockCost: 1500,
+    baseProfit: 70,
+    sessionDuration: 45,
+    maxCapacity: 2,
+    color: '#2ba99a',
+    accent: '#a9f0d8',
+  },
+];
+
+/**
+ * One shared level-layout contract for rendering and pathfinding. The three
+ * larger rooms touch the bar footprint exactly and connect through explicit
+ * two-sided portals, so visitors cannot cut across the exterior void.
+ */
+export const ROOM_LAYOUTS: Record<RoomId, RoomLayout> = {
+  karaoke: {
+    center: { x: -12.2, z: 1.5 },
+    size: { x: 8, z: 7.2 },
+    connectionSide: 'east',
+    barPortal: { x: -7.55, z: 1.5 },
+    roomPortal: { x: -8.55, z: 1.5 },
+    guestSpots: [
+      { x: -10.35, z: 1.2 },
+      { x: -12.15, z: 1.35 },
+      { x: -13.95, z: 1.5 },
+    ],
+    cameraOffset: { x: -10.8, z: 14.6 },
+  },
+  sauna: {
+    center: { x: 12.2, z: 1 },
+    size: { x: 8, z: 7.2 },
+    connectionSide: 'west',
+    barPortal: { x: 7.55, z: 1 },
+    roomPortal: { x: 8.55, z: 1 },
+    guestSpots: [
+      { x: 10.15, z: 1.45 },
+      { x: 11.5, z: 1.6 },
+      { x: 12.85, z: 1.55 },
+      { x: 14, z: 2.55 },
+    ],
+    cameraOffset: { x: 10.8, z: 14.6 },
+  },
+  massage: {
+    center: { x: 4.2, z: -9.8 },
+    size: { x: 8, z: 7.2 },
+    connectionSide: 'south',
+    barPortal: { x: 4.8, z: -5.55 },
+    roomPortal: { x: 4.8, z: -6.55 },
+    guestSpots: [
+      { x: 2.4, z: -8.25 },
+      { x: 6, z: -8.25 },
+    ],
+    cameraOffset: { x: 10.8, z: -14.6 },
+  },
+};
+
+export const ROOM_UPGRADE_DEFS: RoomUpgradeDefinition[] = [
+  { key: 'staffSpeed', name: 'Мастерство персонала', description: 'Сотрудник быстрее завершает сеанс.', icon: '⚡', maxLevel: 5 },
+  { key: 'capacity', name: 'Дополнительное место', description: 'Больше гостей обслуживаются одновременно.', icon: '👥', maxLevel: 4 },
+  { key: 'quality', name: 'Премиум-сервис', description: 'Каждый гость оставляет больше денег.', icon: '✨', maxLevel: 5 },
+];
+
+export const getRoomDefinition = (roomId: RoomId) => ROOM_DEFINITIONS.find((room) => room.id === roomId)!;
+
+export const getRoomUpgradeCost = (roomId: RoomId, key: RoomUpgradeKey, currentLevel: number) => {
+  const room = getRoomDefinition(roomId);
+  const multiplier = key === 'staffSpeed' ? 0.28 : key === 'capacity' ? 0.85 : 0.36;
+  return Math.ceil(room.unlockCost * multiplier * 1.62 ** (currentLevel - 1));
+};
+
+export const getRoomProfit = (roomId: RoomId, qualityLevel: number, guests: number) => {
+  const room = getRoomDefinition(roomId);
+  return Math.round(room.baseProfit * guests * (1 + (qualityLevel - 1) * 0.15));
 };
 
 export const UPGRADE_DEFS: UpgradeDefinition[] = [

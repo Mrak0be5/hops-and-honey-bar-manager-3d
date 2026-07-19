@@ -5,10 +5,13 @@ import { gameEngine } from './game/GameEngine';
 import { useGameSnapshot } from './game/useGameSnapshot';
 import { Hud } from './ui/Hud';
 import { Icon } from './ui/Icon';
+import type { VenueView } from './game/types';
 
 export default function App() {
   const snapshot = useGameSnapshot(gameEngine);
   const [contextLost, setContextLost] = useState(false);
+  const [venueView, setVenueView] = useState<VenueView>('bar');
+  const [upgradesOpen, setUpgradesOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 980);
   const lastSoundEvent = useRef(0);
 
   useEffect(() => {
@@ -56,9 +59,22 @@ export default function App() {
           </button>
         </div>
       ) : (
-        <BarScene engine={gameEngine} snapshot={snapshot} onContextLost={() => setContextLost(true)} />
+        <BarScene
+          engine={gameEngine}
+          snapshot={snapshot}
+          focus={venueView}
+          developmentOpen={upgradesOpen}
+          onContextLost={() => setContextLost(true)}
+        />
       )}
-      <Hud engine={gameEngine} snapshot={snapshot} />
+      <Hud
+        engine={gameEngine}
+        snapshot={snapshot}
+        venueView={venueView}
+        onVenueView={setVenueView}
+        upgradesOpen={upgradesOpen}
+        onUpgradesOpen={setUpgradesOpen}
+      />
       <div className="scene-vignette" />
     </main>
   );

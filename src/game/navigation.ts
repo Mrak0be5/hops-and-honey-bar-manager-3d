@@ -1,11 +1,39 @@
 import type { Vec2 } from './types';
+import { ROOM_LAYOUTS } from './config';
 
 export const NAV_CELL_SIZE = 0.4;
-export const NAV_BOUNDS = { minX: -7.2, maxX: 7.2, minZ: -5.4, maxZ: 5.4 } as const;
+export const NAV_BOUNDS = { minX: -16.2, maxX: 16.2, minZ: -13.4, maxZ: 5.8 } as const;
 
 type RectObstacle = { kind: 'rect'; minX: number; maxX: number; minZ: number; maxZ: number };
 type CircleObstacle = { kind: 'circle'; x: number; z: number; radius: number };
 export type NavObstacle = RectObstacle | CircleObstacle;
+export type WalkableZone = { minX: number; maxX: number; minZ: number; maxZ: number };
+
+const MAIN_BAR_ZONE: WalkableZone = { minX: -7.78, maxX: 7.78, minZ: -5.78, maxZ: 5.78 };
+const roomZones = Object.values(ROOM_LAYOUTS).map((layout): WalkableZone => ({
+  minX: layout.center.x - layout.size.x / 2 + 0.28,
+  maxX: layout.center.x + layout.size.x / 2 - 0.28,
+  minZ: layout.center.z - layout.size.z / 2 + 0.28,
+  maxZ: layout.center.z + layout.size.z / 2 - 0.28,
+}));
+const connectorZones = Object.values(ROOM_LAYOUTS).map((layout): WalkableZone => {
+  if (layout.connectionSide === 'south') {
+    return {
+      minX: layout.barPortal.x - 1.12,
+      maxX: layout.barPortal.x + 1.12,
+      minZ: Math.min(layout.barPortal.z, layout.roomPortal.z) - 0.1,
+      maxZ: Math.max(layout.barPortal.z, layout.roomPortal.z) + 0.1,
+    };
+  }
+  return {
+    minX: Math.min(layout.barPortal.x, layout.roomPortal.x) - 0.1,
+    maxX: Math.max(layout.barPortal.x, layout.roomPortal.x) + 0.1,
+    minZ: layout.barPortal.z - 1.12,
+    maxZ: layout.barPortal.z + 1.12,
+  };
+});
+
+export const LEVEL_WALKABLE_ZONES: WalkableZone[] = [MAIN_BAR_ZONE, ...roomZones, ...connectorZones];
 
 const STATIC_OBSTACLES: NavObstacle[] = [
   // Bar counter. The open right-hand end is the only service gate.
@@ -14,6 +42,17 @@ const STATIC_OBSTACLES: NavObstacle[] = [
   { kind: 'circle', x: -6.9, z: -4.9, radius: 0.68 },
   { kind: 'circle', x: 6.7, z: -4.9, radius: 0.62 },
   { kind: 'circle', x: -6.95, z: 5.05, radius: 0.58 },
+  // Karaoke stage and speaker line. The audience lane stays open to the east portal.
+  { kind: 'rect', minX: -15.35, maxX: -9.05, minZ: -1.62, maxZ: 0.25 },
+  // Sauna tiered benches and heater.
+  { kind: 'rect', minX: 8.875, maxX: 14.125, minZ: -2.12, maxZ: -0.76 },
+  { kind: 'circle', x: 14.75, z: 1.45, radius: 0.66 },
+  // Massage tables. Guests walk to the clear foot-side service spots.
+  { kind: 'rect', minX: 1.68, maxX: 3.12, minZ: -11.6, maxZ: -8.82 },
+  { kind: 'rect', minX: 5.28, maxX: 6.72, minZ: -11.6, maxZ: -8.82 },
+  { kind: 'circle', x: 1.1, z: -12.25, radius: 0.45 },
+  { kind: 'circle', x: 7.3, z: -12.25, radius: 0.45 },
+  { kind: 'rect', minX: 3.1, maxX: 5.3, minZ: -12.91, maxZ: -12.29 },
 ];
 
 const key = (x: number, z: number) => `${x},${z}`;
@@ -34,6 +73,10 @@ const insideObstacle = (point: Vec2, obstacle: NavObstacle, clearance: number) =
     && point.z > obstacle.minZ - clearance && point.z < obstacle.maxZ + clearance;
 };
 
+export const isInsideWalkableZone = (point: Vec2) => LEVEL_WALKABLE_ZONES.some((zone) => (
+  point.x >= zone.minX && point.x <= zone.maxX && point.z >= zone.minZ && point.z <= zone.maxZ
+));
+
 export const makeLevelObstacles = (tablePositions: Vec2[]): NavObstacle[] => [
   ...STATIC_OBSTACLES,
   ...tablePositions.map((position): CircleObstacle => ({
@@ -48,13 +91,14 @@ export const isWalkable = (
   allowedEndpoints: Vec2[] = [],
 ) => {
   if (point.x < NAV_BOUNDS.minX || point.x > NAV_BOUNDS.maxX || point.z < NAV_BOUNDS.minZ || point.z > NAV_BOUNDS.maxZ) return false;
+  if (!isInsideWalkableZone(point)) return false;
   if (allowedEndpoints.some((endpoint) => Math.hypot(endpoint.x - point.x, endpoint.z - point.z) <= 0.05)) return true;
   return !obstacles.some((obstacle) => insideObstacle(point, obstacle, clearance));
 };
 
 const nearestWalkableCell = (point: Vec2, obstacles: NavObstacle[], endpoints: Vec2[]) => {
   const origin = toCell(point);
-  for (let radius = 0; radius <= 8; radius += 1) {
+  for (let radius = 0; radius <= 12; radius += 1) {
     for (let dz = -radius; dz <= radius; dz += 1) {
       for (let dx = -radius; dx <= radius; dx += 1) {
         if (Math.max(Math.abs(dx), Math.abs(dz)) !== radius) continue;
@@ -63,7 +107,7 @@ const nearestWalkableCell = (point: Vec2, obstacles: NavObstacle[], endpoints: V
       }
     }
   }
-  return origin;
+  return null;
 };
 
 const canTraverse = (a: { x: number; z: number }, b: { x: number; z: number }, obstacles: NavObstacle[], endpoints: Vec2[]) => {
@@ -83,6 +127,7 @@ export const findGridPath = (start: Vec2, goal: Vec2, obstacles: NavObstacle[]):
   const endpoints = [start, goal];
   const startCell = nearestWalkableCell(start, obstacles, endpoints);
   const goalCell = nearestWalkableCell(goal, obstacles, endpoints);
+  if (!startCell || !goalCell) return [];
   const open = new Set([key(startCell.x, startCell.z)]);
   const cells = new Map([[key(startCell.x, startCell.z), startCell]]);
   const cameFrom = new Map<string, string>();

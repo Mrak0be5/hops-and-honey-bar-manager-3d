@@ -30,6 +30,13 @@ class GameAudio {
       this.tone(880, 0.09, 'sine', 0.035, 1180);
     } else if (event.kind === 'day') {
       this.tone(320, 0.18, 'triangle', 0.05, 520);
+    } else if (event.kind === 'room_income') {
+      this.tone(520, 0.09, 'triangle', 0.045, 680);
+      window.setTimeout(() => this.tone(780, 0.1, 'sine', 0.035, 920), 72);
+    } else if (event.kind === 'room_unlock') {
+      this.tone(330, 0.13, 'triangle', 0.055, 520);
+      window.setTimeout(() => this.tone(520, 0.13, 'triangle', 0.05, 720), 95);
+      window.setTimeout(() => this.tone(780, 0.18, 'sine', 0.045, 1040), 190);
     }
   }
 

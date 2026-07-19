@@ -8,6 +8,9 @@ export type PatronState =
   | 'drinking'
   | 'ready_to_pay'
   | 'paying'
+  | 'walking_to_room'
+  | 'waiting_room'
+  | 'in_room'
   | 'leaving';
 
 export type BartenderState =
@@ -34,6 +37,12 @@ export type UpgradeKey =
 
 export type Currency = 'coins' | 'reputation';
 
+export type RoomId = 'karaoke' | 'sauna' | 'massage';
+export type VenueView = 'bar' | RoomId;
+export type RoomUpgradeKey = 'staffSpeed' | 'capacity' | 'quality';
+export type RoomUpgradeLevels = Record<RoomUpgradeKey, number>;
+export type RoomStaffState = 'locked' | 'waiting' | 'welcoming' | 'serving' | 'resetting';
+
 export type Drink = {
   id: string;
   name: string;
@@ -55,6 +64,9 @@ export type Patron = {
   order: Drink | null;
   palette: number;
   happiness: number;
+  barServed: boolean;
+  roomId: RoomId | null;
+  roomSlot: number | null;
 };
 
 export type TableState = {
@@ -80,9 +92,55 @@ export type UpgradeLevels = Record<UpgradeKey, number>;
 
 export type GameEvent = {
   id: number;
-  kind: 'payment' | 'reputation' | 'upgrade' | 'day' | 'full';
+  kind: 'payment' | 'reputation' | 'upgrade' | 'day' | 'full' | 'room_income' | 'room_unlock';
   amount?: number;
+  roomId?: RoomId;
   message: string;
+};
+
+export type RoomState = {
+  id: RoomId;
+  unlocked: boolean;
+  staffState: RoomStaffState;
+  guests: number;
+  capacity: number;
+  progress: number;
+  completedSessions: number;
+  revenue: number;
+  upgrades: RoomUpgradeLevels;
+};
+
+export type RoomDefinition = {
+  id: RoomId;
+  name: string;
+  shortName: string;
+  tagline: string;
+  staffRole: string;
+  icon: string;
+  unlockCost: number;
+  baseProfit: number;
+  sessionDuration: number;
+  maxCapacity: number;
+  color: string;
+  accent: string;
+};
+
+export type RoomLayout = {
+  center: Vec2;
+  size: Vec2;
+  connectionSide: 'east' | 'west' | 'south';
+  barPortal: Vec2;
+  roomPortal: Vec2;
+  guestSpots: Vec2[];
+  cameraOffset: Vec2;
+};
+
+export type RoomUpgradeDefinition = {
+  key: RoomUpgradeKey;
+  name: string;
+  description: string;
+  icon: string;
+  maxLevel: number;
 };
 
 export type GameSnapshot = {
@@ -98,6 +156,8 @@ export type GameSnapshot = {
   tables: TableState[];
   bartender: Bartender;
   upgrades: UpgradeLevels;
+  rooms: RoomState[];
+  roomRevenue: number;
   queueCount: number;
   unlockedDrinks: Drink[];
   lastEvent: GameEvent | null;

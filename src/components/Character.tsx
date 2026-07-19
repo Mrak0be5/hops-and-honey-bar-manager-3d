@@ -12,6 +12,9 @@ export const CUSTOMER_EMOJI: Record<PatronState, { emoji: string; label: string 
   drinking: { emoji: '🍺', label: 'Пьёт заказ' },
   ready_to_pay: { emoji: '💰', label: 'Хочет заплатить' },
   paying: { emoji: '🤝', label: 'Платит' },
+  walking_to_room: { emoji: '🚶', label: 'Идёт в комнату' },
+  waiting_room: { emoji: '🛎️', label: 'Ждёт сеанс' },
+  in_room: { emoji: '🎉', label: 'Отдыхает в комнате' },
   leaving: { emoji: '😊', label: 'Уходит счастливым' },
 };
 
@@ -114,6 +117,10 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
   const coin = useRef<THREE.Group>(null);
   const cleaningCloth = useRef<THREE.Group>(null);
   const phase = useRef(Math.random() * Math.PI * 2);
+  const activityTime = useRef(0);
+  const previousActivity = useRef(activity);
+  const previousPosition = useRef(new THREE.Vector2(position.x, position.z));
+  const locomotionSpeed = useRef(0);
   const colors = bartender
     ? { shirt: '#f5efe3', trousers: '#173d47', hair: '#3c2a22', skin: '#d9956c' }
     : PALETTES[palette % PALETTES.length];
@@ -122,9 +129,19 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
 
   useFrame(({ clock }, delta) => {
     if (!root.current) return;
-    phase.current += delta * (moving ? 8.5 : 2.2);
+    if (previousActivity.current !== activity) {
+      previousActivity.current = activity;
+      activityTime.current = 0;
+    }
+    activityTime.current += delta;
+    const travelled = Math.hypot(position.x - previousPosition.current.x, position.z - previousPosition.current.y);
+    const sampledSpeed = moving ? Math.min(2.4, travelled / Math.max(delta, 0.001)) : 0;
+    locomotionSpeed.current = THREE.MathUtils.damp(locomotionSpeed.current, sampledSpeed, moving ? 8 : 12, delta);
+    previousPosition.current.set(position.x, position.z);
+    phase.current += delta * (moving ? 6.2 + locomotionSpeed.current * 2.6 : 2.2);
     const wave = Math.sin(phase.current);
     const fastWave = Math.sin(phase.current * 2.4);
+    const actionPop = Math.sin(Math.min(1, activityTime.current / 0.34) * Math.PI);
     const drinkCycle = (clock.elapsedTime * 0.42 + palette * 0.13) % 1;
     const drinkRise = THREE.MathUtils.smootherstep(drinkCycle, 0.12, 0.34);
     const drinkFall = 1 - THREE.MathUtils.smootherstep(drinkCycle, 0.7, 0.92);
@@ -172,6 +189,11 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
     } else if (activity === 'cleaning') {
       leftArmX = -1.02 + fastWave * 0.3;
       rightArmX = -1.02 - fastWave * 0.3;
+    } else if (activity === 'in_room') {
+      leftArmX = -1.18 + fastWave * 0.34;
+      rightArmX = -1.18 - fastWave * 0.34;
+      leftArmZ = -0.18;
+      rightArmZ = 0.18;
     } else if (carryingDrink || carryingDirty) {
       rightArmX = -0.58;
       leftArmX = -0.25;
@@ -199,6 +221,9 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
       const actionLean = activity === 'preparing' || activity === 'cleaning' ? -0.08 : moving ? 0.045 : 0;
       body.current.rotation.x = THREE.MathUtils.damp(body.current.rotation.x, actionLean, 9, delta);
       body.current.rotation.z = THREE.MathUtils.damp(body.current.rotation.z, moving ? wave * 0.045 : activity === 'cleaning' ? fastWave * 0.025 : 0, 10, delta);
+      body.current.position.y = THREE.MathUtils.damp(body.current.position.y, actionPop * 0.025, 15, delta);
+      const actionStretch = actionPop * 0.022;
+      body.current.scale.set(1 - actionStretch * 0.38, 1 + actionStretch, 1 - actionStretch * 0.38);
     }
     if (chest.current) {
       const breath = 1 + Math.sin(phase.current * 0.72) * 0.008;
@@ -462,8 +487,8 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
 }
 
 export function PatronCharacter({ patron }: { patron: Patron }) {
-  const seated = !['walking_in', 'leaving'].includes(patron.state);
-  const moving = patron.state === 'walking_in' || patron.state === 'leaving';
+  const moving = patron.state === 'walking_in' || patron.state === 'walking_to_room' || patron.state === 'leaving';
+  const seated = !moving && patron.state !== 'waiting_room' && patron.state !== 'in_room';
   return (
     <Humanoid
       position={patron.position}

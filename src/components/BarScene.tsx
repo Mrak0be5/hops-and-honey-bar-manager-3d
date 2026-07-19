@@ -3,7 +3,9 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import * as THREE from 'three';
 import type { GameEngine } from '../game/GameEngine';
-import type { GameEvent, GameSnapshot, Vec2 } from '../game/types';
+import type { GameEvent, GameSnapshot, VenueView, Vec2 } from '../game/types';
+import { ROOM_DEFINITIONS, ROOM_LAYOUTS } from '../game/config';
+import { RoomWing } from './RoomWing';
 import { BARTENDER_EMOJI, BartenderCharacter, CUSTOMER_EMOJI, PatronCharacter } from './Character';
 import { BarEnvironment } from './Environment';
 
@@ -152,21 +154,41 @@ function DecorationMarker({ x, y, z, children }: { x: number; y: number; z: numb
   );
 }
 
-function WorldStatusOverlay({ snapshot, target }: { snapshot: GameSnapshot; target: RefObject<HTMLDivElement> }) {
+function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapshot; target: RefObject<HTMLDivElement>; focus: VenueView }) {
+  const visiblePatrons = snapshot.patrons.filter((patron) => {
+    if (focus === 'bar') return patron.state !== 'waiting_room' && patron.state !== 'in_room';
+    if (patron.roomId !== focus) return false;
+    // The massage room renders the customer lying on the actual table; a
+    // separate DOM bubble at the standing reservation point would be detached.
+    return !(focus === 'massage' && patron.state === 'in_room');
+  });
   return (
     <div ref={target} className="world-status-overlay">
-      <DecorationMarker x={7.2} y={3.52} z={4.6}>
-        <div className="open-sign">OPEN</div>
-      </DecorationMarker>
-      <DecorationMarker x={-5.7} y={2.15} z={-5.68}>
-        <div className="wall-poster">GOOD<br /><b>VIBES</b></div>
-      </DecorationMarker>
-      <DecorationMarker x={3.6} y={2.65} z={-5.72}>
-        <div className="neon-logo"><span>ХМЕЛЬ</span><i>&amp;</i><b>МЁД</b></div>
-      </DecorationMarker>
-      {snapshot.patrons.map((patron) => {
-        const seated = !['walking_in', 'leaving'].includes(patron.state);
-        const status = CUSTOMER_EMOJI[patron.state];
+      {focus === 'bar' && (
+        <>
+          <DecorationMarker x={7.2} y={3.52} z={4.6}>
+            <div className="open-sign">OPEN</div>
+          </DecorationMarker>
+          <DecorationMarker x={-5.7} y={2.15} z={-5.68}>
+            <div className="wall-poster">GOOD<br /><b>VIBES</b></div>
+          </DecorationMarker>
+          <DecorationMarker x={1.2} y={2.65} z={-5.72}>
+            <div className="neon-logo"><span>ХМЕЛЬ</span><i>&amp;</i><b>МЁД</b></div>
+          </DecorationMarker>
+        </>
+      )}
+      {visiblePatrons.map((patron) => {
+        const moving = patron.state === 'walking_in' || patron.state === 'walking_to_room' || patron.state === 'leaving';
+        const seated = !moving && patron.state !== 'waiting_room' && patron.state !== 'in_room';
+        const baseStatus = CUSTOMER_EMOJI[patron.state];
+        const room = patron.roomId ? ROOM_DEFINITIONS.find((definition) => definition.id === patron.roomId) : null;
+        const status = room && patron.state === 'walking_to_room'
+          ? { emoji: room.icon, label: `Идёт в ${room.shortName.toLowerCase()}` }
+          : room && patron.state === 'waiting_room'
+            ? { emoji: '🛎️', label: `Ждёт сеанс: ${room.shortName}` }
+            : room && patron.state === 'in_room'
+              ? { emoji: room.icon, label: `В комнате: ${room.shortName}` }
+              : baseStatus;
         return (
           <StatusMarker
             key={patron.id}
@@ -178,33 +200,55 @@ function WorldStatusOverlay({ snapshot, target }: { snapshot: GameSnapshot; targ
           />
         );
       })}
-      <StatusMarker
-        x={snapshot.bartender.position.x}
-        y={2.47}
-        z={snapshot.bartender.position.z}
-        emoji={BARTENDER_EMOJI[snapshot.bartender.state].emoji}
-        label={BARTENDER_EMOJI[snapshot.bartender.state].label}
-        bartender
-      />
+      {focus === 'bar' && (
+        <StatusMarker
+          x={snapshot.bartender.position.x}
+          y={2.47}
+          z={snapshot.bartender.position.z}
+          emoji={BARTENDER_EMOJI[snapshot.bartender.state].emoji}
+          label={BARTENDER_EMOJI[snapshot.bartender.state].label}
+          bartender
+        />
+      )}
     </div>
   );
 }
 
-function CameraRig() {
+function CameraRig({ focus, developmentOpen }: { focus: VenueView; developmentOpen: boolean }) {
   const { camera, size } = useThree();
+  const currentLook = useRef(new THREE.Vector3(-0.25, 0.4, 0.05));
+  const desiredLook = useMemo(() => new THREE.Vector3(), []);
+  const desiredPosition = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!(camera instanceof THREE.OrthographicCamera)) return;
-    camera.position.set(11.8, 14.2, 16.2);
+    const layout = focus === 'bar' ? null : ROOM_LAYOUTS[focus];
+    const center = layout?.center ?? { x: -0.25, z: 0.05 };
+    const offset = layout?.cameraOffset ?? { x: 12.05, z: 16.15 };
     const portrait = size.height > size.width * 1.2;
+    const offsetLength = Math.hypot(offset.x, offset.z) || 1;
+    const panelShift = portrait && layout && developmentOpen ? 8 : 0;
+    const framedCenter = {
+      x: center.x + (offset.x / offsetLength) * panelShift,
+      z: center.z + (offset.z / offsetLength) * panelShift,
+    };
+    desiredLook.set(framedCenter.x, 0.4, framedCenter.z);
+    desiredPosition.set(framedCenter.x + offset.x, layout ? 15.2 : 14.2, framedCenter.z + offset.z);
+    const smoothing = 1 - Math.exp(-delta * 3.8);
+    camera.position.lerp(desiredPosition, smoothing);
+    currentLook.current.lerp(desiredLook, smoothing);
     const baseZoom = portrait
       ? THREE.MathUtils.clamp(size.width / 11.75, 30.5, 36.5)
       : size.width < 560 ? 33 : size.width < 900 ? 43 : size.width < 1250 ? 51 : 58;
-    if (camera.zoom !== baseZoom) {
-      camera.zoom = baseZoom;
+    const targetZoom = focus === 'bar'
+      ? baseZoom
+      : baseZoom * (portrait ? (developmentOpen ? 0.9 : 0.92) : 1.05);
+    const nextZoom = THREE.MathUtils.lerp(camera.zoom, targetZoom, smoothing);
+    if (Math.abs(camera.zoom - nextZoom) > 0.001) {
+      camera.zoom = nextZoom;
       camera.updateProjectionMatrix();
     }
-    camera.lookAt(-0.25, 0.4, 0.05);
+    camera.lookAt(currentLook.current);
     camera.updateMatrixWorld(true);
   }, -2);
   return null;
@@ -309,6 +353,10 @@ function EventBurst({ event, position }: { event: GameEvent; position: Vec2 }) {
   }), [event.id]);
   const color = event.kind === 'payment'
     ? '#ffd24d'
+    : event.kind === 'room_income'
+      ? '#7cf1cf'
+      : event.kind === 'room_unlock'
+        ? '#ff7fc6'
     : event.kind === 'reputation'
       ? '#fff09b'
       : event.kind === 'upgrade'
@@ -365,7 +413,7 @@ function EventBurst({ event, position }: { event: GameEvent; position: Vec2 }) {
   );
 }
 
-function World({ snapshot }: { snapshot: GameSnapshot }) {
+function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; focus: VenueView; developmentOpen: boolean }) {
   const serviceKind = snapshot.bartender.state === 'delivering'
     ? 'delivering'
     : snapshot.bartender.state === 'cleaning'
@@ -378,7 +426,7 @@ function World({ snapshot }: { snapshot: GameSnapshot }) {
   return (
     <>
       <color attach="background" args={['#bde8df']} />
-      <fog attach="fog" args={['#bde8df', 25, 43]} />
+      <fog attach="fog" args={['#bde8df', 38, 78]} />
       <hemisphereLight args={['#fff3d5', '#315861', 2.2]} />
       <directionalLight
         castShadow
@@ -388,24 +436,41 @@ function World({ snapshot }: { snapshot: GameSnapshot }) {
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-camera-near={0.5}
-        shadow-camera-far={45}
-        shadow-camera-left={-13}
-        shadow-camera-right={13}
-        shadow-camera-top={13}
-        shadow-camera-bottom={-13}
+        shadow-camera-far={60}
+        shadow-camera-left={-30}
+        shadow-camera-right={30}
+        shadow-camera-top={30}
+        shadow-camera-bottom={-30}
         shadow-bias={-0.0002}
       />
       <pointLight position={[0, 4.2, -3]} intensity={24} distance={10} color="#ffbd62" />
       <pointLight position={[-5, 3.2, 3]} intensity={13} distance={7} color="#46d4c4" />
       <BarEnvironment tables={snapshot.tables} />
+      {ROOM_DEFINITIONS.map((definition) => (
+        <RoomWing
+          key={definition.id}
+          definition={definition}
+          room={snapshot.rooms.find((room) => room.id === definition.id)!}
+          focused={focus === definition.id}
+          occupiedSlots={snapshot.patrons
+            .filter((patron) => patron.roomId === definition.id && patron.state === 'in_room' && patron.roomSlot !== null)
+            .map((patron) => patron.roomSlot as number)}
+        />
+      ))}
       {snapshot.bartender.state === 'preparing' && <PourEffect />}
-      {snapshot.patrons.map((patron) => <PatronCharacter key={patron.id} patron={patron} />)}
+      {snapshot.patrons.map((patron) => (
+        patron.state === 'in_room' && patron.roomId === 'massage'
+          ? null
+          : <PatronCharacter key={patron.id} patron={patron} />
+      ))}
       <BartenderCharacter bartender={snapshot.bartender} />
       {serviceKind && serviceTable && <TableActionEffect position={serviceTable.position} kind={serviceKind} />}
-      {snapshot.lastEvent && (
-        <EventBurst key={snapshot.lastEvent.id} event={snapshot.lastEvent} position={snapshot.bartender.position} />
-      )}
-      <CameraRig />
+      {snapshot.lastEvent && (() => {
+        const roomPosition = snapshot.lastEvent.roomId ? ROOM_LAYOUTS[snapshot.lastEvent.roomId].center : null;
+        const position = roomPosition ? { ...roomPosition } : snapshot.bartender.position;
+        return <EventBurst key={snapshot.lastEvent.id} event={snapshot.lastEvent} position={position} />;
+      })()}
+      <CameraRig focus={focus} developmentOpen={developmentOpen} />
     </>
   );
 }
@@ -413,10 +478,12 @@ function World({ snapshot }: { snapshot: GameSnapshot }) {
 type Props = {
   engine: GameEngine;
   snapshot: GameSnapshot;
+  focus: VenueView;
+  developmentOpen: boolean;
   onContextLost: () => void;
 };
 
-export function BarScene({ engine, snapshot, onContextLost }: Props) {
+export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLost }: Props) {
   const presentationCanvas = useRef<HTMLCanvasElement>(null);
   const statusOverlay = useRef<HTMLDivElement>(null!);
   const [presentationUnavailable, setPresentationUnavailable] = useState(false);
@@ -447,7 +514,7 @@ export function BarScene({ engine, snapshot, onContextLost }: Props) {
         <Suspense fallback={null}>
           <ContextLossGuard onContextLost={onContextLost} />
           <SimulationLoop engine={engine} />
-          <World snapshot={snapshot} />
+          <World snapshot={snapshot} focus={focus} developmentOpen={developmentOpen} />
           <WorldStatusProjector target={statusOverlay} />
           <CanvasPresenter
             target={presentationCanvas}
@@ -460,7 +527,7 @@ export function BarScene({ engine, snapshot, onContextLost }: Props) {
         className={`presentation-canvas ${presentationUnavailable ? 'is-disabled' : ''}`}
         aria-hidden="true"
       />
-      <WorldStatusOverlay snapshot={snapshot} target={statusOverlay} />
+      <WorldStatusOverlay snapshot={snapshot} target={statusOverlay} focus={focus} />
     </>
   );
 }

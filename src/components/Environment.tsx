@@ -318,20 +318,38 @@ export function BarEnvironment({ tables }: { tables: TableState[] }) {
       </mesh>
       <FloorTiles />
 
-      <mesh receiveShadow castShadow position={[0, 1.7, -6.05]}>
-        <boxGeometry args={[16.4, 3.4, 0.38]} />
+      {/* Rear wall is split around the massage doorway at x=4.8. */}
+      <mesh receiveShadow castShadow position={[-2.3, 1.7, -6.05]}>
+        <boxGeometry args={[11.8, 3.4, 0.38]} />
         <meshStandardMaterial color="#0f8588" roughness={0.82} />
       </mesh>
-      <mesh receiveShadow castShadow position={[-8.05, 1.7, 0]}>
-        <boxGeometry args={[0.38, 3.4, 12.4]} />
+      <mesh receiveShadow castShadow position={[7.1, 1.7, -6.05]}>
+        <boxGeometry args={[2.2, 3.4, 0.38]} />
+        <meshStandardMaterial color="#0f8588" roughness={0.82} />
+      </mesh>
+      {/* West wall is split around the karaoke doorway at z=1.5. */}
+      <mesh receiveShadow castShadow position={[-8.05, 1.7, -2.95]}>
+        <boxGeometry args={[0.38, 3.4, 6.5]} />
         <meshStandardMaterial color="#ef684f" roughness={0.82} />
       </mesh>
-      <mesh position={[0, 1.23, -5.82]}>
-        <boxGeometry args={[16, 0.18, 0.08]} />
+      <mesh receiveShadow castShadow position={[-8.05, 1.7, 4.45]}>
+        <boxGeometry args={[0.38, 3.4, 3.5]} />
+        <meshStandardMaterial color="#ef684f" roughness={0.82} />
+      </mesh>
+      <mesh position={[-2.2, 1.23, -5.82]}>
+        <boxGeometry args={[11.6, 0.18, 0.08]} />
         <meshStandardMaterial color="#ffe3a4" roughness={0.75} />
       </mesh>
-      <mesh position={[-7.82, 1.23, 0]}>
-        <boxGeometry args={[0.08, 0.18, 12]} />
+      <mesh position={[7, 1.23, -5.82]}>
+        <boxGeometry args={[2, 0.18, 0.08]} />
+        <meshStandardMaterial color="#ffe3a4" roughness={0.75} />
+      </mesh>
+      <mesh position={[-7.82, 1.23, -2.85]}>
+        <boxGeometry args={[0.08, 0.18, 6.3]} />
+        <meshStandardMaterial color="#ffe3a4" roughness={0.75} />
+      </mesh>
+      <mesh position={[-7.82, 1.23, 4.35]}>
+        <boxGeometry args={[0.08, 0.18, 3.3]} />
         <meshStandardMaterial color="#ffe3a4" roughness={0.75} />
       </mesh>
 
@@ -353,7 +371,7 @@ export function BarEnvironment({ tables }: { tables: TableState[] }) {
       <Plant position={[6.7, 0, -4.9]} scale={0.95} />
       <Plant position={[-6.95, 0, 5.05]} scale={0.85} />
 
-      <group position={[-7.79, 2.12, 2.4]} rotation={[0, Math.PI / 2, 0]}>
+      <group position={[-7.79, 2.12, 4.35]} rotation={[0, Math.PI / 2, 0]}>
         {[-0.72, 0, 0.72].map((x, index) => (
           <group key={x} position={[x, 0, 0]}>
             <RoundedBox args={[0.55, 0.72, 0.08]} radius={0.05} smoothness={2}>

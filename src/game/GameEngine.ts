@@ -7,6 +7,12 @@ import {
   getUnlockedDrinks,
   getUpgradeCost,
   INITIAL_UPGRADES,
+  getRoomDefinition,
+  getRoomProfit,
+  getRoomUpgradeCost,
+  ROOM_DEFINITIONS,
+  ROOM_LAYOUTS,
+  ROOM_UPGRADE_DEFS,
   SERVICE_GATE,
   SHIFT_DURATION,
   TABLE_LAYOUT,
@@ -19,6 +25,10 @@ import type {
   GameEvent,
   GameSnapshot,
   Patron,
+  RoomId,
+  RoomState,
+  RoomUpgradeKey,
+  RoomUpgradeLevels,
   TableState,
   UpgradeKey,
   UpgradeLevels,
@@ -33,6 +43,7 @@ type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 type MutablePatron = Patron & { route: Vec2[] };
 type MutableBartender = Bartender & { route: Vec2[]; timer: number };
+type MutableRoom = RoomState & { timer: number; phaseDuration: number; cooldown: number; guestIds: string[] };
 
 type SavedProgress = {
   coins: number;
@@ -41,6 +52,7 @@ type SavedProgress = {
   day: number;
   upgrades: UpgradeLevels;
   soundEnabled: boolean;
+  rooms?: Partial<Record<RoomId, { unlocked: boolean; completedSessions: number; revenue: number; upgrades: RoomUpgradeLevels }>>;
 };
 
 const SAVE_KEY = 'hops-and-honey-save-v1';
@@ -81,6 +93,7 @@ export class GameEngine {
   private lastEvent: GameEvent | null = null;
   private upgrades: UpgradeLevels = { ...INITIAL_UPGRADES };
   private soundEnabled = true;
+  private rooms: Record<RoomId, MutableRoom> = this.makeRooms();
 
   constructor(options: { rng?: RandomSource; storage?: StorageLike | null } = {}) {
     this.rng = options.rng ?? Math.random;
@@ -101,6 +114,28 @@ export class GameEngine {
       route: [],
       timer: 0,
     };
+  }
+
+  private makeRooms(): Record<RoomId, MutableRoom> {
+    const rooms = {} as Record<RoomId, MutableRoom>;
+    for (const definition of ROOM_DEFINITIONS) {
+      rooms[definition.id] = {
+        id: definition.id,
+        unlocked: false,
+        staffState: 'locked',
+        guests: 0,
+        capacity: 1,
+        progress: 0,
+        completedSessions: 0,
+        revenue: 0,
+        upgrades: { staffSpeed: 1, capacity: 1, quality: 1 },
+        timer: 0,
+        phaseDuration: 1,
+        cooldown: 0,
+        guestIds: [],
+      };
+    }
+    return rooms;
   }
 
   subscribe = (listener: Listener) => {
@@ -159,6 +194,40 @@ export class GameEngine {
     return true;
   };
 
+  purchaseRoom = (roomId: RoomId) => {
+    const room = this.rooms[roomId];
+    const definition = getRoomDefinition(roomId);
+    if (!room || room.unlocked || this.coins < definition.unlockCost) return false;
+    this.coins -= definition.unlockCost;
+    room.unlocked = true;
+    room.staffState = 'waiting';
+    room.cooldown = 1.1;
+    room.progress = 0;
+    this.pushEvent('room_unlock', `${definition.icon} ${definition.name} открыт!`, undefined, roomId);
+    this.persist();
+    this.publish();
+    return true;
+  };
+
+  purchaseRoomUpgrade = (roomId: RoomId, key: RoomUpgradeKey) => {
+    const room = this.rooms[roomId];
+    const definition = getRoomDefinition(roomId);
+    const upgrade = ROOM_UPGRADE_DEFS.find((item) => item.key === key);
+    if (!room?.unlocked || !upgrade) return false;
+    const currentLevel = room.upgrades[key];
+    const maxLevel = key === 'capacity' ? definition.maxCapacity : upgrade.maxLevel;
+    if (currentLevel >= maxLevel) return false;
+    const cost = getRoomUpgradeCost(roomId, key, currentLevel);
+    if (this.coins < cost) return false;
+    this.coins -= cost;
+    room.upgrades = { ...room.upgrades, [key]: currentLevel + 1 };
+    room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
+    this.pushEvent('upgrade', `${definition.icon} ${upgrade.name} · ур. ${currentLevel + 1}`);
+    this.persist();
+    this.publish();
+    return true;
+  };
+
   resetProgress = () => {
     this.storage?.removeItem(SAVE_KEY);
     this.started = false;
@@ -173,6 +242,7 @@ export class GameEngine {
     this.patrons = [];
     this.tables = TABLE_LAYOUT.map((table) => ({ ...table, position: cloneVec(table.position), seat: cloneVec(table.seat), service: cloneVec(table.service) }));
     this.bartender = this.makeBartender();
+    this.rooms = this.makeRooms();
     this.upgrades = { ...INITIAL_UPGRADES };
     this.lastEvent = null;
     this.publish();
@@ -218,6 +288,7 @@ export class GameEngine {
 
     this.updatePatrons(delta);
     this.updateBartender(delta);
+    this.updateRooms(delta);
 
     this.publishTimer += delta;
     if (this.publishTimer >= PUBLISH_INTERVAL) {
@@ -226,25 +297,164 @@ export class GameEngine {
     }
   }
 
+  private updateRooms(delta: number) {
+    for (const definition of ROOM_DEFINITIONS) {
+      const room = this.rooms[definition.id];
+      if (!room.unlocked) continue;
+      room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
+
+      room.guestIds = room.guestIds.filter((guestId) => this.patrons.some((patron) => patron.id === guestId && patron.state === 'in_room'));
+      room.guests = room.guestIds.length;
+
+      if (room.staffState === 'waiting') {
+        room.progress = 0;
+        room.cooldown = Math.max(0, room.cooldown - delta);
+        const arrived = this.patrons.filter((patron) => patron.roomId === definition.id && patron.state === 'waiting_room');
+        if (arrived.length > 0 && room.cooldown <= 0) {
+          room.staffState = 'welcoming';
+          // A short gathering window lets several real bar guests form one
+          // session instead of conjuring a full decorative batch.
+          room.phaseDuration = 3.4;
+          room.timer = room.phaseDuration;
+        }
+        continue;
+      }
+
+      room.timer -= delta;
+      room.progress = clamp(1 - room.timer / Math.max(0.01, room.phaseDuration), 0, 1);
+
+      if (room.staffState === 'welcoming') {
+        const arrived = this.patrons.filter((patron) => patron.roomId === definition.id && patron.state === 'waiting_room');
+        const approaching = this.patrons.some((patron) => patron.roomId === definition.id && patron.state === 'walking_to_room');
+        const welcomeElapsed = room.phaseDuration - room.timer;
+        // Keep the greeting visible even when a one-seat room is already full;
+        // larger groups may start early after that minimum beat, but every
+        // already-reserved guest must arrive before the session begins.
+        if (approaching || (room.timer > 0 && (arrived.length < room.capacity || welcomeElapsed < 0.8))) continue;
+        const participants = arrived.slice(0, room.capacity);
+        if (participants.length === 0) {
+          room.staffState = 'waiting';
+          room.cooldown = 0.5;
+          room.progress = 0;
+          continue;
+        }
+        room.guestIds = participants.map((patron) => patron.id);
+        room.guests = participants.length;
+        for (const patron of participants) {
+          patron.state = 'in_room';
+          patron.target = cloneVec(patron.position);
+        }
+        room.staffState = 'serving';
+        room.phaseDuration = definition.sessionDuration * 0.88 ** (room.upgrades.staffSpeed - 1);
+        room.timer = room.phaseDuration;
+        room.progress = 0;
+      } else if (room.staffState === 'serving') {
+        if (room.timer > 0) continue;
+        const participants = room.guestIds
+          .map((guestId) => this.patrons.find((patron) => patron.id === guestId))
+          .filter((patron): patron is MutablePatron => Boolean(patron));
+        const income = getRoomProfit(definition.id, room.upgrades.quality, participants.length);
+        this.coins += income;
+        room.revenue += income;
+        room.completedSessions += 1;
+        if (room.completedSessions % 3 === 0) this.reputation += 1;
+        this.pushEvent('room_income', `${definition.icon} ${definition.shortName} +${income}`, income, definition.id);
+        for (const patron of participants) this.startPatronExit(patron);
+        room.guestIds = [];
+        room.guests = 0;
+        this.persist();
+        room.staffState = 'resetting';
+        room.phaseDuration = 1.15;
+        room.timer = room.phaseDuration;
+        room.progress = 0;
+      } else if (room.staffState === 'resetting') {
+        if (room.timer > 0) continue;
+        room.guests = 0;
+        room.staffState = 'waiting';
+        room.cooldown = Math.max(1.2, 3.2 - this.upgrades.advertising * 0.22);
+        room.progress = 0;
+      }
+    }
+  }
+
+  private countRoomAssignments(roomId: RoomId) {
+    return this.patrons.filter((patron) => (
+      patron.roomId === roomId
+      && (patron.state === 'walking_to_room' || patron.state === 'waiting_room' || patron.state === 'in_room')
+    )).length;
+  }
+
+  private trySendPatronToRoom(patron: MutablePatron) {
+    if (!patron.barServed) return false;
+    const available = ROOM_DEFINITIONS.filter((definition) => {
+      const room = this.rooms[definition.id];
+      return room.unlocked
+        && (room.staffState === 'waiting' || room.staffState === 'welcoming')
+        && this.countRoomAssignments(definition.id) < room.capacity;
+    });
+    const visitChance = clamp(0.38 + patron.happiness * 0.42, 0.42, 0.8);
+    if (available.length === 0 || this.rng() > visitChance) return false;
+
+    const firstIndex = Math.min(available.length - 1, Math.floor(this.rng() * available.length));
+    const ordered = [...available.slice(firstIndex), ...available.slice(0, firstIndex)];
+    for (const definition of ordered) {
+      const layout = ROOM_LAYOUTS[definition.id];
+      const reservedSlots = new Set(this.patrons
+        .filter((item) => item.roomId === definition.id && item.roomSlot !== null && item.state !== 'leaving')
+        .map((item) => item.roomSlot));
+      const slot = layout.guestSpots.findIndex((_, index) => index < this.rooms[definition.id].capacity && !reservedSlots.has(index));
+      if (slot < 0) continue;
+      const destination = layout.guestSpots[slot];
+      const route = this.makeRoute(patron.position, destination, [layout.barPortal, layout.roomPortal, destination]);
+      if (!route) continue;
+      patron.roomId = definition.id;
+      patron.roomSlot = slot;
+      patron.state = 'walking_to_room';
+      patron.route = route;
+      patron.target = cloneVec(route[0] ?? destination);
+      return true;
+    }
+    return false;
+  }
+
+  private startPatronExit(patron: MutablePatron) {
+    const layout = patron.roomId ? ROOM_LAYOUTS[patron.roomId] : null;
+    const requiredStops = layout
+      ? [layout.roomPortal, layout.barPortal, ENTRY_AISLE, ENTRANCE]
+      : [ENTRY_AISLE, ENTRANCE];
+    const route = this.makeRoute(patron.position, ENTRANCE, requiredStops);
+    patron.state = 'leaving';
+    patron.roomSlot = null;
+    // Never turn a failed A* result into a straight line through geometry.
+    // An empty leaving route despawns safely on the next simulation update.
+    patron.route = route ?? [];
+    patron.target = cloneVec(patron.route[0] ?? patron.position);
+  }
+
   private trySpawnPatron() {
     const openTables = this.tables.filter((table) => !table.occupantId && !table.dirty);
     if (openTables.length === 0) return;
     const table = openTables[Math.floor(this.rng() * openTables.length)] ?? openTables[0];
     const id = `guest-${++this.patronSequence}`;
     const initialPatience = 34 + this.rng() * 10;
+    const route = this.makeRoute(ENTRANCE, table.seat);
+    if (!route) return;
     const patron: MutablePatron = {
       id,
       tableId: table.id,
       state: 'walking_in',
       position: cloneVec(ENTRANCE),
       target: cloneVec(ENTRY_AISLE),
-      route: this.makeRoute(ENTRANCE, table.seat),
+      route,
       timer: 0,
       patience: initialPatience,
       initialPatience,
       order: null,
       palette: this.patronSequence % 6,
       happiness: 1,
+      barServed: false,
+      roomId: null,
+      roomSlot: null,
     };
     table.occupantId = id;
     this.patrons.push(patron);
@@ -259,6 +469,11 @@ export class GameEngine {
           // Keep seated guests facing the table instead of preserving the
           // direction of their final walking segment.
           patron.target = cloneVec(this.tables[patron.tableId].position);
+        }
+      } else if (patron.state === 'walking_to_room') {
+        if (this.moveAlongRoute(patron, 1.68, delta)) {
+          patron.state = 'waiting_room';
+          patron.target = cloneVec(patron.position);
         }
       } else if (patron.state === 'leaving') {
         if (this.moveAlongRoute(patron, 1.76, delta)) departed.push(patron);
@@ -331,6 +546,10 @@ export class GameEngine {
 
   private startBartenderMove(state: BartenderState, destination: Vec2, explicitRoute?: Vec2[]) {
     const route = this.makeRoute(this.bartender.position, destination, explicitRoute);
+    if (!route) {
+      this.setBartenderIdle();
+      return;
+    }
     this.bartender.state = state;
     this.bartender.route = route;
     this.bartender.target = cloneVec(route[0] ?? destination);
@@ -408,10 +627,10 @@ export class GameEngine {
           const payment = patron.order.price + tip;
           this.coins += payment;
           this.served += 1;
+          patron.barServed = true;
           table.dirty = true;
-          patron.state = 'leaving';
-          patron.route = this.makeRoute(patron.position, ENTRANCE);
-          patron.target = cloneVec(patron.route[0]);
+          table.occupantId = null;
+          if (!this.trySendPatronToRoom(patron)) this.startPatronExit(patron);
           this.pushEvent('payment', `${patron.order.name} +${payment}`, payment);
           this.persist();
         }
@@ -462,22 +681,22 @@ export class GameEngine {
     return entity.route.length === 0;
   }
 
-  private makeRoute(start: Vec2, destination: Vec2, requiredStops: Vec2[] = []) {
+  private makeRoute(start: Vec2, destination: Vec2, requiredStops: Vec2[] = []): Vec2[] | null {
     const obstacles = makeLevelObstacles(this.tables.map((table) => table.position));
     const stops = requiredStops.length > 0 ? requiredStops : [destination];
     const route: Vec2[] = [];
     let cursor = cloneVec(start);
     for (const stop of stops) {
       const segment = findGridPath(cursor, stop, obstacles);
-      if (segment.length === 0) return [];
+      if (segment.length === 0) return null;
       route.push(...segment);
       cursor = cloneVec(stop);
     }
     return route;
   }
 
-  private pushEvent(kind: GameEvent['kind'], message: string, amount?: number) {
-    this.lastEvent = { id: ++this.eventSequence, kind, message, amount };
+  private pushEvent(kind: GameEvent['kind'], message: string, amount?: number, roomId?: RoomId) {
+    this.lastEvent = { id: ++this.eventSequence, kind, message, amount, roomId };
   }
 
   private buildSnapshot(): GameSnapshot {
@@ -511,6 +730,11 @@ export class GameEngine {
         carryingDirty: this.bartender.carryingDirty,
       },
       upgrades: { ...this.upgrades },
+      rooms: ROOM_DEFINITIONS.map((definition) => {
+        const { timer: _timer, phaseDuration: _phaseDuration, cooldown: _cooldown, guestIds: _guestIds, ...room } = this.rooms[definition.id];
+        return { ...room, upgrades: { ...room.upgrades } };
+      }),
+      roomRevenue: ROOM_DEFINITIONS.reduce((total, definition) => total + this.rooms[definition.id].revenue, 0),
       queueCount: this.patrons.filter((patron) => patron.state === 'waiting_order' || patron.state === 'waiting_drink' || patron.state === 'ready_to_pay').length,
       unlockedDrinks: getUnlockedDrinks(this.upgrades.assortment),
       lastEvent: this.lastEvent ? { ...this.lastEvent } : null,
@@ -531,6 +755,15 @@ export class GameEngine {
       day: this.day,
       upgrades: this.upgrades,
       soundEnabled: this.soundEnabled,
+      rooms: Object.fromEntries(ROOM_DEFINITIONS.map((definition) => {
+        const room = this.rooms[definition.id];
+        return [definition.id, {
+          unlocked: room.unlocked,
+          completedSessions: room.completedSessions,
+          revenue: room.revenue,
+          upgrades: room.upgrades,
+        }];
+      })) as SavedProgress['rooms'],
     };
     try {
       this.storage?.setItem(SAVE_KEY, JSON.stringify(progress));
@@ -556,6 +789,26 @@ export class GameEngine {
           if (typeof candidate === 'number') levels[definition.key] = clamp(Math.floor(candidate), 1, definition.maxLevel);
         }
         this.upgrades = levels;
+      }
+      if (saved.rooms) {
+        for (const definition of ROOM_DEFINITIONS) {
+          const candidate = saved.rooms[definition.id];
+          if (!candidate) continue;
+          const room = this.rooms[definition.id];
+          room.unlocked = candidate.unlocked === true;
+          room.staffState = room.unlocked ? 'waiting' : 'locked';
+          room.cooldown = room.unlocked ? 1.2 : 0;
+          room.completedSessions = typeof candidate.completedSessions === 'number' ? Math.max(0, Math.floor(candidate.completedSessions)) : 0;
+          room.revenue = typeof candidate.revenue === 'number' ? Math.max(0, Math.floor(candidate.revenue)) : 0;
+          if (candidate.upgrades) {
+            for (const upgrade of ROOM_UPGRADE_DEFS) {
+              const value = candidate.upgrades[upgrade.key];
+              const max = upgrade.key === 'capacity' ? definition.maxCapacity : upgrade.maxLevel;
+              if (typeof value === 'number') room.upgrades[upgrade.key] = clamp(Math.floor(value), 1, max);
+            }
+          }
+          room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
+        }
       }
     } catch {
       this.storage?.removeItem(SAVE_KEY);
