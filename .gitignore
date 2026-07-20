@@ -4,6 +4,7 @@ output/
 .wrangler/
 test-results/
 playwright-report/
+.playwright-cli/
 debug.log
 *.local
 *.tar.gz

@@ -1,12 +1,20 @@
-import type { Drink, RoomDefinition, RoomId, RoomLayout, RoomUpgradeDefinition, RoomUpgradeKey, TableState, UpgradeDefinition, UpgradeLevels, Vec2 } from './types';
+import type { Drink, MilestoneDefinition, RoomDefinition, RoomId, RoomLayout, RoomUpgradeDefinition, RoomUpgradeKey, TableState, UpgradeDefinition, UpgradeLevels, Vec2 } from './types';
 
 export const ENTRANCE: Vec2 = { x: 7.15, z: 4.5 };
 export const ENTRY_AISLE: Vec2 = { x: 5.35, z: 3.45 };
 export const BAR_STATION: Vec2 = { x: -1.25, z: -4.72 };
 export const SERVICE_GATE: Vec2 = { x: 3.55, z: -3.2 };
 export const SHIFT_DURATION = 150;
+export const DAY_BONUS_CAP = 60;
+export const DAY_BONUS_RATE = 0.2;
+export const ROOM_GROUP_WINDOW = 4.8;
+export const ROOM_MIN_WELCOME_DURATION = 0.8;
+export const ROOM_RESET_DURATION = 1.15;
 export const TABLE_RADIUS = 0.76;
 export const GUEST_CHAIR_OFFSET = 1.16;
+
+export const getDayBonus = (shiftOperatingRevenue: number) =>
+  Math.min(DAY_BONUS_CAP, Math.max(0, Math.round(shiftOperatingRevenue * DAY_BONUS_RATE)));
 
 const makeTable = (id: number, x: number, z: number): TableState => ({
   id,
@@ -56,6 +64,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     baseProfit: 20,
     sessionDuration: 36,
     maxCapacity: 3,
+    upgradeBaseCosts: { staffSpeed: 60, capacity: 238, quality: 70 },
     color: '#7357d9',
     accent: '#ff74bf',
   },
@@ -70,6 +79,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     baseProfit: 42,
     sessionDuration: 42,
     maxCapacity: 4,
+    upgradeBaseCosts: { staffSpeed: 110, capacity: 638, quality: 130 },
     color: '#d97839',
     accent: '#ffd36a',
   },
@@ -84,9 +94,21 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     baseProfit: 70,
     sessionDuration: 45,
     maxCapacity: 2,
+    upgradeBaseCosts: { staffSpeed: 180, capacity: 1275, quality: 200 },
     color: '#2ba99a',
     accent: '#a9f0d8',
   },
+];
+
+export const MILESTONE_DEFINITIONS: MilestoneDefinition[] = [
+  { id: 'serve-25', label: 'Обслужить 25 гостей', metric: 'served', target: 25 },
+  { id: 'open-first-room', label: 'Открыть первую дополнительную комнату', metric: 'roomsUnlocked', target: 1 },
+  { id: 'serve-100', label: 'Обслужить 100 гостей', metric: 'served', target: 100 },
+  { id: 'room-revenue-1000', label: 'Заработать 1 000 монет в комнатах', metric: 'roomRevenue', target: 1_000 },
+  { id: 'open-all-rooms', label: 'Открыть все дополнительные комнаты', metric: 'roomsUnlocked', target: 3 },
+  { id: 'reach-day-30', label: 'Довести бар до 30-го дня', metric: 'day', target: 30 },
+  { id: 'serve-500', label: 'Обслужить 500 гостей', metric: 'served', target: 500 },
+  { id: 'room-revenue-10000', label: 'Заработать 10 000 монет в комнатах', metric: 'roomRevenue', target: 10_000 },
 ];
 
 /**
@@ -146,8 +168,8 @@ export const getRoomDefinition = (roomId: RoomId) => ROOM_DEFINITIONS.find((room
 
 export const getRoomUpgradeCost = (roomId: RoomId, key: RoomUpgradeKey, currentLevel: number) => {
   const room = getRoomDefinition(roomId);
-  const multiplier = key === 'staffSpeed' ? 0.28 : key === 'capacity' ? 0.85 : 0.36;
-  return Math.ceil(room.unlockCost * multiplier * 1.62 ** (currentLevel - 1));
+  const growth = key === 'capacity' ? 1.62 : 1.45;
+  return Math.ceil(room.upgradeBaseCosts[key] * growth ** (currentLevel - 1));
 };
 
 export const getRoomProfit = (roomId: RoomId, qualityLevel: number, guests: number) => {

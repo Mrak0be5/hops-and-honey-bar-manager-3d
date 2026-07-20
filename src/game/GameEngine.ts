@@ -4,14 +4,19 @@ import {
   ENTRANCE,
   ENTRY_AISLE,
   getArrivalInterval,
+  getDayBonus,
   getUnlockedDrinks,
   getUpgradeCost,
   INITIAL_UPGRADES,
   getRoomDefinition,
   getRoomProfit,
   getRoomUpgradeCost,
+  MILESTONE_DEFINITIONS,
   ROOM_DEFINITIONS,
+  ROOM_GROUP_WINDOW,
   ROOM_LAYOUTS,
+  ROOM_MIN_WELCOME_DURATION,
+  ROOM_RESET_DURATION,
   ROOM_UPGRADE_DEFS,
   SERVICE_GATE,
   SHIFT_DURATION,
@@ -52,6 +57,8 @@ type SavedProgress = {
   day: number;
   upgrades: UpgradeLevels;
   soundEnabled: boolean;
+  totalOperatingRevenue?: number;
+  totalDayBonus?: number;
   rooms?: Partial<Record<RoomId, { unlocked: boolean; completedSessions: number; revenue: number; upgrades: RoomUpgradeLevels }>>;
 };
 
@@ -94,6 +101,9 @@ export class GameEngine {
   private upgrades: UpgradeLevels = { ...INITIAL_UPGRADES };
   private soundEnabled = true;
   private rooms: Record<RoomId, MutableRoom> = this.makeRooms();
+  private totalOperatingRevenue = 0;
+  private totalDayBonus = 0;
+  private shiftOperatingRevenue = 0;
 
   constructor(options: { rng?: RandomSource; storage?: StorageLike | null } = {}) {
     this.rng = options.rng ?? Math.random;
@@ -128,6 +138,8 @@ export class GameEngine {
         progress: 0,
         completedSessions: 0,
         revenue: 0,
+        perGuestProfit: definition.baseProfit,
+        maxSessionProfit: definition.baseProfit,
         upgrades: { staffSpeed: 1, capacity: 1, quality: 1 },
         timer: 0,
         phaseDuration: 1,
@@ -203,7 +215,8 @@ export class GameEngine {
     room.staffState = 'waiting';
     room.cooldown = 1.1;
     room.progress = 0;
-    this.pushEvent('room_unlock', `${definition.icon} ${definition.name} открыт!`, undefined, roomId);
+    const openedWord = definition.id === 'sauna' ? 'открыта' : 'открыт';
+    this.pushEvent('room_unlock', `${definition.icon} ${definition.name} ${openedWord}!`, undefined, roomId);
     this.persist();
     this.publish();
     return true;
@@ -238,6 +251,9 @@ export class GameEngine {
     this.served = 0;
     this.day = 1;
     this.shiftElapsed = 0;
+    this.totalOperatingRevenue = 0;
+    this.totalDayBonus = 0;
+    this.shiftOperatingRevenue = 0;
     this.spawnTimer = 1.3;
     this.patrons = [];
     this.tables = TABLE_LAYOUT.map((table) => ({ ...table, position: cloneVec(table.position), seat: cloneVec(table.seat), service: cloneVec(table.service) }));
@@ -274,8 +290,10 @@ export class GameEngine {
     if (this.shiftElapsed >= SHIFT_DURATION) {
       this.shiftElapsed -= SHIFT_DURATION;
       this.day += 1;
-      const bonus = 16 + this.day * 4;
+      const bonus = getDayBonus(this.shiftOperatingRevenue);
       this.coins += bonus;
+      this.totalDayBonus += bonus;
+      this.shiftOperatingRevenue = 0;
       this.pushEvent('day', `День ${this.day} · бонус ${bonus}` , bonus);
       this.persist();
     }
@@ -314,7 +332,7 @@ export class GameEngine {
           room.staffState = 'welcoming';
           // A short gathering window lets several real bar guests form one
           // session instead of conjuring a full decorative batch.
-          room.phaseDuration = 3.4;
+          room.phaseDuration = ROOM_GROUP_WINDOW;
           room.timer = room.phaseDuration;
         }
         continue;
@@ -330,7 +348,7 @@ export class GameEngine {
         // Keep the greeting visible even when a one-seat room is already full;
         // larger groups may start early after that minimum beat, but every
         // already-reserved guest must arrive before the session begins.
-        if (approaching || (room.timer > 0 && (arrived.length < room.capacity || welcomeElapsed < 0.8))) continue;
+        if (approaching || (room.timer > 0 && (arrived.length < room.capacity || welcomeElapsed < ROOM_MIN_WELCOME_DURATION))) continue;
         const participants = arrived.slice(0, room.capacity);
         if (participants.length === 0) {
           room.staffState = 'waiting';
@@ -355,6 +373,8 @@ export class GameEngine {
           .filter((patron): patron is MutablePatron => Boolean(patron));
         const income = getRoomProfit(definition.id, room.upgrades.quality, participants.length);
         this.coins += income;
+        this.totalOperatingRevenue += income;
+        this.shiftOperatingRevenue += income;
         room.revenue += income;
         room.completedSessions += 1;
         if (room.completedSessions % 3 === 0) this.reputation += 1;
@@ -364,7 +384,7 @@ export class GameEngine {
         room.guests = 0;
         this.persist();
         room.staffState = 'resetting';
-        room.phaseDuration = 1.15;
+        room.phaseDuration = ROOM_RESET_DURATION;
         room.timer = room.phaseDuration;
         room.progress = 0;
       } else if (room.staffState === 'resetting') {
@@ -386,18 +406,31 @@ export class GameEngine {
 
   private trySendPatronToRoom(patron: MutablePatron) {
     if (!patron.barServed) return false;
-    const available = ROOM_DEFINITIONS.filter((definition) => {
+    const available = ROOM_DEFINITIONS.map((definition) => {
       const room = this.rooms[definition.id];
-      return room.unlocked
+      return { definition, room, assignments: this.countRoomAssignments(definition.id) };
+    }).filter(({ room, assignments }) => (
+      room.unlocked
         && (room.staffState === 'waiting' || room.staffState === 'welcoming')
-        && this.countRoomAssignments(definition.id) < room.capacity;
-    });
+        && assignments < room.capacity
+    ));
     const visitChance = clamp(0.38 + patron.happiness * 0.42, 0.42, 0.8);
     if (available.length === 0 || this.rng() > visitChance) return false;
 
-    const firstIndex = Math.min(available.length - 1, Math.floor(this.rng() * available.length));
-    const ordered = [...available.slice(firstIndex), ...available.slice(0, firstIndex)];
-    for (const definition of ordered) {
+    // Fill an already forming group before opening another room queue. This
+    // makes upgraded capacity visible in normal play and avoids scattering
+    // consecutive guests across several one-person sessions.
+    const highestFill = Math.max(...available.map(({ assignments }) => assignments));
+    const preferred = highestFill > 0
+      ? available.filter(({ assignments }) => assignments === highestFill)
+      : available;
+    const firstIndex = Math.min(preferred.length - 1, Math.floor(this.rng() * preferred.length));
+    const ordered = [
+      ...preferred.slice(firstIndex),
+      ...preferred.slice(0, firstIndex),
+      ...available.filter((candidate) => !preferred.includes(candidate)),
+    ];
+    for (const { definition } of ordered) {
       const layout = ROOM_LAYOUTS[definition.id];
       const reservedSlots = new Set(this.patrons
         .filter((item) => item.roomId === definition.id && item.roomSlot !== null && item.state !== 'leaving')
@@ -626,6 +659,8 @@ export class GameEngine {
           const tip = Math.round(patron.order.price * Math.max(0, patron.happiness - 0.38) * 0.32);
           const payment = patron.order.price + tip;
           this.coins += payment;
+          this.totalOperatingRevenue += payment;
+          this.shiftOperatingRevenue += payment;
           this.served += 1;
           patron.barServed = true;
           table.dirty = true;
@@ -700,6 +735,32 @@ export class GameEngine {
   }
 
   private buildSnapshot(): GameSnapshot {
+    const roomRevenue = ROOM_DEFINITIONS.reduce(
+      (total, definition) => total + this.rooms[definition.id].revenue,
+      0,
+    );
+    const roomsUnlocked = ROOM_DEFINITIONS.filter((definition) => this.rooms[definition.id].unlocked).length;
+    const milestones = MILESTONE_DEFINITIONS.map((definition) => {
+      let current = 0;
+      switch (definition.metric) {
+        case 'served':
+          current = this.served;
+          break;
+        case 'roomsUnlocked':
+          current = roomsUnlocked;
+          break;
+        case 'roomRevenue':
+          current = roomRevenue;
+          break;
+        case 'day':
+          current = this.day;
+          break;
+      }
+      const { metric: _metric, ...milestone } = definition;
+      return { ...milestone, current };
+    });
+    const achievedMilestoneCount = milestones.filter((milestone) => milestone.current >= milestone.target).length;
+
     return {
       started: this.started,
       paused: this.paused,
@@ -732,9 +793,16 @@ export class GameEngine {
       upgrades: { ...this.upgrades },
       rooms: ROOM_DEFINITIONS.map((definition) => {
         const { timer: _timer, phaseDuration: _phaseDuration, cooldown: _cooldown, guestIds: _guestIds, ...room } = this.rooms[definition.id];
-        return { ...room, upgrades: { ...room.upgrades } };
+        const perGuestProfit = getRoomProfit(definition.id, room.upgrades.quality, 1);
+        const maxSessionProfit = getRoomProfit(definition.id, room.upgrades.quality, room.capacity);
+        return { ...room, perGuestProfit, maxSessionProfit, upgrades: { ...room.upgrades } };
       }),
-      roomRevenue: ROOM_DEFINITIONS.reduce((total, definition) => total + this.rooms[definition.id].revenue, 0),
+      roomRevenue,
+      totalOperatingRevenue: this.totalOperatingRevenue,
+      totalDayBonus: this.totalDayBonus,
+      nextMilestone: milestones.find((milestone) => milestone.current < milestone.target) ?? null,
+      achievedMilestoneCount,
+      totalMilestoneCount: milestones.length,
       queueCount: this.patrons.filter((patron) => patron.state === 'waiting_order' || patron.state === 'waiting_drink' || patron.state === 'ready_to_pay').length,
       unlockedDrinks: getUnlockedDrinks(this.upgrades.assortment),
       lastEvent: this.lastEvent ? { ...this.lastEvent } : null,
@@ -755,6 +823,8 @@ export class GameEngine {
       day: this.day,
       upgrades: this.upgrades,
       soundEnabled: this.soundEnabled,
+      totalOperatingRevenue: this.totalOperatingRevenue,
+      totalDayBonus: this.totalDayBonus,
       rooms: Object.fromEntries(ROOM_DEFINITIONS.map((definition) => {
         const room = this.rooms[definition.id];
         return [definition.id, {
@@ -782,6 +852,12 @@ export class GameEngine {
       if (typeof saved.served === 'number' && saved.served >= 0) this.served = Math.floor(saved.served);
       if (typeof saved.day === 'number' && saved.day >= 1) this.day = Math.floor(saved.day);
       if (typeof saved.soundEnabled === 'boolean') this.soundEnabled = saved.soundEnabled;
+      if (typeof saved.totalOperatingRevenue === 'number' && Number.isFinite(saved.totalOperatingRevenue) && saved.totalOperatingRevenue >= 0) {
+        this.totalOperatingRevenue = Math.floor(saved.totalOperatingRevenue);
+      }
+      if (typeof saved.totalDayBonus === 'number' && Number.isFinite(saved.totalDayBonus) && saved.totalDayBonus >= 0) {
+        this.totalDayBonus = Math.floor(saved.totalDayBonus);
+      }
       if (saved.upgrades) {
         const levels = { ...INITIAL_UPGRADES };
         for (const definition of UPGRADE_DEFS) {

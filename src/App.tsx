@@ -1,22 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BarScene } from './components/BarScene';
 import { gameAudio } from './game/audio';
 import { gameEngine } from './game/GameEngine';
 import { useGameSnapshot } from './game/useGameSnapshot';
 import { Hud } from './ui/Hud';
-import { Icon } from './ui/Icon';
+import { Icon, preloadUiIcons } from './ui/Icon';
 import type { VenueView } from './game/types';
 
 export default function App() {
   const snapshot = useGameSnapshot(gameEngine);
   const [contextLost, setContextLost] = useState(false);
   const [venueView, setVenueView] = useState<VenueView>('bar');
-  const [upgradesOpen, setUpgradesOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 980);
+  const [upgradesOpen, setUpgradesOpen] = useState(false);
   const lastSoundEvent = useRef(0);
+  const handleContextLost = useCallback(() => setContextLost(true), []);
 
   useEffect(() => {
-    gameAudio.setEnabled(snapshot.soundEnabled);
+    preloadUiIcons();
+  }, []);
+
+  useEffect(() => {
+    gameAudio.setEnabled(snapshot.soundEnabled, false);
   }, [snapshot.soundEnabled]);
+
+  useEffect(() => {
+    if (snapshot.started) return;
+    setUpgradesOpen(false);
+    setVenueView('bar');
+  }, [snapshot.started]);
 
   useEffect(() => {
     if (!snapshot.lastEvent || snapshot.lastEvent.id === lastSoundEvent.current) return;
@@ -64,7 +75,7 @@ export default function App() {
           snapshot={snapshot}
           focus={venueView}
           developmentOpen={upgradesOpen}
-          onContextLost={() => setContextLost(true)}
+          onContextLost={handleContextLost}
         />
       )}
       <Hud

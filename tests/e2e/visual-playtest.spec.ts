@@ -47,7 +47,9 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
 
   await page.waitForTimeout(testInfo.project.name === 'desktop-chromium' ? 9_000 : 5_000);
   await expect(page.locator('.game-canvas')).toHaveCSS('visibility', 'hidden');
-  await expect(page.locator('.world-status-marker').first()).toBeVisible();
+  // Portrait mode deliberately hides redundant patron markers and keeps one
+  // useful status marker, which is not necessarily first in DOM order.
+  await expect(page.locator('.world-status-marker:visible').first()).toBeVisible();
   await expect(page.locator('.pause-scrim')).toHaveCount(0);
   await expect(page.locator('.bottom-status')).toBeVisible();
 

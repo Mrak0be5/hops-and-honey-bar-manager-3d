@@ -3,9 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
-  // A handful of simultaneous WebGL contexts can starve Chromium's GPU task
-  // long enough to trip otherwise healthy visual tests on modest machines.
-  workers: 2,
+  // Keep one WebGL scene active at a time. The richer connected-room scene can
+  // starve Chromium's GPU task when desktop and mobile projects overlap.
+  workers: 1,
   use: {
     baseURL: 'http://127.0.0.1:4187',
     screenshot: 'only-on-failure',

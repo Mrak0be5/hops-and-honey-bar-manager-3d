@@ -37,8 +37,9 @@ test('keeps sound available and collapsed upgrades inert on mobile', async ({ pa
   await expect(page.locator('.upgrade-panel')).toHaveAttribute('inert', '');
 });
 
-test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({ page }) => {
-  test.setTimeout(90_000);
+test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'Portrait dock is covered by the mobile project');
+  test.setTimeout(180_000);
   for (const viewport of [
     { width: 360, height: 800 },
     { width: 390, height: 844 },

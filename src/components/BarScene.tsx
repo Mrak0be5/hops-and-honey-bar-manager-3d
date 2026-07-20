@@ -19,12 +19,23 @@ function ContextLossGuard({ onContextLost }: { onContextLost: () => void }) {
 
   useEffect(() => {
     const canvas = gl.domElement;
+    let recoveryTimer: number | null = null;
     const handleContextLost = (event: Event) => {
       event.preventDefault();
-      onContextLost();
+      if (recoveryTimer !== null) window.clearTimeout(recoveryTimer);
+      recoveryTimer = window.setTimeout(onContextLost, 900);
+    };
+    const handleContextRestored = () => {
+      if (recoveryTimer !== null) window.clearTimeout(recoveryTimer);
+      recoveryTimer = null;
     };
     canvas.addEventListener('webglcontextlost', handleContextLost);
-    return () => canvas.removeEventListener('webglcontextlost', handleContextLost);
+    canvas.addEventListener('webglcontextrestored', handleContextRestored);
+    return () => {
+      if (recoveryTimer !== null) window.clearTimeout(recoveryTimer);
+      canvas.removeEventListener('webglcontextlost', handleContextLost);
+      canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+    };
   }, [gl, onContextLost]);
 
   return null;
@@ -155,13 +166,25 @@ function DecorationMarker({ x, y, z, children }: { x: number; y: number; z: numb
 }
 
 function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapshot; target: RefObject<HTMLDivElement>; focus: VenueView }) {
-  const visiblePatrons = snapshot.patrons.filter((patron) => {
+  const [compact, setCompact] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 680);
+  useEffect(() => {
+    const update = () => setCompact(window.innerWidth <= 680);
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  const candidates = snapshot.patrons.filter((patron) => {
     if (focus === 'bar') return patron.state !== 'waiting_room' && patron.state !== 'in_room';
     if (patron.roomId !== focus) return false;
     // The massage room renders the customer lying on the actual table; a
     // separate DOM bubble at the standing reservation point would be detached.
     return !(focus === 'massage' && patron.state === 'in_room');
   });
+  const visibleLimit = compact ? (focus === 'bar' ? 4 : 3) : Number.POSITIVE_INFINITY;
+  const visiblePatrons = candidates.slice(0, visibleLimit);
+  const hiddenPatrons = Math.max(0, candidates.length - visiblePatrons.length);
+  const overflowPosition = focus === 'bar'
+    ? { x: -5.8, z: 4.7 }
+    : { x: ROOM_LAYOUTS[focus].center.x, z: ROOM_LAYOUTS[focus].center.z + 2.65 };
   return (
     <div ref={target} className="world-status-overlay">
       {focus === 'bar' && (
@@ -200,6 +223,15 @@ function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapsho
           />
         );
       })}
+      {hiddenPatrons > 0 && (
+        <StatusMarker
+          x={overflowPosition.x}
+          y={2.35}
+          z={overflowPosition.z}
+          emoji={`+${hiddenPatrons}`}
+          label={`Ещё гостей: ${hiddenPatrons}`}
+        />
+      )}
       {focus === 'bar' && (
         <StatusMarker
           x={snapshot.bartender.position.x}
@@ -223,26 +255,35 @@ function CameraRig({ focus, developmentOpen }: { focus: VenueView; developmentOp
   useFrame((_, delta) => {
     if (!(camera instanceof THREE.OrthographicCamera)) return;
     const layout = focus === 'bar' ? null : ROOM_LAYOUTS[focus];
-    const center = layout?.center ?? { x: -0.25, z: 0.05 };
+    const roomInset = focus === 'karaoke'
+      ? { x: -0.82, z: 0.12 }
+      : focus === 'sauna'
+        ? { x: 0.82, z: 0.12 }
+        : focus === 'massage'
+          ? { x: 0, z: -0.72 }
+          : { x: 0, z: 0 };
+    const center = layout
+      ? { x: layout.center.x + roomInset.x, z: layout.center.z + roomInset.z }
+      : { x: -0.25, z: 0.05 };
     const offset = layout?.cameraOffset ?? { x: 12.05, z: 16.15 };
     const portrait = size.height > size.width * 1.2;
     const offsetLength = Math.hypot(offset.x, offset.z) || 1;
-    const panelShift = portrait && layout && developmentOpen ? 8 : 0;
+    const panelShift = portrait && layout && developmentOpen ? 3.4 : 0;
     const framedCenter = {
       x: center.x + (offset.x / offsetLength) * panelShift,
       z: center.z + (offset.z / offsetLength) * panelShift,
     };
-    desiredLook.set(framedCenter.x, 0.4, framedCenter.z);
+    desiredLook.set(framedCenter.x, 0.08, framedCenter.z);
     desiredPosition.set(framedCenter.x + offset.x, layout ? 15.2 : 14.2, framedCenter.z + offset.z);
     const smoothing = 1 - Math.exp(-delta * 3.8);
     camera.position.lerp(desiredPosition, smoothing);
     currentLook.current.lerp(desiredLook, smoothing);
     const baseZoom = portrait
       ? THREE.MathUtils.clamp(size.width / 11.75, 30.5, 36.5)
-      : size.width < 560 ? 33 : size.width < 900 ? 43 : size.width < 1250 ? 51 : 58;
+      : size.width < 560 ? 33 : size.width < 900 ? 41 : size.width < 1250 ? 47 : 52;
     const targetZoom = focus === 'bar'
       ? baseZoom
-      : baseZoom * (portrait ? (developmentOpen ? 0.9 : 0.92) : 1.05);
+      : baseZoom * (portrait ? (developmentOpen ? 0.88 : 0.94) : 1.16);
     const nextZoom = THREE.MathUtils.lerp(camera.zoom, targetZoom, smoothing);
     if (Math.abs(camera.zoom - nextZoom) > 0.001) {
       camera.zoom = nextZoom;
@@ -427,6 +468,10 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
     <>
       <color attach="background" args={['#bde8df']} />
       <fog attach="fog" args={['#bde8df', 38, 78]} />
+      <mesh position={[0, -0.16, -3.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[72, 58]} />
+        <meshStandardMaterial color="#addfd6" roughness={1} />
+      </mesh>
       <hemisphereLight args={['#fff3d5', '#315861', 2.2]} />
       <directionalLight
         castShadow
@@ -491,7 +536,6 @@ export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLo
   return (
     <>
       <Canvas
-        key={snapshot.started ? 'running-bar' : 'welcome-bar'}
         className={`game-canvas ${presentationUnavailable ? 'is-direct-visible' : ''}`}
         orthographic
         shadows

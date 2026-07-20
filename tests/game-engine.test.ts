@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { BAR_STATION, ENTRANCE, ENTRY_AISLE, SERVICE_GATE, GUEST_CHAIR_OFFSET, INITIAL_UPGRADES, ROOM_DEFINITIONS, ROOM_LAYOUTS, TABLE_LAYOUT, TABLE_RADIUS } from '../src/game/config';
+import {
+  BAR_STATION,
+  DAY_BONUS_CAP,
+  ENTRANCE,
+  ENTRY_AISLE,
+  getRoomUpgradeCost,
+  SERVICE_GATE,
+  GUEST_CHAIR_OFFSET,
+  INITIAL_UPGRADES,
+  MILESTONE_DEFINITIONS,
+  ROOM_DEFINITIONS,
+  ROOM_LAYOUTS,
+  SHIFT_DURATION,
+  TABLE_LAYOUT,
+  TABLE_RADIUS,
+} from '../src/game/config';
 import { GameEngine } from '../src/game/GameEngine';
 import { findGridPath, isInsideWalkableZone, isWalkable, makeLevelObstacles, NAV_CELL_SIZE } from '../src/game/navigation';
 
@@ -77,6 +92,19 @@ describe('GameEngine', () => {
     expect(state.day).toBe(2);
     expect(state.lastEvent).not.toBeNull();
     expect(state.served).toBeGreaterThan(1);
+  });
+
+  it('caps day bonuses and keeps them below a quarter of long-run income', () => {
+    const engine = makeEngine();
+    engine.start();
+    // Eighteen complete shifts are enough to prove the bounded ratio while
+    // keeping the navigation-heavy simulation comfortably below CI timeouts.
+    engine.advance(SHIFT_DURATION * 18 + 1);
+
+    const state = engine.getSnapshot();
+    expect(state.totalOperatingRevenue).toBeGreaterThan(0);
+    expect(state.totalDayBonus).toBeLessThanOrEqual((state.day - 1) * DAY_BONUS_CAP);
+    expect(state.totalDayBonus / (state.totalOperatingRevenue + state.totalDayBonus)).toBeLessThanOrEqual(0.25);
   });
 
   it('keeps seated guests clear of the tabletop and facing their table', () => {
@@ -247,6 +275,45 @@ describe('GameEngine', () => {
     expect(verifiedServingBatch).toBe(true);
   });
 
+  it('naturally fills a two-seat room and pays for the actual full batch', () => {
+    const fastUpgrades = {
+      ...INITIAL_UPGRADES,
+      moveSpeed: 10,
+      orderSpeed: 10,
+      prepSpeed: 10,
+      cleanSpeed: 10,
+      advertising: 8,
+    };
+    const { engine } = makeFundedEngine(5_000, fastUpgrades);
+    const definition = ROOM_DEFINITIONS.find((room) => room.id === 'karaoke')!;
+    expect(engine.purchaseRoom('karaoke')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
+    engine.start();
+
+    let targetSession = 0;
+    let revenueBeforeFullSession = 0;
+    let expectedIncome = 0;
+    let verifiedFullPayout = false;
+    for (let tick = 0; tick < 1_600; tick += 1) {
+      engine.advance(0.25);
+      const room = engine.getSnapshot().rooms.find((item) => item.id === 'karaoke')!;
+      if (targetSession === 0 && room.staffState === 'serving' && room.guests === 2) {
+        targetSession = room.completedSessions + 1;
+        revenueBeforeFullSession = room.revenue;
+        expectedIncome = room.maxSessionProfit;
+        expect(room.perGuestProfit).toBe(definition.baseProfit);
+        expect(room.maxSessionProfit).toBe(room.perGuestProfit * room.capacity);
+      }
+      if (targetSession > 0 && room.completedSessions >= targetSession) {
+        expect(room.revenue - revenueBeforeFullSession).toBe(expectedIncome);
+        verifiedFullPayout = true;
+        break;
+      }
+    }
+    expect(targetSession).toBeGreaterThan(0);
+    expect(verifiedFullPayout).toBe(true);
+  });
+
   it('keeps room upgrades independent and restores them with room revenue', () => {
     const { engine, storage } = makeFundedEngine();
     expect(engine.purchaseRoomUpgrade('sauna', 'quality')).toBe(false);
@@ -276,5 +343,43 @@ describe('GameEngine', () => {
       expect(ROOM_DEFINITIONS[index].baseProfit).toBeGreaterThan(ROOM_DEFINITIONS[index - 1].baseProfit);
       expect(ROOM_DEFINITIONS[index].unlockCost).toBeGreaterThan(ROOM_DEFINITIONS[index - 1].unlockCost);
     }
+  });
+
+  it('uses the correct grammatical form when the sauna opens', () => {
+    const { engine } = makeFundedEngine();
+    expect(engine.purchaseRoom('sauna')).toBe(true);
+    expect(engine.getSnapshot().lastEvent?.message).toContain('Финская сауна открыта!');
+  });
+
+  it('prices the first speed and quality upgrades for a six-to-eight shift payoff', () => {
+    expect(getRoomUpgradeCost('karaoke', 'staffSpeed', 1)).toBe(60);
+    expect(getRoomUpgradeCost('karaoke', 'quality', 1)).toBe(70);
+    expect(getRoomUpgradeCost('sauna', 'staffSpeed', 1)).toBe(110);
+    expect(getRoomUpgradeCost('sauna', 'quality', 1)).toBe(130);
+    expect(getRoomUpgradeCost('massage', 'staffSpeed', 1)).toBe(180);
+    expect(getRoomUpgradeCost('massage', 'quality', 1)).toBe(200);
+  });
+
+  it('derives milestones and new economy counters from a legacy save', () => {
+    const storage = new MemoryStorage();
+    storage.setItem('hops-and-honey-save-v1', JSON.stringify({
+      coins: 432,
+      reputation: 18,
+      served: 120,
+      day: 12,
+      upgrades: INITIAL_UPGRADES,
+      soundEnabled: true,
+    }));
+
+    const state = makeEngine(storage).getSnapshot();
+    expect(state.coins).toBe(432);
+    expect(state.served).toBe(120);
+    expect(state.totalOperatingRevenue).toBe(0);
+    expect(state.totalDayBonus).toBe(0);
+    expect(state.totalMilestoneCount).toBe(MILESTONE_DEFINITIONS.length);
+    expect(state.achievedMilestoneCount).toBeGreaterThan(0);
+    expect(state.nextMilestone).not.toBeNull();
+    expect(state.nextMilestone!.current).toBeLessThan(state.nextMilestone!.target);
+    expect(state.rooms.every((room) => !room.unlocked)).toBe(true);
   });
 });

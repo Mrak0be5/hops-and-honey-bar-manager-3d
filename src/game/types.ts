@@ -42,6 +42,23 @@ export type VenueView = 'bar' | RoomId;
 export type RoomUpgradeKey = 'staffSpeed' | 'capacity' | 'quality';
 export type RoomUpgradeLevels = Record<RoomUpgradeKey, number>;
 export type RoomStaffState = 'locked' | 'waiting' | 'welcoming' | 'serving' | 'resetting';
+export type MilestoneMetric = 'served' | 'roomsUnlocked' | 'roomRevenue' | 'day';
+
+export type MilestoneDefinition = {
+  id: string;
+  label: string;
+  metric: MilestoneMetric;
+  target: number;
+  rewardLabel?: string;
+};
+
+export type MilestoneProgress = {
+  id: string;
+  label: string;
+  current: number;
+  target: number;
+  rewardLabel?: string;
+};
 
 export type Drink = {
   id: string;
@@ -107,6 +124,8 @@ export type RoomState = {
   progress: number;
   completedSessions: number;
   revenue: number;
+  perGuestProfit: number;
+  maxSessionProfit: number;
   upgrades: RoomUpgradeLevels;
 };
 
@@ -121,6 +140,7 @@ export type RoomDefinition = {
   baseProfit: number;
   sessionDuration: number;
   maxCapacity: number;
+  upgradeBaseCosts: Record<RoomUpgradeKey, number>;
   color: string;
   accent: string;
 };
@@ -158,6 +178,11 @@ export type GameSnapshot = {
   upgrades: UpgradeLevels;
   rooms: RoomState[];
   roomRevenue: number;
+  totalOperatingRevenue: number;
+  totalDayBonus: number;
+  nextMilestone: MilestoneProgress | null;
+  achievedMilestoneCount: number;
+  totalMilestoneCount: number;
   queueCount: number;
   unlockedDrinks: Drink[];
   lastEvent: GameEvent | null;

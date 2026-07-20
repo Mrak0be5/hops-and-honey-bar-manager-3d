@@ -2,7 +2,7 @@ import { RoundedBox, Sparkles } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import type { Bartender, Patron, PatronState, Vec2 } from '../game/types';
+import type { Bartender, Patron, PatronState, RoomId, Vec2 } from '../game/types';
 
 export const CUSTOMER_EMOJI: Record<PatronState, { emoji: string; label: string }> = {
   walking_in: { emoji: '🚪', label: 'Ищет столик' },
@@ -97,10 +97,11 @@ type HumanoidProps = {
   bartender?: boolean;
   carryingDrink?: string | null;
   carryingDirty?: boolean;
+  roomActivity?: RoomId | null;
   activity: PatronState | Bartender['state'];
 };
 
-function Humanoid({ position, target, palette, moving, seated = false, drinking = false, bartender = false, carryingDrink, carryingDirty, activity }: HumanoidProps) {
+function Humanoid({ position, target, palette, moving, seated = false, drinking = false, bartender = false, carryingDrink, carryingDirty, roomActivity = null, activity }: HumanoidProps) {
   const root = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
   const chest = useRef<THREE.Group>(null);
@@ -189,11 +190,19 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
     } else if (activity === 'cleaning') {
       leftArmX = -1.02 + fastWave * 0.3;
       rightArmX = -1.02 - fastWave * 0.3;
+    } else if (activity === 'in_room' && roomActivity === 'karaoke') {
+      leftArmX = -1.42 + fastWave * 0.26;
+      rightArmX = -0.82 + Math.sin(phase.current * 1.35) * 0.32;
+      leftArmZ = -0.25;
+      rightArmZ = 0.08;
+    } else if (activity === 'in_room' && roomActivity === 'sauna') {
+      leftArmX = -0.56 + fastWave * 0.07;
+      rightArmX = -0.48 - fastWave * 0.07;
+      leftArmZ = -0.12;
+      rightArmZ = 0.12;
     } else if (activity === 'in_room') {
-      leftArmX = -1.18 + fastWave * 0.34;
-      rightArmX = -1.18 - fastWave * 0.34;
-      leftArmZ = -0.18;
-      rightArmZ = 0.18;
+      leftArmX = -1.05 + fastWave * 0.22;
+      rightArmX = -1.05 - fastWave * 0.22;
     } else if (carryingDrink || carryingDirty) {
       rightArmX = -0.58;
       leftArmX = -0.25;
@@ -218,7 +227,8 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
     if (rightKnee.current) rightKnee.current.rotation.x = THREE.MathUtils.damp(rightKnee.current.rotation.x, rightKneeBend, 14, delta);
 
     if (body.current) {
-      const actionLean = activity === 'preparing' || activity === 'cleaning' ? -0.08 : moving ? 0.045 : 0;
+      const roomLean = activity === 'in_room' && roomActivity === 'karaoke' ? Math.sin(phase.current * 0.65) * 0.055 : 0;
+      const actionLean = activity === 'preparing' || activity === 'cleaning' ? -0.08 : moving ? 0.045 : roomLean;
       body.current.rotation.x = THREE.MathUtils.damp(body.current.rotation.x, actionLean, 9, delta);
       body.current.rotation.z = THREE.MathUtils.damp(body.current.rotation.z, moving ? wave * 0.045 : activity === 'cleaning' ? fastWave * 0.025 : 0, 10, delta);
       body.current.position.y = THREE.MathUtils.damp(body.current.position.y, actionPop * 0.025, 15, delta);
@@ -232,7 +242,8 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
     if (head.current) {
       const look = seated && !drinking ? Math.sin(phase.current * 0.48) * 0.08 : 0;
       head.current.rotation.y = THREE.MathUtils.damp(head.current.rotation.y, look, 7, delta);
-      const orderNod = activity === 'ordering' || activity === 'taking_order' ? Math.sin(clock.elapsedTime * 4.2 + palette) * 0.08 : 0;
+      const karaokeNod = activity === 'in_room' && roomActivity === 'karaoke' ? Math.sin(clock.elapsedTime * 5.4 + palette) * 0.1 : 0;
+      const orderNod = activity === 'ordering' || activity === 'taking_order' ? Math.sin(clock.elapsedTime * 4.2 + palette) * 0.08 : karaokeNod;
       head.current.rotation.x = THREE.MathUtils.damp(head.current.rotation.x, drinking ? -0.11 * sipAmount : orderNod, 8, delta);
       head.current.rotation.z = THREE.MathUtils.damp(head.current.rotation.z, moving ? -wave * 0.025 : 0, 8, delta);
     }
@@ -442,6 +453,17 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
             </mesh>
           </group>
         )}
+        {activity === 'in_room' && roomActivity === 'karaoke' && (
+          <group position={[0.43, 1.07, 0.38]} rotation={[0.16, 0, -0.2]}>
+            <mesh><cylinderGeometry args={[0.035, 0.035, 0.42, 8]} /><meshStandardMaterial color="#263442" metalness={0.45} roughness={0.3} /></mesh>
+            <mesh position={[0, 0.24, 0]}><sphereGeometry args={[0.085, 10, 8]} /><meshStandardMaterial color="#111827" metalness={0.34} /></mesh>
+          </group>
+        )}
+        {activity === 'in_room' && roomActivity === 'sauna' && (
+          <RoundedBox args={[0.48, 0.08, 0.62]} radius={0.06} smoothness={2} position={[0, 1.17, 0.24]} rotation={[0.05, 0, 0]}>
+            <meshStandardMaterial color="#fff0db" roughness={0.95} />
+          </RoundedBox>
+        )}
         {(activity === 'ready_to_pay' || activity === 'paying' || activity === 'taking_payment') && (
           <group ref={coin} position={[0.38, 1.02, 0.46]} rotation={[Math.PI / 2, 0, 0]}>
             <mesh>
@@ -481,6 +503,12 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
         {activity === 'leaving' && (
           <Sparkles count={5} scale={[0.72, 0.75, 0.48]} position={[0, 1.45, 0]} size={2.3} speed={0.42} color="#ffd66f" />
         )}
+        {activity === 'in_room' && roomActivity === 'karaoke' && (
+          <Sparkles count={8} scale={[1.15, 1.45, 0.9]} position={[0, 1.25, 0]} size={2.5} speed={0.52} color="#ff83c8" />
+        )}
+        {activity === 'in_room' && roomActivity === 'sauna' && (
+          <Sparkles count={5} scale={[0.9, 0.8, 0.75]} position={[0, 1.1, 0]} size={2.1} speed={0.24} color="#fff0cf" />
+        )}
       </group>
     </group>
   );
@@ -488,15 +516,20 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
 
 export function PatronCharacter({ patron }: { patron: Patron }) {
   const moving = patron.state === 'walking_in' || patron.state === 'walking_to_room' || patron.state === 'leaving';
-  const seated = !moving && patron.state !== 'waiting_room' && patron.state !== 'in_room';
+  const seated = (!moving && patron.state !== 'waiting_room' && patron.state !== 'in_room')
+    || (patron.state === 'in_room' && patron.roomId === 'sauna');
+  const target = patron.state === 'in_room' && patron.roomId
+    ? { x: patron.position.x, z: patron.position.z - 1 }
+    : patron.target;
   return (
     <Humanoid
       position={patron.position}
-      target={patron.target}
+      target={target}
       palette={patron.palette}
       moving={moving}
       seated={seated}
       drinking={patron.state === 'drinking'}
+      roomActivity={patron.roomId}
       activity={patron.state}
     />
   );

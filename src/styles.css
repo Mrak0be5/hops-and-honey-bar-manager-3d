@@ -157,6 +157,7 @@ button {
   border: 2px solid rgba(255, 244, 216, 0.82);
   border-radius: 19px;
   box-shadow: var(--shadow);
+  transition: opacity 0.18s ease, transform 0.2s ease, visibility 0.18s linear;
 }
 
 .brand-mark {
@@ -226,6 +227,7 @@ button {
   border-radius: 18px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
+  transition: opacity 0.18s ease, transform 0.2s ease, visibility 0.18s linear;
 }
 
 .currency-chip {
@@ -252,6 +254,10 @@ button {
   font-size: 17px;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.16);
+}
+
+.currency-value-compact {
+  display: none;
 }
 
 .control-strip {
@@ -333,7 +339,12 @@ button {
 
 .game-icon {
   display: block;
+  flex: 0 0 auto;
+  aspect-ratio: 1;
   object-fit: cover;
+  object-position: center;
+  backface-visibility: hidden;
+  contain: paint;
 }
 
 .upgrade-backdrop {
@@ -366,16 +377,26 @@ button {
     radial-gradient(circle at top right, rgba(18, 170, 166, 0.3), transparent 45%);
   border: 2px solid rgba(255, 246, 218, 0.84);
   border-radius: 24px;
+  pointer-events: none;
+  visibility: hidden;
   opacity: 0;
   box-shadow: 0 24px 60px rgba(5, 39, 48, 0.35), 0 4px 0 rgba(5, 39, 48, 0.3);
   transform: translateX(calc(100% + 32px)) scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease, visibility 0s linear 0.3s;
   backdrop-filter: blur(14px);
 }
 
 .upgrade-panel.is-open {
+  pointer-events: auto;
+  visibility: visible;
   opacity: 1;
   transform: translateX(0) scale(1);
+  transition-delay: 0s;
+}
+
+.panel-sticky-header {
+  min-width: 0;
+  flex: 0 0 auto;
 }
 
 .panel-heading {
@@ -550,6 +571,94 @@ button {
   box-shadow: 0 3px 0 #a95337, 0 0 0 2px rgba(255, 210, 101, 0.18);
 }
 
+.milestone-card {
+  display: grid;
+  min-height: 61px;
+  padding: 7px 9px;
+  margin: 0 0 10px;
+  flex: 0 0 auto;
+  grid-template-columns: 43px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  color: #123e44;
+  background: linear-gradient(135deg, #e6fff6, #ffe29a);
+  border: 2px solid rgba(255, 249, 223, 0.92);
+  border-radius: 15px;
+  box-shadow: 0 4px 0 #a45a3c, inset 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+.milestone-icon {
+  display: grid;
+  width: 41px;
+  height: 41px;
+  place-items: center;
+  font-size: 23px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(8, 111, 113, 0.22);
+  border-radius: 12px;
+}
+
+.milestone-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.milestone-copy small {
+  color: #168079;
+  font-size: 8px;
+  font-weight: 1000;
+  letter-spacing: 0.1em;
+}
+
+.milestone-copy b {
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.milestone-copy > i {
+  height: 4px;
+  margin-top: 5px;
+  overflow: hidden;
+  background: rgba(6, 76, 79, 0.15);
+  border-radius: 99px;
+}
+
+.milestone-copy > i > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #17aaa2, #ef9b38);
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.milestone-card > strong {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  color: #0c6469;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.milestone-card > strong small {
+  max-width: 82px;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #9a593a;
+  font-size: 8px;
+  text-overflow: ellipsis;
+}
+
+.milestone-card.is-complete {
+  background: linear-gradient(135deg, #ddffef, #ffedae);
+}
+
 .room-development {
   --room-color: #6bd4cc;
   --room-accent: #fff0b0;
@@ -698,6 +807,10 @@ button {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
+}
+
+.room-economy-grid.is-live {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .room-economy-grid > span {
@@ -1334,6 +1447,10 @@ button {
   backdrop-filter: saturate(0.82);
 }
 
+.hud.is-welcome .welcome-layer {
+  padding: max(16px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+
 .welcome-card {
   position: relative;
   width: min(470px, calc(100vw - 32px));
@@ -1759,6 +1876,10 @@ button {
 
   .world-decoration-marker { scale: 0.36; }
 
+  .world-status-marker:not(:has(.world-emoji.is-bartender)) {
+    display: none;
+  }
+
   .top-hud {
     top: 0;
     display: grid;
@@ -1826,6 +1947,22 @@ button {
     overflow: hidden;
     font-size: clamp(10px, 3.1vw, 13px);
     text-overflow: ellipsis;
+  }
+
+  .hud.is-development-open .brand-card,
+  .hud.is-development-open .currency-strip {
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  .hud.is-development-open .bottom-status,
+  .hud.is-development-open .event-toast {
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(10px);
   }
 
   .control-strip {
@@ -1923,12 +2060,13 @@ button {
     bottom: calc(76px + env(safe-area-inset-bottom));
     left: max(6px, env(safe-area-inset-left));
     width: auto;
-    height: min(70dvh, 640px);
-    max-height: calc(100dvh - 154px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    height: min(76dvh, 680px);
+    max-height: calc(100dvh - 90px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     padding: 9px 11px 11px;
+    scroll-padding-bottom: max(10px, env(safe-area-inset-bottom));
     border-radius: 26px 26px 18px 18px;
     transform: translateY(calc(100% + 24px)) scale(0.985);
-    transition: transform 0.28s cubic-bezier(0.2, 0.82, 0.2, 1), opacity 0.18s ease;
+    transition: transform 0.28s cubic-bezier(0.2, 0.82, 0.2, 1), opacity 0.18s ease, visibility 0s linear 0.28s;
   }
 
   .upgrade-panel.is-open {
@@ -1936,7 +2074,16 @@ button {
   }
 
   .upgrade-panel.is-room-view {
-    height: min(48dvh, 460px);
+    height: min(52dvh, 480px);
+  }
+
+  .panel-sticky-header {
+    position: sticky;
+    top: -9px;
+    z-index: 5;
+    padding: 9px 2px 0;
+    margin: -9px -2px 0;
+    background: linear-gradient(180deg, rgba(6, 62, 70, 0.99) 0 86%, rgba(6, 62, 70, 0.92) 100%);
   }
 
   .panel-handle {
@@ -1983,6 +2130,28 @@ button {
     margin-bottom: 2px;
     font-size: 16px;
   }
+
+  .milestone-card {
+    min-height: 51px;
+    grid-template-columns: 35px minmax(0, 1fr) auto;
+    gap: 6px;
+    padding: 5px 7px;
+    margin-bottom: 7px;
+    border-radius: 13px;
+  }
+
+  .milestone-icon {
+    width: 33px;
+    height: 33px;
+    font-size: 19px;
+    border-radius: 10px;
+  }
+
+  .milestone-copy small { font-size: 7px; }
+  .milestone-copy b { font-size: 9px; }
+  .milestone-copy > i { margin-top: 3px; }
+  .milestone-card > strong { font-size: 9px; }
+  .milestone-card > strong small { max-width: 64px; font-size: 7px; }
 
   .room-development {
     gap: 7px;
@@ -2146,6 +2315,65 @@ button {
   }
 
   .world-emoji small { display: none; }
+}
+
+@media (max-width: 390px) and (orientation: portrait) {
+  .top-hud {
+    grid-template-columns: minmax(126px, 36vw) minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .brand-card,
+  .currency-strip {
+    height: 54px;
+  }
+
+  .brand-card {
+    gap: 5px;
+    padding-right: 6px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    font-size: 11px;
+  }
+
+  .brand-copy strong {
+    font-size: clamp(9px, 2.5vw, 10px);
+    letter-spacing: 0.025em;
+  }
+
+  .brand-copy small { font-size: 6.5px; }
+  .day-track { left: 45px; }
+
+  .currency-strip {
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .currency-chip {
+    height: 46px;
+    padding: 2px;
+  }
+
+  .currency-chip .game-icon {
+    width: clamp(20px, 6.2vw, 24px);
+    height: clamp(20px, 6.2vw, 24px);
+    flex-basis: clamp(20px, 6.2vw, 24px);
+    margin-right: 2px;
+    border-radius: 7px;
+  }
+
+  .currency-chip strong {
+    font-size: clamp(9px, 2.8vw, 11px);
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .currency-value-full { display: none; }
+  .currency-value-compact { display: inline; }
 }
 
 @media (max-width: 380px) and (max-height: 760px) and (orientation: portrait) {

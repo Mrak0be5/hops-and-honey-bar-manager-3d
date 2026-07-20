@@ -18,7 +18,9 @@ const fundedSave = {
 };
 
 test('repairs the connected rooms and walks a served bar guest into one', async ({ page }, testInfo) => {
-  test.setTimeout(120_000);
+  // WebGL startup can be slow on software-rendered CI machines. Keep the
+  // gameplay assertion strict while allowing the scene enough warm-up time.
+  test.setTimeout(180_000);
   mkdirSync('output/playwright', { recursive: true });
   const runtimeErrors: string[] = [];
   page.on('pageerror', (error) => runtimeErrors.push(error.message));
@@ -97,5 +99,91 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   expect(runtimeErrors).toEqual([]);
   // Explicitly dispose the continuously-rendering WebGL scene so the long
   // walkthrough also shuts down reliably on GPU-constrained test machines.
+  await page.goto('about:blank', { waitUntil: 'commit', timeout: 5_000 });
+});
+
+test('fresh desktop keeps onboarding isolated and opens development on demand', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Desktop layout assertion');
+  const audioWarnings: string[] = [];
+  page.on('console', (message) => {
+    if (message.text().toLowerCase().includes('audiocontext')) audioWarnings.push(message.text());
+  });
+  await page.addInitScript(() => window.localStorage.removeItem('hops-and-honey-save-v1'));
+  await page.goto('/');
+
+  const welcome = page.locator('.welcome-card');
+  await expect(welcome).toBeVisible();
+  await expect(page.locator('.top-hud')).toHaveCount(0);
+  await expect(page.locator('.upgrade-panel')).toHaveCount(0);
+  const welcomeBox = await welcome.boundingBox();
+  expect(welcomeBox).not.toBeNull();
+  expect(welcomeBox!.y).toBeGreaterThanOrEqual(0);
+  expect(welcomeBox!.y + welcomeBox!.height).toBeLessThanOrEqual(900);
+
+  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await expect(page.locator('.top-hud')).toBeVisible();
+  const panel = page.locator('.upgrade-panel');
+  await expect(panel).toHaveAttribute('aria-hidden', 'true');
+  await expect(panel).not.toBeVisible();
+
+  await page.getByRole('button', { name: 'Улучшения бара' }).click();
+  await expect(panel).toHaveClass(/is-open/);
+  await expect(panel).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Закрыть улучшения' })).toBeVisible();
+  await expect(panel.locator('.milestone-card')).toContainText('СЛЕДУЮЩАЯ ЦЕЛЬ');
+  expect(audioWarnings).toEqual([]);
+  await page.goto('about:blank', { waitUntil: 'commit', timeout: 5_000 });
+});
+
+test('390px HUD uses compact values and development sheet removes redundant overlays', async ({ page }, testInfo) => {
+  test.setTimeout(75_000);
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile layout assertion');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript((save) => {
+    window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify(save));
+  }, {
+    ...fundedSave,
+    coins: 268_000,
+    reputation: 1_600,
+    served: 1_400,
+    soundEnabled: false,
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await expect(page.getByRole('button', { name: 'Включить звук' })).toBeVisible();
+
+  const compactValues = page.locator('.currency-value-compact');
+  await expect(compactValues).toHaveText(['268K', '1.6K', '1.4K']);
+  for (const value of await compactValues.all()) await expect(value).toBeVisible();
+  for (const value of await page.locator('.currency-value-full').all()) await expect(value).not.toBeVisible();
+  await expect(page.locator('.brand-copy strong')).toHaveText('ХМЕЛЬ & МЁД');
+  await expect(page.locator('.brand-copy strong')).toBeVisible();
+
+  const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
+  const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(scrollWidth).toBeLessThanOrEqual(viewportWidth);
+
+  await page.getByRole('button', { name: 'Улучшения бара' }).click();
+  const panel = page.locator('.upgrade-panel');
+  await expect(panel).toBeVisible();
+  await expect(page.locator('.brand-card')).not.toBeVisible();
+  await expect(page.locator('.currency-strip')).not.toBeVisible();
+  await expect(page.locator('.bottom-status')).not.toBeVisible();
+  await expect(page.locator('.venue-tabs')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Закрыть улучшения' })).toBeVisible();
+  expect(await page.locator('.panel-sticky-header').evaluate((element) => getComputedStyle(element).position)).toBe('sticky');
+
+  const panelBox = await panel.boundingBox();
+  expect(panelBox).not.toBeNull();
+  expect(panelBox!.y).toBeGreaterThanOrEqual(0);
+  expect(panelBox!.y + panelBox!.height).toBeLessThanOrEqual(845);
+  expect(await page.locator('.world-status-marker:visible').count()).toBeLessThanOrEqual(1);
+
+  await page.getByRole('tab', { name: /Сауна/ }).click();
+  await expect(panel).toHaveClass(/is-room-view/);
+  const roomPanelBox = await panel.boundingBox();
+  expect(roomPanelBox).not.toBeNull();
+  expect(roomPanelBox!.y).toBeGreaterThanOrEqual(844 * 0.38);
+  expect(roomPanelBox!.y).toBeGreaterThanOrEqual(280);
   await page.goto('about:blank', { waitUntil: 'commit', timeout: 5_000 });
 });

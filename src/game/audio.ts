@@ -4,9 +4,9 @@ class GameAudio {
   private context: AudioContext | null = null;
   private enabled = true;
 
-  setEnabled(enabled: boolean) {
+  setEnabled(enabled: boolean, unlock = true) {
     this.enabled = enabled;
-    if (enabled) this.unlock();
+    if (enabled && unlock) this.unlock();
   }
 
   unlock() {
