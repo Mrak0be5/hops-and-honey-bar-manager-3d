@@ -47,9 +47,9 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   await page.getByRole('button', { name: /Открыть и отремонтировать/ }).click();
 
   await expect(page.getByText('КОМНАТА РАБОТАЕТ')).toBeVisible();
-  await expect(page.locator('.staff-card')).toContainText('Танцовщица');
+  await expect(page.locator('.staff-card')).toContainText('Медведица-стриптизёрша');
   await expect(page.locator('.room-upgrade-card')).toHaveCount(3);
-  await expect(page.getByRole('button', { name: /Опытная танцовщица/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Темп медведицы/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Лишний стул у сцены/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Свет и музыка/ })).toBeVisible();
 
@@ -62,8 +62,8 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   expect(sizes.scroll).toBeLessThanOrEqual(sizes.client);
 
   for (const room of [
-    { tab: /Секс/, heading: 'Комната удовольствий', staff: 'Куртизанка', file: 'sex' },
-    { tab: /Оргия/, heading: 'Зал оргии', staff: 'Ведущая', file: 'gangbang' },
+    { tab: /Секс/, heading: 'Комната удовольствий', staff: 'Крольчиха-проститутка', file: 'sex' },
+    { tab: /Оргия/, heading: 'Зал оргии', staff: 'Тигрица-порноактриса', file: 'gangbang' },
   ]) {
     const tab = page.getByRole('tab', { name: room.tab });
     await tab.click();

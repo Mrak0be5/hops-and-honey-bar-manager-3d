@@ -17,29 +17,50 @@ type Props = {
 
 const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; description: string; icon: string }>> = {
   strip: {
-    staffSpeed: { name: 'Опытная танцовщица', description: 'Быстрее разогревает зал и меняет номера.', icon: '⚡' },
-    capacity: { name: 'Лишний стул у сцены', description: 'Ещё один гость смотрит каждый сеанс.', icon: '💺' },
+    staffSpeed: { name: 'Темп медведицы', description: 'Быстрее крутится у шеста и меняет номера.', icon: '🐻' },
+    capacity: { name: 'Лишний стул у сцены', description: 'Ещё один гость смотрит стриптиз.', icon: '💺' },
     quality: { name: 'Свет и музыка', description: 'Шоу ярче — средний чек выше.', icon: '💡' },
   },
   sex: {
-    staffSpeed: { name: 'Умелая куртизанка', description: 'Быстрее проводит приватный сеанс.', icon: '💋' },
-    capacity: { name: 'Ещё одна кушетка', description: 'Добавляет место в каждом сеансе.', icon: '🛏️' },
-    quality: { name: 'Бельё и ароматы', description: 'Премиум-атмосфера повышает цену.', icon: '✨' },
+    staffSpeed: { name: 'Ловкость крольчихи', description: 'Быстрее заканчивает приватный сеанс.', icon: '🐰' },
+    capacity: { name: 'Ещё одна кушетка', description: 'Добавляет место в очереди к крольчихе.', icon: '🛏️' },
+    quality: { name: 'Бельё и ароматы', description: 'Премиум-секс повышает цену.', icon: '✨' },
   },
   gangbang: {
-    staffSpeed: { name: 'Темп ведущей', description: 'Сокращает длительность оргии.', icon: '🔥' },
-    capacity: { name: 'Больше мест на платформе', description: 'Позволяет принять ещё одного гостя.', icon: '👥' },
-    quality: { name: 'Сцена и реквизит', description: 'Жёстче шоу — выше оплата.', icon: '🎭' },
+    staffSpeed: { name: 'Темп тигрицы', description: 'Оргия проходит быстрее и жарче.', icon: '🐯' },
+    capacity: { name: 'Больше мест на платформе', description: 'Ещё один участник генгбенга.', icon: '👥' },
+    quality: { name: 'Сцена и камеры', description: 'Порно-атмосфера — выше оплата.', icon: '🎬' },
   },
 };
 
 const ROOM_STAFF_LABELS = {
   locked: 'Помещение закрыто',
   waiting: 'Готовит комнату',
-  welcoming: 'Встречает гостей',
-  serving: 'Проводит сеанс',
+  welcoming: 'Зазывает гостей',
+  serving: 'В деле',
   resetting: 'Наводит порядок',
 } as const;
+
+const ROOM_ACTION_LABELS: Record<RoomId, Record<'waiting' | 'welcoming' | 'serving' | 'resetting', string>> = {
+  strip: {
+    waiting: 'Медведица ждёт публику',
+    welcoming: 'Медведица выходит к шесту',
+    serving: 'Медведица танцует стриптиз',
+    resetting: 'Медведица собирает чаевые',
+  },
+  sex: {
+    waiting: 'Крольчиха ждёт клиента',
+    welcoming: 'Крольчиха встречает гостя',
+    serving: 'Крольчиха занимается сексом',
+    resetting: 'Крольчиха перестилает постель',
+  },
+  gangbang: {
+    waiting: 'Тигрица ждёт съёмку',
+    welcoming: 'Тигрица собирает участников',
+    serving: 'Тигрица ведёт генгбенг',
+    resetting: 'Тигрица заканчивает сцену',
+  },
+};
 
 const BARTENDER_STATUS: Record<BartenderState, { emoji: string; label: string }> = {
   idle: { emoji: '👀', label: 'Кристина смотрит за залом' },
@@ -226,10 +247,10 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
         <em className="open-badge">ОТКРЫТО</em>
       </div>
       <div className="staff-card">
-        <span className={`staff-avatar state-${room.staffState}`}>🧑‍💼</span>
+        <span className={`staff-avatar state-${room.staffState}`}>{definition.icon}</span>
         <span>
           <small>ПЕРСОНАЛ · {definition.staffRole}</small>
-          <b>{ROOM_STAFF_LABELS[room.staffState]}</b>
+          <b>{room.staffState === 'locked' ? ROOM_STAFF_LABELS.locked : ROOM_ACTION_LABELS[room.id][room.staffState === 'waiting' || room.staffState === 'welcoming' || room.staffState === 'serving' || room.staffState === 'resetting' ? room.staffState : 'waiting']}</b>
           <i><span style={{ width: `${Math.round(room.progress * 100)}%` }} /></i>
         </span>
         <strong>{room.guests}/{room.capacity}</strong>
@@ -444,7 +465,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
               </button>
               <button className="room-pill focus-pill" onClick={() => click(() => onUpgradesOpen(true))}>
                 <span className="status-emoji">{activeRoomDefinition.icon}</span>
-                <span><small>{activeRoomDefinition.staffRole}</small><b>{ROOM_STAFF_LABELS[activeRoom.staffState]} · {activeRoom.guests}/{activeRoom.capacity}</b></span>
+                <span><small>{activeRoomDefinition.staffRole}</small><b>{(activeRoom.staffState === 'waiting' || activeRoom.staffState === 'welcoming' || activeRoom.staffState === 'serving' || activeRoom.staffState === 'resetting') ? ROOM_ACTION_LABELS[activeRoom.id][activeRoom.staffState] : ROOM_STAFF_LABELS.locked} · {activeRoom.guests}/{activeRoom.capacity}</b></span>
               </button>
             </>
           ) : (
