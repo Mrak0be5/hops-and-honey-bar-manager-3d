@@ -5,6 +5,7 @@ output/
 test-results/
 playwright-report/
 .playwright-cli/
+.superpowers/
 debug.log
 *.local
 *.tar.gz
