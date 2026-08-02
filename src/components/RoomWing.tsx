@@ -325,34 +325,44 @@ function SexInterior({ room, definition, occupiedSlots }: { room: RoomState; def
       <RoundedBox args={[4.9, 0.52, 2.4]} radius={0.24} smoothness={3} position={[-0.2, 0.4, -1.62]} castShadow><meshStandardMaterial color="#6e203f" roughness={0.72} /></RoundedBox>
       <RoundedBox args={[4.62, 0.18, 2.12]} radius={0.18} smoothness={3} position={[-0.2, 0.74, -1.62]} castShadow><meshStandardMaterial color="#f075a9" roughness={0.88} /></RoundedBox>
       <RoundedBox args={[4.62, 0.12, 0.72]} radius={0.15} smoothness={3} position={[-0.2, 0.93, -2.25]} castShadow><meshStandardMaterial color="#ffd1df" roughness={0.92} /></RoundedBox>
-      {/* Крольчиха — секс на кровати */}
+      {/* Крольчиха — секс на кровати: cowgirl на члене гостя */}
+      {room.staffState === 'serving' && (
+        <MaleGuest
+          position={[-0.15, 0.82, -1.55]}
+          rotation={0}
+          active
+          pose="receiving"
+          paletteIndex={occupiedSlots[0] ?? 0}
+          insertDepth={0.85}
+        />
+      )}
       <FurryStaff
         species="rabbit"
         pose={room.staffState === 'serving' ? 'sex_cowgirl' : 'idle'}
         active={room.staffState === 'serving'}
         speedLevel={room.upgrades.staffSpeed}
-        position={[-0.15, 0.55, -1.45]}
+        position={[-0.15, room.staffState === 'serving' ? 0.72 : 0.55, -1.48]}
         rotation={Math.PI}
         scale={1.02}
       />
-      {room.staffState === 'serving' && occupiedSlots.length > 0 && (
-        <MaleGuest
-          position={[-0.15, 0.78, -1.55]}
-          rotation={0}
-          active
-          pose="lying"
-          paletteIndex={occupiedSlots[0] ?? 0}
-        />
-      )}
       {room.staffState === 'serving' && (
         <Text position={[0, 2.55, -1.1]} fontSize={0.2} color="#ffc0d8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          Крольчиха обслуживает гостя
+          Крольчиха седлает гостя
         </Text>
       )}
       {room.staffState === 'serving' && occupiedSlots.slice(1).map((slot, index) => {
         const spot = localGuestSpots[slot];
         if (!spot) return null;
-        return <MaleGuest key={`wait-${slot}`} position={[spot.x, 0.1, spot.z]} rotation={Math.PI} pose="standing" paletteIndex={index + 1} />;
+        return (
+          <MaleGuest
+            key={`wait-${slot}`}
+            position={[spot.x, 0.1, spot.z]}
+            rotation={Math.PI}
+            pose="waiting"
+            active={false}
+            paletteIndex={index + 1}
+          />
+        );
       })}
       {[-2.25, -1.1, 0.05, 1.2, 2.35].map((x) => <mesh key={x} position={[x, 1.15, -2.78]}><boxGeometry args={[0.055, 1.7, 0.08]} /><meshStandardMaterial color="#7b3a61" roughness={0.86} /></mesh>)}
       <RoundedBox args={[0.78, 0.95, 0.78]} radius={0.12} smoothness={2} position={[2.7, 0.54, 1.75]} castShadow>
@@ -404,43 +414,50 @@ function GangbangInterior({ room, definition, occupiedSlots }: { room: RoomState
       <RoundedBox args={[4.6, 0.08, 3.4]} radius={0.24} smoothness={4} position={[0, 0.68, -0.25]} receiveShadow>
         <meshStandardMaterial color="#9e2d4f" roughness={0.82} />
       </RoundedBox>
-      {slotPositions.map(([x, z], index) => (
-        <group key={`${x}-${z}`} position={[x, 0, z - 0.25]}>
-          <RoundedBox args={[1.56, 0.16, 1.45]} radius={0.2} smoothness={3} position={[0, 0.78, 0]} castShadow>
-            <meshStandardMaterial color={index % 2 ? '#e05278' : '#c43f63'} roughness={0.8} />
-          </RoundedBox>
-          <RoundedBox args={[0.88, 0.08, 0.42]} radius={0.1} smoothness={2} position={[0, 0.92, -0.38]}>
-            <meshStandardMaterial color="#ffd0dc" roughness={0.9} />
-          </RoundedBox>
-          {occupiedSlots.includes(index) && (
-            <MaleGuest
-              position={[index % 2 ? 0.55 : -0.55, 0.75, 0.2]}
-              rotation={index % 2 ? -Math.PI * 0.55 : Math.PI * 0.55}
-              active={room.staffState === 'serving'}
-              pose={room.staffState === 'serving' ? 'thrusting' : 'standing'}
-              paletteIndex={index}
-            />
-          )}
-        </group>
-      ))}
+      {slotPositions.map(([x, z], index) => {
+        const occupied = occupiedSlots.includes(index);
+        const serving = room.staffState === 'serving' && occupied;
+        // Aim guests inward toward the tigress at the platform center.
+        const faceIn = Math.atan2(-x, 0.15 - (z - 0.25));
+        return (
+          <group key={`${x}-${z}`} position={[x, 0, z - 0.25]}>
+            <RoundedBox args={[1.56, 0.16, 1.45]} radius={0.2} smoothness={3} position={[0, 0.78, 0]} castShadow>
+              <meshStandardMaterial color={index % 2 ? '#e05278' : '#c43f63'} roughness={0.8} />
+            </RoundedBox>
+            <RoundedBox args={[0.88, 0.08, 0.42]} radius={0.1} smoothness={2} position={[0, 0.92, -0.38]}>
+              <meshStandardMaterial color="#ffd0dc" roughness={0.9} />
+            </RoundedBox>
+            {occupied && (
+              <MaleGuest
+                position={[x > 0 ? -0.42 : 0.42, 0.78, 0.28]}
+                rotation={faceIn}
+                active={serving}
+                pose={serving ? 'thrusting' : 'waiting'}
+                paletteIndex={index}
+                insertDepth={0.9}
+              />
+            )}
+          </group>
+        );
+      })}
       {slotPositions.length < 4 && [[-1.35, 0.9], [1.35, 0.9]].slice(slotPositions.length).map(([x, z]) => (
         <RoundedBox key={`empty-${x}`} args={[1.2, 0.1, 1.1]} radius={0.16} smoothness={3} position={[x, 0.76, z - 0.25]}>
           <meshStandardMaterial color="#4a1730" roughness={0.9} />
         </RoundedBox>
       ))}
-      {/* Тигрица — центр генгбенга */}
+      {/* Тигрица — принимает членов участников */}
       <FurryStaff
         species="tiger"
         pose={room.staffState === 'serving' ? 'gangbang_center' : 'idle'}
         active={room.staffState === 'serving'}
         speedLevel={room.upgrades.staffSpeed}
-        position={[0, 0.55, -0.15]}
+        position={[0, 0.62, -0.1]}
         rotation={Math.PI}
         scale={1.08}
       />
       {room.staffState === 'serving' && (
         <Text position={[0, 2.7, 0.2]} fontSize={0.2} color="#ff9bb0" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          Тигрица ведёт оргию
+          Тигрица принимает гостей
         </Text>
       )}
       {[-3.1, 3.1].map((x) => <group key={x} position={[x, 0, -2.45]}><mesh position={[0, 0.32, 0]}><cylinderGeometry args={[0.28, 0.34, 0.58, 12]} /><meshStandardMaterial color="#8b2445" /></mesh><mesh position={[0, 0.86, 0]}><sphereGeometry args={[0.42, 10, 8]} /><meshStandardMaterial color="#8c1d42" emissive="#551022" emissiveIntensity={0.22} /></mesh></group>)}

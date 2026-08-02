@@ -375,34 +375,38 @@ export function FurryStaff({
       leftLegX = Math.abs(wave) * 0.5;
       rightLegX = Math.abs(-wave) * 0.5;
     } else if (pose === 'sex_cowgirl' && active) {
-      y = 0.55 + Math.abs(Math.sin(t * 2.2)) * 0.12;
-      hipPitch = -0.35 + wave * 0.18;
-      bodyPitch = 0.15 + wave * 0.08;
-      leftArmX = -0.9;
-      rightArmX = -0.9;
-      leftArmZ = -0.35;
-      rightArmZ = 0.35;
-      leftLegX = -1.35;
-      rightLegX = -1.35;
+      // Riding: bounce on the partner's penis.
+      y = 0.42 + Math.abs(Math.sin(t * 2.6)) * 0.16;
+      hipPitch = -0.55 + wave * 0.22;
+      bodyPitch = 0.22 + wave * 0.1;
+      hipRoll = wave2 * 0.12;
+      leftArmX = -0.75;
+      rightArmX = -0.75;
+      leftArmZ = -0.45;
+      rightArmZ = 0.45;
+      leftLegX = -1.45;
+      rightLegX = -1.45;
     } else if (pose === 'sex_missionary' && active) {
-      y = 0.35;
-      bodyPitch = -1.15 + wave * 0.06;
-      hipPitch = 0.25 + wave * 0.12;
-      leftArmX = -1.4;
-      rightArmX = -1.4;
-      leftLegX = -0.85 + wave * 0.08;
-      rightLegX = -0.85 - wave * 0.08;
+      y = 0.28;
+      bodyPitch = -1.05 + wave * 0.08;
+      hipPitch = 0.35 + wave * 0.18;
+      leftArmX = -1.35;
+      rightArmX = -1.35;
+      leftLegX = -0.55 + wave * 0.15;
+      rightLegX = -0.55 - wave * 0.15;
     } else if (pose === 'gangbang_center' && active) {
-      y = 0.62 + Math.abs(Math.sin(t * 2.8)) * 0.1;
-      hipRoll = wave * 0.28;
-      hipPitch = -0.2 + wave2 * 0.15;
-      bodyYaw = wave * 0.2;
-      leftArmX = -1.55 + wave * 0.35;
-      rightArmX = -1.55 - wave * 0.35;
-      leftArmZ = -0.55;
-      rightArmZ = 0.55;
-      leftLegX = -1.1;
-      rightLegX = -1.1;
+      // Receiving from multiple partners — hips open, bounce on thrusts.
+      y = 0.48 + Math.abs(Math.sin(t * 2.9)) * 0.12;
+      hipRoll = wave * 0.32;
+      hipPitch = -0.35 + wave2 * 0.2;
+      bodyYaw = wave * 0.25;
+      bodyPitch = 0.12;
+      leftArmX = -1.65 + wave * 0.4;
+      rightArmX = -1.65 - wave * 0.4;
+      leftArmZ = -0.65;
+      rightArmZ = 0.65;
+      leftLegX = -1.25 + wave * 0.15;
+      rightLegX = -1.25 - wave * 0.15;
     } else if (pose === 'reclining_guest') {
       y = 0.2;
       bodyPitch = -1.35;
@@ -522,53 +526,190 @@ export function FurryStaff({
   );
 }
 
-/** Simplified male guest used in sex/gangbang scenes. */
+/** Erect penis mesh used during sex scenes. */
+function Penis({
+  length = 0.28,
+  girth = 0.055,
+  erect = true,
+  thrust = 0,
+}: {
+  length?: number;
+  girth?: number;
+  erect?: boolean;
+  thrust?: number;
+}) {
+  const skin = '#e8b090';
+  const head = '#e0a078';
+  const tilt = erect ? -0.15 + thrust * 0.08 : 1.1;
+  return (
+    <group position={[0, 0, thrust * 0.04]} rotation={[tilt, 0, 0]}>
+      <mesh castShadow position={[0, 0, length * 0.35]}>
+        <capsuleGeometry args={[girth, length * 0.55, 6, 10]} />
+        <meshStandardMaterial color={skin} roughness={0.55} />
+      </mesh>
+      <mesh castShadow position={[0, 0, length * 0.78]} scale={[1.15, 1.1, 0.9]}>
+        <sphereGeometry args={[girth * 1.15, 10, 8]} />
+        <meshStandardMaterial color={head} roughness={0.5} />
+      </mesh>
+      <mesh castShadow position={[-0.045, -0.02, 0.02]} scale={[0.9, 0.75, 0.85]}>
+        <sphereGeometry args={[0.055, 10, 8]} />
+        <meshStandardMaterial color={skin} roughness={0.62} />
+      </mesh>
+      <mesh castShadow position={[0.045, -0.02, 0.02]} scale={[0.9, 0.75, 0.85]}>
+        <sphereGeometry args={[0.055, 10, 8]} />
+        <meshStandardMaterial color={skin} roughness={0.62} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Male guest with clothing states and explicit sex posing. */
 export function MaleGuest({
   position,
   rotation = 0,
   active = false,
   pose = 'standing',
   paletteIndex = 0,
+  insertDepth = 0.55,
 }: {
   position: [number, number, number];
   rotation?: number;
   active?: boolean;
-  pose?: 'standing' | 'lying' | 'thrusting';
+  /** standing = clothed; waiting = pants down ready; receiving = under partner; thrusting = penetrating from behind/side */
+  pose?: 'standing' | 'waiting' | 'receiving' | 'thrusting' | 'lying';
   paletteIndex?: number;
+  /** 0..1 how deep the penis is inserted during thrusting/receiving */
+  insertDepth?: number;
 }) {
   const root = useRef<THREE.Group>(null);
-  const shirts = ['#3a5a78', '#5a3a48', '#2f4f3f', '#4a3a5a'];
+  const hips = useRef<THREE.Group>(null);
+  const penisRoot = useRef<THREE.Group>(null);
+  const shirts = ['#3a5a78', '#5a3a48', '#2f4f3f', '#4a3a5a', '#6a4030'];
   const shirt = shirts[paletteIndex % shirts.length];
-  useFrame(({ clock }) => {
-    if (!root.current || !active) return;
-    const t = clock.elapsedTime * 2.6 + paletteIndex;
-    if (pose === 'thrusting') {
-      root.current.position.z = position[2] + Math.sin(t) * 0.06;
-      root.current.rotation.x = -0.25 + Math.sin(t) * 0.08;
-    } else if (pose === 'lying') {
-      root.current.rotation.x = -1.25;
+  const pantsOff = pose === 'waiting' || pose === 'receiving' || pose === 'thrusting' || (pose === 'lying' && active);
+  const showPenis = pantsOff && (active || pose === 'waiting' || pose === 'receiving');
+  const phase = useMemo(() => paletteIndex * 1.37, [paletteIndex]);
+
+  useFrame(({ clock }, delta) => {
+    if (!root.current || !hips.current) return;
+    const t = clock.elapsedTime * (active ? 3.1 : 1.2) + phase;
+    const thrust = active ? (Math.sin(t) * 0.5 + 0.5) : 0;
+    const depth = insertDepth * (0.55 + thrust * 0.45);
+
+    if (pose === 'thrusting' && active) {
+      // Drive hips forward into the partner.
+      root.current.position.x = THREE.MathUtils.damp(root.current.position.x, position[0], 14, delta);
+      root.current.position.y = THREE.MathUtils.damp(root.current.position.y, position[1], 14, delta);
+      root.current.position.z = THREE.MathUtils.damp(root.current.position.z, position[2] + thrust * 0.14, 16, delta);
+      root.current.rotation.x = THREE.MathUtils.damp(root.current.rotation.x, -0.35 + thrust * 0.12, 12, delta);
+      hips.current.position.z = THREE.MathUtils.damp(hips.current.position.z, 0.06 + thrust * 0.1, 18, delta);
+      if (penisRoot.current) {
+        penisRoot.current.position.z = THREE.MathUtils.damp(penisRoot.current.position.z, 0.12 + depth * 0.16, 20, delta);
+        penisRoot.current.scale.setScalar(THREE.MathUtils.damp(penisRoot.current.scale.x, 1 + thrust * 0.06, 12, delta));
+      }
+    } else if ((pose === 'receiving' || pose === 'lying') && active) {
+      root.current.rotation.x = THREE.MathUtils.damp(root.current.rotation.x, -1.42, 10, delta);
+      hips.current.position.y = THREE.MathUtils.damp(hips.current.position.y, thrust * 0.05, 14, delta);
+      if (penisRoot.current) {
+        // Penis points up into the partner riding on top.
+        penisRoot.current.rotation.x = THREE.MathUtils.damp(penisRoot.current.rotation.x, -1.35 + thrust * 0.1, 14, delta);
+        penisRoot.current.position.y = THREE.MathUtils.damp(penisRoot.current.position.y, 0.04 + thrust * 0.05, 16, delta);
+        penisRoot.current.position.z = THREE.MathUtils.damp(penisRoot.current.position.z, 0.02 + depth * 0.08, 16, delta);
+      }
+    } else if (pose === 'waiting') {
+      root.current.rotation.x = THREE.MathUtils.damp(root.current.rotation.x, 0, 10, delta);
+      if (penisRoot.current) {
+        penisRoot.current.rotation.x = THREE.MathUtils.damp(penisRoot.current.rotation.x, -0.2, 10, delta);
+        penisRoot.current.position.z = THREE.MathUtils.damp(penisRoot.current.position.z, 0.14, 10, delta);
+      }
     }
   });
+
+  const baseTilt = pose === 'receiving' || pose === 'lying' ? -1.42 : 0;
+
   return (
-    <group ref={root} position={position} rotation={[pose === 'lying' ? -1.25 : 0, rotation, 0]} scale={0.92}>
-      <mesh castShadow position={[0, 1.5, 0]}>
+    <group ref={root} position={position} rotation={[baseTilt, rotation, 0]} scale={0.95}>
+      {/* head */}
+      <mesh castShadow position={[0, 1.52, 0]}>
         <sphereGeometry args={[0.22, 12, 10]} />
-        <meshStandardMaterial color="#e0a078" roughness={0.7} />
+        <meshStandardMaterial color="#e0a078" roughness={0.68} />
       </mesh>
-      <mesh castShadow position={[0, 1.02, 0]}>
-        <capsuleGeometry args={[0.2, 0.4, 5, 10]} />
+      <mesh position={[-0.07, 1.55, 0.18]}><sphereGeometry args={[0.035, 8, 6]} /><meshStandardMaterial color="#1a2430" /></mesh>
+      <mesh position={[0.07, 1.55, 0.18]}><sphereGeometry args={[0.035, 8, 6]} /><meshStandardMaterial color="#1a2430" /></mesh>
+
+      {/* torso / shirt */}
+      <mesh castShadow position={[0, 1.05, 0]}>
+        <capsuleGeometry args={[0.2, 0.38, 5, 10]} />
         <meshStandardMaterial color={shirt} roughness={0.7} />
       </mesh>
-      <mesh castShadow position={[0, 0.55, 0]}>
-        <capsuleGeometry args={[0.18, 0.25, 5, 10]} />
-        <meshStandardMaterial color="#2a3340" roughness={0.8} />
+      <mesh castShadow position={[-0.28, 1.2, 0]} rotation={[0, 0, 0.35]}>
+        <capsuleGeometry args={[0.06, 0.28, 4, 8]} />
+        <meshStandardMaterial color={shirt} />
       </mesh>
-      {active && pose === 'thrusting' && (
-        <mesh position={[0, 0.72, 0.16]} scale={[0.7, 1.1, 0.7]}>
-          <capsuleGeometry args={[0.05, 0.16, 4, 8]} />
-          <meshStandardMaterial color="#e0a078" roughness={0.65} />
+      <mesh castShadow position={[0.28, 1.2, 0]} rotation={[0, 0, -0.35]}>
+        <capsuleGeometry args={[0.06, 0.28, 4, 8]} />
+        <meshStandardMaterial color={shirt} />
+      </mesh>
+
+      <group ref={hips} position={[0, 0.72, 0]}>
+        {/* hips / bare skin when pants off */}
+        <mesh castShadow position={[0, 0, 0]} scale={[1.05, 0.7, 0.9]}>
+          <sphereGeometry args={[0.2, 12, 10]} />
+          <meshStandardMaterial color={pantsOff ? '#e0a078' : '#2a3340'} roughness={0.72} />
         </mesh>
-      )}
+
+        {/* pants — hidden / pooled at ankles when off */}
+        {!pantsOff ? (
+          <mesh castShadow position={[0, -0.12, 0]}>
+            <capsuleGeometry args={[0.17, 0.22, 5, 10]} />
+            <meshStandardMaterial color="#2a3340" roughness={0.82} />
+          </mesh>
+        ) : (
+          <group position={[0, -0.55, 0.02]}>
+            <mesh castShadow rotation={[0.4, 0, 0.1]}>
+              <torusGeometry args={[0.16, 0.05, 8, 14]} />
+              <meshStandardMaterial color="#2a3340" roughness={0.85} />
+            </mesh>
+            <mesh castShadow position={[0.02, -0.04, 0.06]} rotation={[1.1, 0, 0]}>
+              <boxGeometry args={[0.28, 0.22, 0.06]} />
+              <meshStandardMaterial color="#243040" roughness={0.88} />
+            </mesh>
+          </group>
+        )}
+
+        {/* bare legs */}
+        <mesh castShadow position={[-0.1, -0.32, 0]}>
+          <capsuleGeometry args={[0.075, 0.28, 5, 8]} />
+          <meshStandardMaterial color="#e0a078" roughness={0.7} />
+        </mesh>
+        <mesh castShadow position={[0.1, -0.32, 0]}>
+          <capsuleGeometry args={[0.075, 0.28, 5, 8]} />
+          <meshStandardMaterial color="#e0a078" roughness={0.7} />
+        </mesh>
+        {!pantsOff && (
+          <>
+            <mesh castShadow position={[-0.1, -0.32, 0]}>
+              <capsuleGeometry args={[0.08, 0.28, 5, 8]} />
+              <meshStandardMaterial color="#2a3340" roughness={0.82} />
+            </mesh>
+            <mesh castShadow position={[0.1, -0.32, 0]}>
+              <capsuleGeometry args={[0.08, 0.28, 5, 8]} />
+              <meshStandardMaterial color="#2a3340" roughness={0.82} />
+            </mesh>
+          </>
+        )}
+
+        {showPenis && (
+          <group ref={penisRoot} position={[0, 0.02, 0.12]}>
+            <Penis
+              length={pose === 'receiving' || pose === 'lying' ? 0.32 : 0.3}
+              girth={0.058}
+              erect
+              thrust={active ? 0.5 : 0}
+            />
+          </group>
+        )}
+      </group>
     </group>
   );
 }
