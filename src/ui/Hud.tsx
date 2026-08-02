@@ -410,6 +410,24 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
             </div>
           </>
         ) : activeRoom ? <RoomDevelopment room={activeRoom} snapshot={snapshot} engine={engine} /> : null}
+        <div className="cheat-row">
+          <button
+            type="button"
+            className="cheat-button"
+            onClick={() => click(() => engine.cheatMoney(99_999_999))}
+            aria-label="Чит: получить 99999999 монет"
+          >
+            💰 Чит: 99 999 999 монет
+          </button>
+          <button
+            type="button"
+            className="cheat-button cheat-button-alt"
+            onClick={() => click(() => engine.cheatRich())}
+            aria-label="Чит: деньги и репутация"
+          >
+            👑 Чит: богатство
+          </button>
+        </div>
         <button className="reset-button" onClick={() => click(reset)}>
           <Icon name="reset" />
           Сбросить прогресс

@@ -57,6 +57,30 @@ export default function App() {
     };
   }, [snapshot.paused, snapshot.started]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (event.ctrlKey && event.shiftKey && event.code === 'KeyM') {
+        event.preventDefault();
+        gameEngine.cheatMoney(99_999_999);
+      } else if (event.ctrlKey && event.shiftKey && event.code === 'KeyR') {
+        event.preventDefault();
+        gameEngine.cheatRich();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    const api = {
+      money: (amount = 99_999_999) => gameEngine.cheatMoney(amount),
+      rich: () => gameEngine.cheatRich(),
+    };
+    (window as Window & { brothelCheats?: typeof api }).brothelCheats = api;
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      delete (window as Window & { brothelCheats?: typeof api }).brothelCheats;
+    };
+  }, []);
+
   return (
     <main className="game-shell">
       {contextLost ? (

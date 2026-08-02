@@ -269,6 +269,23 @@ export class GameEngine {
     this.publish();
   };
 
+  /** Debug/cheat: set coins instantly (default 99_999_999). */
+  cheatMoney = (amount = 99_999_999) => {
+    this.coins = Math.max(0, Math.floor(amount));
+    this.pushEvent('upgrade', `Чит: ${this.coins.toLocaleString('ru-RU')} монет`);
+    this.persist();
+    this.publish();
+  };
+
+  /** Debug/cheat: also top up reputation for room unlocks. */
+  cheatRich = (coins = 99_999_999, reputation = 99_999) => {
+    this.coins = Math.max(0, Math.floor(coins));
+    this.reputation = Math.max(0, Math.floor(reputation));
+    this.pushEvent('upgrade', `Чит: богатство · ${this.coins.toLocaleString('ru-RU')} 🪙`);
+    this.persist();
+    this.publish();
+  };
+
   update = (realDelta: number) => {
     if (!this.started || this.paused || !Number.isFinite(realDelta) || realDelta <= 0) return;
     let remaining = Math.min(realDelta, 0.5) * this.speedMultiplier;
