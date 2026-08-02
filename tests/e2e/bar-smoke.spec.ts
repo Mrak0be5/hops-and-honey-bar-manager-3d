@@ -1,22 +1,22 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 
 test('opens the bar and exposes the full upgrade surface', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /Хмель/ })).toBeVisible();
-  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await expect(page.getByRole('heading', { name: /Бордель/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Открыть бордель' }).click();
   await expect(page.locator('.bottom-status')).toBeVisible();
   const panel = page.locator('.upgrade-panel');
   if (!(await panel.evaluate((element) => element.classList.contains('is-open')))) {
-    await page.getByRole('button', { name: 'Улучшения бара' }).click();
+    await page.getByRole('button', { name: 'Улучшения борделя' }).click();
   }
   await expect(panel).toHaveClass(/is-open/);
-  await expect(page.getByRole('heading', { name: 'Улучшения бара' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Улучшения зала' })).toBeVisible();
   await expect(page.locator('.upgrade-card')).toHaveCount(6);
 });
 
 test('fits the mobile viewport without horizontal document overflow', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Открыть бордель' }).click();
   const sizes = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
   expect(sizes.scroll).toBeLessThanOrEqual(sizes.client);
 });
@@ -24,7 +24,7 @@ test('fits the mobile viewport without horizontal document overflow', async ({ p
 test('keeps hidden controls out of the welcome-screen tab order', async ({ page }) => {
   await page.setViewportSize({ width: 412, height: 915 });
   await page.goto('/');
-  const startButton = page.getByRole('button', { name: 'Открыть бар' });
+  const startButton = page.getByRole('button', { name: 'Открыть бордель' });
   await page.keyboard.press('Tab');
   await expect(startButton).toBeFocused();
 });
@@ -32,7 +32,7 @@ test('keeps hidden controls out of the welcome-screen tab order', async ({ page 
 test('keeps sound available and collapsed upgrades inert on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Открыть бордель' }).click();
   await expect(page.getByRole('button', { name: /звук/i })).toBeVisible();
   await expect(page.locator('.upgrade-panel')).toHaveAttribute('inert', '');
 });
@@ -47,7 +47,7 @@ test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({
   ]) {
     await page.setViewportSize(viewport);
     await page.goto('/');
-    await page.getByRole('button', { name: 'Открыть бар' }).click();
+    await page.getByRole('button', { name: 'Открыть бордель' }).click();
 
     const dock = page.locator('.control-strip');
     const dockBounds = await dock.boundingBox();
@@ -68,7 +68,7 @@ test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({
     expect(statusBounds).not.toBeNull();
     expect(statusBounds!.y + statusBounds!.height).toBeLessThanOrEqual(dockBounds!.y + 1);
 
-    const upgradeButton = page.getByRole('button', { name: 'Улучшения бара' });
+    const upgradeButton = page.getByRole('button', { name: 'Улучшения борделя' });
     await expect(upgradeButton).toHaveAttribute('aria-expanded', 'false');
     await upgradeButton.click();
     await expect(upgradeButton).toHaveAttribute('aria-expanded', 'true');

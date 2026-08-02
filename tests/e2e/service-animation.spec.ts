@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
 test('plays a seated guest through drinking and payment', async ({ page }, testInfo) => {
@@ -13,11 +13,11 @@ test('plays a seated guest through drinking and payment', async ({ page }, testI
   });
 
   await page.goto('/');
-  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Открыть бордель' }).click();
   await page.getByRole('button', { name: /Скорость игры x1/ }).click();
 
   const stage = (label: string) => page.locator(`.world-emoji[aria-label="${label}"]`).first();
-  await expect(stage('Ждёт бармена')).toBeVisible({ timeout: 25_000 });
+  await expect(stage('Ждёт Кристину')).toBeVisible({ timeout: 25_000 });
   await expect(stage('Ждёт напиток')).toBeVisible({ timeout: 35_000 });
 
   await expect(stage('Пьёт заказ')).toBeVisible({ timeout: 45_000 });

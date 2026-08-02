@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import {
   BAR_STATION,
   DAY_BONUS_CAP,
@@ -31,7 +31,7 @@ class MemoryStorage implements Storage {
 const makeEngine = (storage: Storage | null = null) => new GameEngine({ rng: () => 0.5, storage });
 const makeFundedEngine = (coins = 5_000, upgrades = INITIAL_UPGRADES) => {
   const storage = new MemoryStorage();
-  storage.setItem('hops-and-honey-save-v1', JSON.stringify({
+  storage.setItem('brothel-christopher-v1', JSON.stringify({
     coins,
     reputation: 3,
     served: 0,
@@ -200,12 +200,12 @@ describe('GameEngine', () => {
 
   it('charges the repair price and sends only served bar guests into a room', () => {
     const { engine } = makeFundedEngine();
-    const karaoke = ROOM_DEFINITIONS.find((room) => room.id === 'karaoke')!;
+    const karaoke = ROOM_DEFINITIONS.find((room) => room.id === 'strip')!;
 
-    expect(engine.purchaseRoom('karaoke')).toBe(true);
-    expect(engine.purchaseRoom('karaoke')).toBe(false);
+    expect(engine.purchaseRoom('strip')).toBe(true);
+    expect(engine.purchaseRoom('strip')).toBe(false);
     expect(engine.getSnapshot().coins).toBe(5_000 - karaoke.unlockCost);
-    expect(engine.getSnapshot().rooms.find((room) => room.id === 'karaoke')?.staffState).toBe('waiting');
+    expect(engine.getSnapshot().rooms.find((room) => room.id === 'strip')?.staffState).toBe('waiting');
 
     engine.start();
     let sawWalkToRoom = false;
@@ -214,18 +214,18 @@ describe('GameEngine', () => {
     for (let tick = 0; tick < 720; tick += 1) {
       engine.advance(0.25);
       const snapshot = engine.getSnapshot();
-      const assigned = snapshot.patrons.filter((patron) => patron.roomId === 'karaoke'
+      const assigned = snapshot.patrons.filter((patron) => patron.roomId === 'strip'
         && (patron.state === 'walking_to_room' || patron.state === 'waiting_room' || patron.state === 'in_room'));
-      expect(assigned.length).toBeLessThanOrEqual(snapshot.rooms.find((room) => room.id === 'karaoke')!.capacity);
+      expect(assigned.length).toBeLessThanOrEqual(snapshot.rooms.find((room) => room.id === 'strip')!.capacity);
       expect(assigned.every((patron) => patron.order !== null && patron.barServed)).toBe(true);
       sawWalkToRoom ||= assigned.some((patron) => patron.state === 'walking_to_room');
       sawWaitingRoom ||= assigned.some((patron) => patron.state === 'waiting_room');
       sawInRoom ||= assigned.some((patron) => patron.state === 'in_room');
-      const activeGuests = snapshot.patrons.filter((patron) => patron.roomId === 'karaoke' && patron.state === 'in_room').length;
-      expect(snapshot.rooms.find((room) => room.id === 'karaoke')!.guests).toBe(activeGuests);
-      if (snapshot.rooms.find((room) => room.id === 'karaoke')!.completedSessions > 0) break;
+      const activeGuests = snapshot.patrons.filter((patron) => patron.roomId === 'strip' && patron.state === 'in_room').length;
+      expect(snapshot.rooms.find((room) => room.id === 'strip')!.guests).toBe(activeGuests);
+      if (snapshot.rooms.find((room) => room.id === 'strip')!.completedSessions > 0) break;
     }
-    const room = engine.getSnapshot().rooms.find((item) => item.id === 'karaoke')!;
+    const room = engine.getSnapshot().rooms.find((item) => item.id === 'strip')!;
     expect(sawWalkToRoom).toBe(true);
     expect(sawWaitingRoom).toBe(true);
     expect(sawInRoom).toBe(true);
@@ -245,9 +245,9 @@ describe('GameEngine', () => {
       advertising: 8,
     };
     const { engine } = makeFundedEngine(5_000, fastUpgrades);
-    expect(engine.purchaseRoom('karaoke')).toBe(true);
-    expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
-    expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
+    expect(engine.purchaseRoom('strip')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
     engine.start();
 
     let sawApproachingReservation = false;
@@ -255,8 +255,8 @@ describe('GameEngine', () => {
     for (let tick = 0; tick < 1_200; tick += 1) {
       engine.advance(0.25);
       const snapshot = engine.getSnapshot();
-      const room = snapshot.rooms.find((item) => item.id === 'karaoke')!;
-      const assigned = snapshot.patrons.filter((patron) => patron.roomId === 'karaoke'
+      const room = snapshot.rooms.find((item) => item.id === 'strip')!;
+      const assigned = snapshot.patrons.filter((patron) => patron.roomId === 'strip'
         && (patron.state === 'walking_to_room' || patron.state === 'waiting_room' || patron.state === 'in_room'));
       if (room.staffState === 'welcoming' && assigned.some((patron) => patron.state === 'walking_to_room')) {
         sawApproachingReservation = true;
@@ -285,9 +285,9 @@ describe('GameEngine', () => {
       advertising: 8,
     };
     const { engine } = makeFundedEngine(5_000, fastUpgrades);
-    const definition = ROOM_DEFINITIONS.find((room) => room.id === 'karaoke')!;
-    expect(engine.purchaseRoom('karaoke')).toBe(true);
-    expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
+    const definition = ROOM_DEFINITIONS.find((room) => room.id === 'strip')!;
+    expect(engine.purchaseRoom('strip')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
     engine.start();
 
     let targetSession = 0;
@@ -296,7 +296,7 @@ describe('GameEngine', () => {
     let verifiedFullPayout = false;
     for (let tick = 0; tick < 1_600; tick += 1) {
       engine.advance(0.25);
-      const room = engine.getSnapshot().rooms.find((item) => item.id === 'karaoke')!;
+      const room = engine.getSnapshot().rooms.find((item) => item.id === 'strip')!;
       if (targetSession === 0 && room.staffState === 'serving' && room.guests === 2) {
         targetSession = room.completedSessions + 1;
         revenueBeforeFullSession = room.revenue;
@@ -316,19 +316,19 @@ describe('GameEngine', () => {
 
   it('keeps room upgrades independent and restores them with room revenue', () => {
     const { engine, storage } = makeFundedEngine();
-    expect(engine.purchaseRoomUpgrade('sauna', 'quality')).toBe(false);
-    expect(engine.purchaseRoom('karaoke')).toBe(true);
-    expect(engine.purchaseRoomUpgrade('karaoke', 'staffSpeed')).toBe(true);
-    expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
-    expect(engine.purchaseRoomUpgrade('karaoke', 'quality')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('sex', 'quality')).toBe(false);
+    expect(engine.purchaseRoom('strip')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('strip', 'staffSpeed')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('strip', 'quality')).toBe(true);
 
     engine.start();
-    for (let tick = 0; tick < 720 && engine.getSnapshot().rooms.find((room) => room.id === 'karaoke')!.completedSessions === 0; tick += 1) {
+    for (let tick = 0; tick < 720 && engine.getSnapshot().rooms.find((room) => room.id === 'strip')!.completedSessions === 0; tick += 1) {
       engine.advance(0.25);
     }
     const restored = makeEngine(storage).getSnapshot();
-    const karaoke = restored.rooms.find((room) => room.id === 'karaoke')!;
-    const sauna = restored.rooms.find((room) => room.id === 'sauna')!;
+    const karaoke = restored.rooms.find((room) => room.id === 'strip')!;
+    const sauna = restored.rooms.find((room) => room.id === 'sex')!;
     expect(karaoke.unlocked).toBe(true);
     expect(karaoke.upgrades).toEqual({ staffSpeed: 2, capacity: 2, quality: 2 });
     expect(karaoke.capacity).toBe(2);
@@ -345,24 +345,24 @@ describe('GameEngine', () => {
     }
   });
 
-  it('uses the correct grammatical form when the sauna opens', () => {
+  it('uses the correct grammatical form when the sex room opens', () => {
     const { engine } = makeFundedEngine();
-    expect(engine.purchaseRoom('sauna')).toBe(true);
-    expect(engine.getSnapshot().lastEvent?.message).toContain('Финская сауна открыта!');
+    expect(engine.purchaseRoom('sex')).toBe(true);
+    expect(engine.getSnapshot().lastEvent?.message).toContain('Комната удовольствий открыта!');
   });
 
   it('prices the first speed and quality upgrades for a six-to-eight shift payoff', () => {
-    expect(getRoomUpgradeCost('karaoke', 'staffSpeed', 1)).toBe(60);
-    expect(getRoomUpgradeCost('karaoke', 'quality', 1)).toBe(70);
-    expect(getRoomUpgradeCost('sauna', 'staffSpeed', 1)).toBe(110);
-    expect(getRoomUpgradeCost('sauna', 'quality', 1)).toBe(130);
-    expect(getRoomUpgradeCost('massage', 'staffSpeed', 1)).toBe(180);
-    expect(getRoomUpgradeCost('massage', 'quality', 1)).toBe(200);
+    expect(getRoomUpgradeCost('strip', 'staffSpeed', 1)).toBe(60);
+    expect(getRoomUpgradeCost('strip', 'quality', 1)).toBe(70);
+    expect(getRoomUpgradeCost('sex', 'staffSpeed', 1)).toBe(110);
+    expect(getRoomUpgradeCost('sex', 'quality', 1)).toBe(130);
+    expect(getRoomUpgradeCost('gangbang', 'staffSpeed', 1)).toBe(180);
+    expect(getRoomUpgradeCost('gangbang', 'quality', 1)).toBe(200);
   });
 
   it('derives milestones and new economy counters from a legacy save', () => {
     const storage = new MemoryStorage();
-    storage.setItem('hops-and-honey-save-v1', JSON.stringify({
+    storage.setItem('brothel-christopher-v1', JSON.stringify({
       coins: 432,
       reputation: 18,
       served: 120,

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { getRoomDefinition, getRoomUpgradeCost, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, UPGRADE_DEFS } from '../game/config';
 import type { GameEngine } from '../game/GameEngine';
@@ -16,20 +16,20 @@ type Props = {
 };
 
 const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; description: string; icon: string }>> = {
-  karaoke: {
-    staffSpeed: { name: 'Опытный ведущий', description: 'Быстрее заводит публику и меняет песни.', icon: '⚡' },
-    capacity: { name: 'Доп. микрофон', description: 'Ещё один гость поёт в каждом сеансе.', icon: '🎙️' },
-    quality: { name: 'Звук и каталог', description: 'Хиты и чистый звук повышают средний чек.', icon: '🎵' },
+  strip: {
+    staffSpeed: { name: 'Опытная танцовщица', description: 'Быстрее разогревает зал и меняет номера.', icon: '⚡' },
+    capacity: { name: 'Лишний стул у сцены', description: 'Ещё один гость смотрит каждый сеанс.', icon: '💺' },
+    quality: { name: 'Свет и музыка', description: 'Шоу ярче — средний чек выше.', icon: '💡' },
   },
-  sauna: {
-    staffSpeed: { name: 'Умелый банщик', description: 'Быстрее готовит пар и обслуживает гостей.', icon: '🧖' },
-    capacity: { name: 'Новая лавка', description: 'Добавляет место в каждом сеансе.', icon: '🪵' },
-    quality: { name: 'Печь и кедр', description: 'Лучший жар и аромат повышают цену.', icon: '🔥' },
+  sex: {
+    staffSpeed: { name: 'Умелая куртизанка', description: 'Быстрее проводит приватный сеанс.', icon: '💋' },
+    capacity: { name: 'Ещё одна кушетка', description: 'Добавляет место в каждом сеансе.', icon: '🛏️' },
+    quality: { name: 'Бельё и ароматы', description: 'Премиум-атмосфера повышает цену.', icon: '✨' },
   },
-  massage: {
-    staffSpeed: { name: 'Техника мастера', description: 'Сокращает длительность процедуры.', icon: '🙌' },
-    capacity: { name: 'Второй стол', description: 'Позволяет принять ещё одного клиента.', icon: '🛏️' },
-    quality: { name: 'Масла и ароматы', description: 'Премиальный уход увеличивает оплату.', icon: '🌿' },
+  gangbang: {
+    staffSpeed: { name: 'Темп ведущей', description: 'Сокращает длительность оргии.', icon: '🔥' },
+    capacity: { name: 'Больше мест на платформе', description: 'Позволяет принять ещё одного гостя.', icon: '👥' },
+    quality: { name: 'Сцена и реквизит', description: 'Жёстче шоу — выше оплата.', icon: '🎭' },
   },
 };
 
@@ -42,13 +42,13 @@ const ROOM_STAFF_LABELS = {
 } as const;
 
 const BARTENDER_STATUS: Record<BartenderState, { emoji: string; label: string }> = {
-  idle: { emoji: '👀', label: 'Смотрит за залом' },
+  idle: { emoji: '👀', label: 'Кристина смотрит за залом' },
   to_order: { emoji: '🏃', label: 'Идёт за заказом' },
   taking_order: { emoji: '📝', label: 'Принимает заказ' },
   to_bar: { emoji: '🏃', label: 'Спешит к стойке' },
-  preparing: { emoji: '🍺', label: 'Наливает напиток' },
-  to_deliver: { emoji: '🍻', label: 'Несёт напиток' },
-  delivering: { emoji: '🤝', label: 'Подаёт заказ' },
+  preparing: { emoji: '🍸', label: 'Готовит напиток' },
+  to_deliver: { emoji: '🥂', label: 'Несёт напиток' },
+  delivering: { emoji: '🔥', label: 'Шоу при подаче' },
   to_payment: { emoji: '🏃', label: 'Идёт за оплатой' },
   taking_payment: { emoji: '💰', label: 'Принимает оплату' },
   to_cleanup: { emoji: '🧽', label: 'Идёт убирать' },
@@ -57,9 +57,9 @@ const BARTENDER_STATUS: Record<BartenderState, { emoji: string; label: string }>
 };
 
 const ROOM_UNLOCK_VERB: Record<RoomId, 'открыт' | 'открыта'> = {
-  karaoke: 'открыт',
-  sauna: 'открыта',
-  massage: 'открыт',
+  strip: 'открыт',
+  sex: 'открыта',
+  gangbang: 'открыт',
 };
 
 function formatCompactNumber(value: number) {
@@ -289,7 +289,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
   const selectVenue = (view: VenueView) => click(() => onVenueView(view));
 
   const reset = () => {
-    if (window.confirm('Сбросить прогресс бара и начать заново?')) {
+    if (window.confirm('Сбросить прогресс борделя и начать заново?')) {
       engine.resetProgress();
       onVenueView('bar');
     }
@@ -301,9 +301,9 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
         <>
       <header className="top-hud">
         <div className="brand-card">
-          <span className="brand-mark">H&amp;H</span>
+          <span className="brand-mark">БК</span>
           <span className="brand-copy">
-            <strong>ХМЕЛЬ &amp; МЁД</strong>
+            <strong>БОРДЕЛЬ У КРИСТОФЕРА</strong>
             <small>день {snapshot.day} · {activeRoomDefinition?.shortName ?? 'главный зал'}</small>
           </span>
           <span className="day-track" aria-label={`Смена завершена на ${Math.round(snapshot.shiftProgress * 100)}%`}>
@@ -341,7 +341,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
           <button
             className={`icon-button upgrades-toggle ${developmentVisible ? 'is-active' : ''}`}
             onClick={() => click(() => onUpgradesOpen(!upgradesOpen))}
-            aria-label="Улучшения бара"
+            aria-label="Улучшения борделя"
             aria-expanded={developmentVisible}
             aria-controls="upgrade-panel"
           >
@@ -373,7 +373,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
           <div className="panel-heading">
             <div>
               <span className="eyebrow">МЕНЮ РАЗВИТИЯ</span>
-              <h2 id="upgrade-panel-title">{venueView === 'bar' ? 'Улучшения бара' : activeRoomDefinition?.name}</h2>
+              <h2 id="upgrade-panel-title">{venueView === 'bar' ? 'Улучшения зала' : activeRoomDefinition?.name}</h2>
             </div>
             <Icon name="upgrade-arrow" />
             <button
@@ -435,7 +435,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
                 <span className="status-emoji">{bartenderStatus.emoji}</span>
                 <span><small>БАРМЕН</small><b>{bartenderStatus.label}</b></span>
               </div>
-              <button className="room-pill focus-pill" onClick={() => selectVenue(snapshot.rooms.find((room) => room.unlocked)?.id ?? 'karaoke')}>
+              <button className="room-pill focus-pill" onClick={() => selectVenue(snapshot.rooms.find((room) => room.unlocked)?.id ?? 'strip')}>
                 <Icon name="customers" />
                 <span><small>КОМПЛЕКС · +{snapshot.roomRevenue} 🪙</small><b>{snapshot.patrons.length}/6 гостей · {snapshot.rooms.filter((room) => room.unlocked).length}/3 комнат</b></span>
               </button>
@@ -455,7 +455,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
         <div className="pause-scrim">
           <div className="pause-card">
             <Icon name="pause" />
-            <b>Бар на паузе</b>
+            <b>Бордель на паузе</b>
             <span>Гости терпеливо подождут.</span>
           </div>
         </div>
@@ -466,15 +466,15 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
       {!snapshot.started && (
         <div className="welcome-layer">
           <section className="welcome-card">
-            <span className="welcome-kicker">3D БАР-МЕНЕДЖЕР</span>
-            <h1>Хмель <i>&amp;</i> Мёд</h1>
-            <p>Откройте бар, развивайте персонал и превратите маленький паб в комплекс с караоке, сауной и массажем.</p>
+            <span className="welcome-kicker">3D БОРДЕЛЬ-МЕНЕДЖЕР</span>
+            <h1>Бордель <i>у</i> Кристофера</h1>
+            <p>Откройте зал, развивайте Кристину и комнаты: стрип, секс и оргию. Гости пьют — потом идут в услуги.</p>
             <div className="welcome-loop">
-              <span>🙋</span><i>→</i><span>📝</span><i>→</i><span>🍺</span><i>→</i><span>💰</span><i>→</i><span>😊</span>
+              <span>🙋</span><i>→</i><span>🍸</span><i>→</i><span>🔥</span><i>→</i><span>💃</span><i>→</i><span>💰</span>
             </div>
             <button className="start-button" onClick={() => click(engine.start)}>
               <Icon name="play" />
-              Открыть бар
+              Открыть бордель
             </button>
             <small>Прогресс сохраняется автоматически</small>
           </section>

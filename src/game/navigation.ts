@@ -42,14 +42,13 @@ const STATIC_OBSTACLES: NavObstacle[] = [
   { kind: 'circle', x: -6.9, z: -4.9, radius: 0.68 },
   { kind: 'circle', x: 6.7, z: -4.9, radius: 0.62 },
   { kind: 'circle', x: -6.95, z: 5.05, radius: 0.58 },
-  // Karaoke stage and speaker line. The audience lane stays open to the east portal.
+  // Strip stage and speaker line. The audience lane stays open to the east portal.
   { kind: 'rect', minX: -15.35, maxX: -9.05, minZ: -1.62, maxZ: 0.25 },
-  // Sauna tiered benches and heater.
+  // Sex room bed block.
   { kind: 'rect', minX: 8.875, maxX: 14.125, minZ: -2.12, maxZ: -0.76 },
   { kind: 'circle', x: 14.75, z: 1.45, radius: 0.66 },
-  // Massage tables. Guests walk to the clear foot-side service spots.
-  { kind: 'rect', minX: 1.68, maxX: 3.12, minZ: -11.6, maxZ: -8.82 },
-  { kind: 'rect', minX: 5.28, maxX: 6.72, minZ: -11.6, maxZ: -8.82 },
+  // Gangbang raised platform. Guests stand on the clear north foot-side lane.
+  { kind: 'rect', minX: 1.85, maxX: 6.55, minZ: -12.05, maxZ: -8.55 },
   { kind: 'circle', x: 1.1, z: -12.25, radius: 0.45 },
   { kind: 'circle', x: 7.3, z: -12.25, radius: 0.45 },
   { kind: 'rect', minX: 3.1, maxX: 5.3, minZ: -12.91, maxZ: -12.29 },

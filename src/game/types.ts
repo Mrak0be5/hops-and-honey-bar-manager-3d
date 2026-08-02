@@ -37,8 +37,9 @@ export type UpgradeKey =
 
 export type Currency = 'coins' | 'reputation';
 
-export type RoomId = 'karaoke' | 'sauna' | 'massage';
+export type RoomId = 'strip' | 'sex' | 'gangbang';
 export type VenueView = 'bar' | RoomId;
+export type BartenderOutfit = 'uniform' | 'topless' | 'skirt_up' | 'nude';
 export type RoomUpgradeKey = 'staffSpeed' | 'capacity' | 'quality';
 export type RoomUpgradeLevels = Record<RoomUpgradeKey, number>;
 export type RoomStaffState = 'locked' | 'waiting' | 'welcoming' | 'serving' | 'resetting';
@@ -103,6 +104,9 @@ export type Bartender = {
   targetTableId: number | null;
   carryingDrink: Drink | null;
   carryingDirty: boolean;
+  outfit: BartenderOutfit;
+  onTable: boolean;
+  deliveryProgress: number;
 };
 
 export type UpgradeLevels = Record<UpgradeKey, number>;

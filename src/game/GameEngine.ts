@@ -5,6 +5,7 @@ import {
   ENTRY_AISLE,
   getArrivalInterval,
   getDayBonus,
+  getDeliveryDuration,
   getUnlockedDrinks,
   getUpgradeCost,
   INITIAL_UPGRADES,
@@ -47,7 +48,7 @@ type RandomSource = () => number;
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 type MutablePatron = Patron & { route: Vec2[] };
-type MutableBartender = Bartender & { route: Vec2[]; timer: number };
+type MutableBartender = Bartender & { route: Vec2[]; timer: number; deliveryDuration: number };
 type MutableRoom = RoomState & { timer: number; phaseDuration: number; cooldown: number; guestIds: string[] };
 
 type SavedProgress = {
@@ -62,7 +63,7 @@ type SavedProgress = {
   rooms?: Partial<Record<RoomId, { unlocked: boolean; completedSessions: number; revenue: number; upgrades: RoomUpgradeLevels }>>;
 };
 
-const SAVE_KEY = 'hops-and-honey-save-v1';
+const SAVE_KEY = 'brothel-christopher-v1';
 const PUBLISH_INTERVAL = 1 / 12;
 
 const cloneVec = (value: Vec2): Vec2 => ({ x: value.x, z: value.z });
@@ -121,8 +122,12 @@ export class GameEngine {
       targetTableId: null,
       carryingDrink: null,
       carryingDirty: false,
+      outfit: 'uniform',
+      onTable: false,
+      deliveryProgress: 0,
       route: [],
       timer: 0,
+      deliveryDuration: 0,
     };
   }
 
@@ -160,7 +165,7 @@ export class GameEngine {
   start = () => {
     this.started = true;
     this.paused = false;
-    this.pushEvent('day', `День ${this.day}: бар открыт!`);
+    this.pushEvent('day', `День ${this.day}: бордель открыт!`);
     this.publish();
   };
 
@@ -215,7 +220,7 @@ export class GameEngine {
     room.staffState = 'waiting';
     room.cooldown = 1.1;
     room.progress = 0;
-    const openedWord = definition.id === 'sauna' ? 'открыта' : 'открыт';
+    const openedWord = definition.id === 'sex' ? 'открыта' : 'открыт';
     this.pushEvent('room_unlock', `${definition.icon} ${definition.name} ${openedWord}!`, undefined, roomId);
     this.persist();
     this.publish();
@@ -545,6 +550,13 @@ export class GameEngine {
 
     if (this.bartender.state !== 'idle') {
       this.bartender.timer -= delta;
+      if (this.bartender.state === 'delivering' && this.bartender.deliveryDuration > 0) {
+        this.bartender.deliveryProgress = clamp(
+          1 - this.bartender.timer / this.bartender.deliveryDuration,
+          0,
+          1,
+        );
+      }
       if (this.bartender.timer <= 0) this.finishBartenderAction();
       return;
     }
@@ -607,8 +619,7 @@ export class GameEngine {
         break;
       case 'to_deliver':
         if (!patron || patron.state !== 'waiting_drink') return this.setBartenderIdle();
-        this.bartender.state = 'delivering';
-        this.bartender.timer = 0.52;
+        this.beginDeliveryShow(patron, table);
         break;
       case 'to_payment':
         if (!patron || patron.state !== 'ready_to_pay') return this.setBartenderIdle();
@@ -644,6 +655,10 @@ export class GameEngine {
       case 'preparing':
         if (!patron?.order) return this.setBartenderIdle();
         this.bartender.carryingDrink = patron.order;
+        // Levels 4–5 walk nude from the bar; lower tiers strip at the table.
+        this.bartender.outfit = patron.order.level >= 4 ? 'nude' : 'uniform';
+        this.bartender.onTable = false;
+        this.bartender.deliveryProgress = 0;
         this.startBartenderMove('to_deliver', this.tables[patron.tableId].service, [cloneVec(SERVICE_GATE), cloneVec(this.tables[patron.tableId].service)]);
         break;
       case 'delivering':
@@ -652,6 +667,10 @@ export class GameEngine {
           patron.timer = patron.order.drinkTime;
         }
         this.bartender.carryingDrink = null;
+        this.bartender.outfit = 'uniform';
+        this.bartender.onTable = false;
+        this.bartender.deliveryProgress = 0;
+        this.bartender.deliveryDuration = 0;
         this.setBartenderIdle();
         break;
       case 'taking_payment':
@@ -681,6 +700,25 @@ export class GameEngine {
     }
   }
 
+  private beginDeliveryShow(patron: MutablePatron, table: TableState | null) {
+    const level = this.bartender.carryingDrink?.level ?? patron.order?.level ?? 1;
+    const duration = getDeliveryDuration(level);
+    this.bartender.state = 'delivering';
+    this.bartender.timer = duration;
+    this.bartender.deliveryDuration = duration;
+    this.bartender.deliveryProgress = 0;
+    this.bartender.onTable = level >= 5;
+    if (level === 2) this.bartender.outfit = 'topless';
+    else if (level === 3) this.bartender.outfit = 'skirt_up';
+    else if (level >= 4) this.bartender.outfit = 'nude';
+    else this.bartender.outfit = 'uniform';
+    if (level >= 5 && table) {
+      this.bartender.position = cloneVec(table.position);
+      this.bartender.target = cloneVec(table.position);
+      this.bartender.route = [];
+    }
+  }
+
   private setBartenderIdle() {
     this.bartender.state = 'idle';
     this.bartender.route = [];
@@ -688,6 +726,10 @@ export class GameEngine {
     this.bartender.targetPatronId = null;
     this.bartender.targetTableId = null;
     this.bartender.timer = 0;
+    this.bartender.outfit = 'uniform';
+    this.bartender.onTable = false;
+    this.bartender.deliveryProgress = 0;
+    this.bartender.deliveryDuration = 0;
   }
 
   private pickDrink(): Drink {
@@ -789,6 +831,9 @@ export class GameEngine {
         targetTableId: this.bartender.targetTableId,
         carryingDrink: this.bartender.carryingDrink,
         carryingDirty: this.bartender.carryingDirty,
+        outfit: this.bartender.outfit,
+        onTable: this.bartender.onTable,
+        deliveryProgress: this.bartender.deliveryProgress,
       },
       upgrades: { ...this.upgrades },
       rooms: ROOM_DEFINITIONS.map((definition) => {

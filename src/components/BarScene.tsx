@@ -1,4 +1,4 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+﻿import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import * as THREE from 'three';
@@ -177,7 +177,7 @@ function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapsho
     if (patron.roomId !== focus) return false;
     // The massage room renders the customer lying on the actual table; a
     // separate DOM bubble at the standing reservation point would be detached.
-    return !(focus === 'massage' && patron.state === 'in_room');
+    return !(focus === 'gangbang' && patron.state === 'in_room');
   });
   const visibleLimit = compact ? (focus === 'bar' ? 4 : 3) : Number.POSITIVE_INFINITY;
   const visiblePatrons = candidates.slice(0, visibleLimit);
@@ -255,11 +255,11 @@ function CameraRig({ focus, developmentOpen }: { focus: VenueView; developmentOp
   useFrame((_, delta) => {
     if (!(camera instanceof THREE.OrthographicCamera)) return;
     const layout = focus === 'bar' ? null : ROOM_LAYOUTS[focus];
-    const roomInset = focus === 'karaoke'
+    const roomInset = focus === 'strip'
       ? { x: -0.82, z: 0.12 }
-      : focus === 'sauna'
+      : focus === 'sex'
         ? { x: 0.82, z: 0.12 }
-        : focus === 'massage'
+        : focus === 'gangbang'
           ? { x: 0, z: -0.72 }
           : { x: 0, z: 0 };
     const center = layout
@@ -504,7 +504,7 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
       ))}
       {snapshot.bartender.state === 'preparing' && <PourEffect />}
       {snapshot.patrons.map((patron) => (
-        patron.state === 'in_room' && patron.roomId === 'massage'
+        patron.state === 'in_room' && patron.roomId === 'gangbang'
           ? null
           : <PatronCharacter key={patron.id} patron={patron} />
       ))}

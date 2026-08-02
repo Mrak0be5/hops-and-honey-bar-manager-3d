@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
 const fundedSave = {
@@ -29,41 +29,41 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   });
   await page.addInitScript((save) => {
     Math.random = () => 0.5;
-    window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify(save));
+    window.localStorage.setItem('brothel-christopher-v1', JSON.stringify(save));
   }, fundedSave);
 
   await page.goto('/');
-  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Открыть бордель' }).click();
   const panel = page.locator('.upgrade-panel');
   if (!(await panel.evaluate((element) => element.classList.contains('is-open')))) {
-    await page.getByRole('button', { name: 'Улучшения бара' }).click();
+    await page.getByRole('button', { name: 'Улучшения борделя' }).click();
   }
 
-  const karaokeTab = page.getByRole('tab', { name: /Караоке/ });
+  const karaokeTab = page.getByRole('tab', { name: /Стрип/ });
   await karaokeTab.click();
   await expect(karaokeTab).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('heading', { name: 'Караоке-зал', level: 2 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Стрип-зал', level: 2 })).toBeVisible();
   await expect(page.getByText('ТРЕБУЕТ РЕМОНТА')).toBeVisible();
   await page.getByRole('button', { name: /Открыть и отремонтировать/ }).click();
 
   await expect(page.getByText('КОМНАТА РАБОТАЕТ')).toBeVisible();
-  await expect(page.locator('.staff-card')).toContainText('Ведущий караоке');
+  await expect(page.locator('.staff-card')).toContainText('Танцовщица');
   await expect(page.locator('.room-upgrade-card')).toHaveCount(3);
-  await expect(page.getByRole('button', { name: /Опытный ведущий/ })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Доп. микрофон/ })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Звук и каталог/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Опытная танцовщица/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Лишний стул у сцены/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Свет и музыка/ })).toBeVisible();
 
-  await page.getByRole('button', { name: /Доп. микрофон/ }).click();
-  await expect(page.getByRole('button', { name: /Доп. микрофон, уровень 2/ })).toBeVisible();
+  await page.getByRole('button', { name: /Лишний стул у сцены/ }).click();
+  await expect(page.getByRole('button', { name: /Лишний стул у сцены, уровень 2/ })).toBeVisible();
   await page.waitForTimeout(900);
-  await page.screenshot({ path: `output/playwright/room-karaoke-${testInfo.project.name}.png`, fullPage: false });
+  await page.screenshot({ path: `output/playwright/room-strip-${testInfo.project.name}.png`, fullPage: false });
 
   const sizes = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
   expect(sizes.scroll).toBeLessThanOrEqual(sizes.client);
 
   for (const room of [
-    { tab: /Сауна/, heading: 'Финская сауна', staff: 'Банщик', file: 'sauna' },
-    { tab: /Массаж/, heading: 'Массажный кабинет', staff: 'Массажист', file: 'massage' },
+    { tab: /Секс/, heading: 'Комната удовольствий', staff: 'Куртизанка', file: 'sex' },
+    { tab: /Оргия/, heading: 'Зал оргии', staff: 'Ведущая', file: 'gangbang' },
   ]) {
     const tab = page.getByRole('tab', { name: room.tab });
     await tab.click();
@@ -81,18 +81,18 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   await page.getByRole('button', { name: /Вернуться в главный зал/ }).click();
   await page.getByRole('button', { name: 'Скорость игры x1' }).click();
   await expect(page.getByRole('button', { name: 'Скорость игры x2' })).toBeVisible();
-  await page.getByRole('button', { name: 'Улучшения бара' }).click();
-  await page.getByRole('tab', { name: /Сауна/ }).click();
+  await page.getByRole('button', { name: 'Улучшения борделя' }).click();
+  await page.getByRole('tab', { name: /Секс/ }).click();
   await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
 
   const hasRoomGuest = async () => page.locator('.world-emoji').evaluateAll((nodes) => nodes.some((node) => (
-    node.getAttribute('aria-label') === 'В комнате: Сауна'
+    node.getAttribute('aria-label') === 'В комнате: Секс'
   )));
   await expect.poll(hasRoomGuest, { timeout: 55_000, intervals: [250] }).toBe(true);
   const roomGuestLabel = await page.locator('.world-emoji').evaluateAll((nodes) => nodes
     .map((node) => node.getAttribute('aria-label'))
     .find((label) => label?.startsWith('В комнате:')) ?? '');
-  expect(roomGuestLabel).toBe('В комнате: Сауна');
+  expect(roomGuestLabel).toBe('В комнате: Секс');
   await page.waitForTimeout(700);
   await page.screenshot({ path: `output/playwright/room-live-guest-${testInfo.project.name}.png`, fullPage: false });
 
@@ -108,7 +108,7 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
   page.on('console', (message) => {
     if (message.text().toLowerCase().includes('audiocontext')) audioWarnings.push(message.text());
   });
-  await page.addInitScript(() => window.localStorage.removeItem('hops-and-honey-save-v1'));
+  await page.addInitScript(() => window.localStorage.removeItem('brothel-christopher-v1'));
   await page.goto('/');
 
   const welcome = page.locator('.welcome-card');
@@ -120,13 +120,13 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
   expect(welcomeBox!.y).toBeGreaterThanOrEqual(0);
   expect(welcomeBox!.y + welcomeBox!.height).toBeLessThanOrEqual(900);
 
-  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Открыть бордель' }).click();
   await expect(page.locator('.top-hud')).toBeVisible();
   const panel = page.locator('.upgrade-panel');
   await expect(panel).toHaveAttribute('aria-hidden', 'true');
   await expect(panel).not.toBeVisible();
 
-  await page.getByRole('button', { name: 'Улучшения бара' }).click();
+  await page.getByRole('button', { name: 'Улучшения борделя' }).click();
   await expect(panel).toHaveClass(/is-open/);
   await expect(panel).toBeVisible();
   await expect(page.getByRole('button', { name: 'Закрыть улучшения' })).toBeVisible();
@@ -140,7 +140,7 @@ test('390px HUD uses compact values and development sheet removes redundant over
   test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile layout assertion');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript((save) => {
-    window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify(save));
+    window.localStorage.setItem('brothel-christopher-v1', JSON.stringify(save));
   }, {
     ...fundedSave,
     coins: 268_000,
@@ -149,21 +149,21 @@ test('390px HUD uses compact values and development sheet removes redundant over
     soundEnabled: false,
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Открыть бордель' }).click();
   await expect(page.getByRole('button', { name: 'Включить звук' })).toBeVisible();
 
   const compactValues = page.locator('.currency-value-compact');
   await expect(compactValues).toHaveText(['268K', '1.6K', '1.4K']);
   for (const value of await compactValues.all()) await expect(value).toBeVisible();
   for (const value of await page.locator('.currency-value-full').all()) await expect(value).not.toBeVisible();
-  await expect(page.locator('.brand-copy strong')).toHaveText('ХМЕЛЬ & МЁД');
+  await expect(page.locator('.brand-copy strong')).toHaveText('БОРДЕЛЬ У КРИСТОФЕРА');
   await expect(page.locator('.brand-copy strong')).toBeVisible();
 
   const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(viewportWidth);
 
-  await page.getByRole('button', { name: 'Улучшения бара' }).click();
+  await page.getByRole('button', { name: 'Улучшения борделя' }).click();
   const panel = page.locator('.upgrade-panel');
   await expect(panel).toBeVisible();
   await expect(page.locator('.brand-card')).not.toBeVisible();
@@ -179,7 +179,7 @@ test('390px HUD uses compact values and development sheet removes redundant over
   expect(panelBox!.y + panelBox!.height).toBeLessThanOrEqual(845);
   expect(await page.locator('.world-status-marker:visible').count()).toBeLessThanOrEqual(1);
 
-  await page.getByRole('tab', { name: /Сауна/ }).click();
+  await page.getByRole('tab', { name: /Секс/ }).click();
   await expect(panel).toHaveClass(/is-room-view/);
   const roomPanelBox = await panel.boundingBox();
   expect(roomPanelBox).not.toBeNull();

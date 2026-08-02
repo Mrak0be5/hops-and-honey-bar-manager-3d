@@ -12,6 +12,8 @@ export const ROOM_MIN_WELCOME_DURATION = 0.8;
 export const ROOM_RESET_DURATION = 1.15;
 export const TABLE_RADIUS = 0.76;
 export const GUEST_CHAIR_OFFSET = 1.16;
+export const VENUE_NAME = 'Бордель у Кристофера';
+export const BARTENDER_NAME = 'Кристина';
 
 export const getDayBonus = (shiftOperatingRevenue: number) =>
   Math.min(DAY_BONUS_CAP, Math.max(0, Math.round(shiftOperatingRevenue * DAY_BONUS_RATE)));
@@ -38,10 +40,21 @@ export const TABLE_LAYOUT: TableState[] = [
 export const DRINKS: Drink[] = [
   { id: 'sunny-lager', name: 'Солнечный лагер', level: 1, price: 12, color: '#f6ad2f', drinkTime: 7.2 },
   { id: 'pear-cider', name: 'Грушевый сидр', level: 2, price: 17, color: '#dff25b', drinkTime: 7.8 },
-  { id: 'velvet-stout', name: 'Бархатный стаут', level: 3, price: 23, color: '#5d2b27', drinkTime: 8.4 },
-  { id: 'berry-ale', name: 'Ягодный эль', level: 4, price: 31, color: '#d43c72', drinkTime: 9.2 },
-  { id: 'aurora-ipa', name: 'Аврора IPA', level: 5, price: 42, color: '#f06d38', drinkTime: 10 },
+  { id: 'christina-kiss', name: 'Поцелуй Кристины', level: 3, price: 23, color: '#e85a9b', drinkTime: 8.4 },
+  { id: 'red-room', name: 'Красная комната', level: 4, price: 31, color: '#c41e5a', drinkTime: 9.2 },
+  { id: 'after-midnight', name: 'После полуночи', level: 5, price: 42, color: '#7b2cbf', drinkTime: 10 },
 ];
+
+/** Seconds for Kristina's table-side delivery performance by drink level. */
+export const getDeliveryDuration = (level: number) => {
+  switch (level) {
+    case 2: return 2;
+    case 3: return 2.2;
+    case 4: return 1;
+    case 5: return 5.5;
+    default: return 0.52;
+  }
+};
 
 export const INITIAL_UPGRADES: UpgradeLevels = {
   moveSpeed: 1,
@@ -54,59 +67,59 @@ export const INITIAL_UPGRADES: UpgradeLevels = {
 
 export const ROOM_DEFINITIONS: RoomDefinition[] = [
   {
-    id: 'karaoke',
-    name: 'Караоке-зал',
-    shortName: 'Караоке',
-    tagline: 'Песни, сцена и вечерние чаевые',
-    staffRole: 'Ведущий караоке',
-    icon: '🎤',
+    id: 'strip',
+    name: 'Стрип-зал',
+    shortName: 'Стрип',
+    tagline: 'Шест, сцена и горячие чаевые',
+    staffRole: 'Танцовщица',
+    icon: '💃',
     unlockCost: 280,
     baseProfit: 20,
     sessionDuration: 36,
     maxCapacity: 3,
     upgradeBaseCosts: { staffSpeed: 60, capacity: 238, quality: 70 },
-    color: '#7357d9',
+    color: '#9b3d6d',
     accent: '#ff74bf',
   },
   {
-    id: 'sauna',
-    name: 'Финская сауна',
-    shortName: 'Сауна',
-    tagline: 'Горячий пар и премиальные сеансы',
-    staffRole: 'Банщик',
-    icon: '♨️',
+    id: 'sex',
+    name: 'Комната удовольствий',
+    shortName: 'Секс',
+    tagline: 'Приватные сеансы и высокий чек',
+    staffRole: 'Куртизанка',
+    icon: '💋',
     unlockCost: 750,
     baseProfit: 42,
     sessionDuration: 42,
     maxCapacity: 4,
     upgradeBaseCosts: { staffSpeed: 110, capacity: 638, quality: 130 },
-    color: '#d97839',
-    accent: '#ffd36a',
+    color: '#b8456b',
+    accent: '#ff8fb8',
   },
   {
-    id: 'massage',
-    name: 'Массажный кабинет',
-    shortName: 'Массаж',
-    tagline: 'Дорогой уход и высокий средний чек',
-    staffRole: 'Массажист',
-    icon: '💆',
+    id: 'gangbang',
+    name: 'Зал оргии',
+    shortName: 'Оргия',
+    tagline: 'Много гостей, одна сцена',
+    staffRole: 'Ведущая',
+    icon: '🔥',
     unlockCost: 1500,
     baseProfit: 70,
     sessionDuration: 45,
-    maxCapacity: 2,
-    upgradeBaseCosts: { staffSpeed: 180, capacity: 1275, quality: 200 },
-    color: '#2ba99a',
-    accent: '#a9f0d8',
+    maxCapacity: 4,
+    upgradeBaseCosts: { staffSpeed: 180, capacity: 638, quality: 200 },
+    color: '#6b2d5c',
+    accent: '#ff5c8a',
   },
 ];
 
 export const MILESTONE_DEFINITIONS: MilestoneDefinition[] = [
   { id: 'serve-25', label: 'Обслужить 25 гостей', metric: 'served', target: 25 },
-  { id: 'open-first-room', label: 'Открыть первую дополнительную комнату', metric: 'roomsUnlocked', target: 1 },
+  { id: 'open-first-room', label: 'Открыть первую комнату услуг', metric: 'roomsUnlocked', target: 1 },
   { id: 'serve-100', label: 'Обслужить 100 гостей', metric: 'served', target: 100 },
   { id: 'room-revenue-1000', label: 'Заработать 1 000 монет в комнатах', metric: 'roomRevenue', target: 1_000 },
-  { id: 'open-all-rooms', label: 'Открыть все дополнительные комнаты', metric: 'roomsUnlocked', target: 3 },
-  { id: 'reach-day-30', label: 'Довести бар до 30-го дня', metric: 'day', target: 30 },
+  { id: 'open-all-rooms', label: 'Открыть все комнаты услуг', metric: 'roomsUnlocked', target: 3 },
+  { id: 'reach-day-30', label: 'Довести бордель до 30-го дня', metric: 'day', target: 30 },
   { id: 'serve-500', label: 'Обслужить 500 гостей', metric: 'served', target: 500 },
   { id: 'room-revenue-10000', label: 'Заработать 10 000 монет в комнатах', metric: 'roomRevenue', target: 10_000 },
 ];
@@ -117,7 +130,7 @@ export const MILESTONE_DEFINITIONS: MilestoneDefinition[] = [
  * two-sided portals, so visitors cannot cut across the exterior void.
  */
 export const ROOM_LAYOUTS: Record<RoomId, RoomLayout> = {
-  karaoke: {
+  strip: {
     center: { x: -12.2, z: 1.5 },
     size: { x: 8, z: 7.2 },
     connectionSide: 'east',
@@ -130,7 +143,7 @@ export const ROOM_LAYOUTS: Record<RoomId, RoomLayout> = {
     ],
     cameraOffset: { x: -10.8, z: 14.6 },
   },
-  sauna: {
+  sex: {
     center: { x: 12.2, z: 1 },
     size: { x: 8, z: 7.2 },
     connectionSide: 'west',
@@ -144,24 +157,26 @@ export const ROOM_LAYOUTS: Record<RoomId, RoomLayout> = {
     ],
     cameraOffset: { x: 10.8, z: 14.6 },
   },
-  massage: {
+  gangbang: {
     center: { x: 4.2, z: -9.8 },
     size: { x: 8, z: 7.2 },
     connectionSide: 'south',
     barPortal: { x: 4.8, z: -5.55 },
     roomPortal: { x: 4.8, z: -6.55 },
     guestSpots: [
-      { x: 2.4, z: -8.25 },
-      { x: 6, z: -8.25 },
+      { x: 2.0, z: -7.15 },
+      { x: 3.5, z: -7.15 },
+      { x: 5.0, z: -7.15 },
+      { x: 6.5, z: -7.15 },
     ],
     cameraOffset: { x: 10.8, z: -14.6 },
   },
 };
 
 export const ROOM_UPGRADE_DEFS: RoomUpgradeDefinition[] = [
-  { key: 'staffSpeed', name: 'Мастерство персонала', description: 'Сотрудник быстрее завершает сеанс.', icon: '⚡', maxLevel: 5 },
+  { key: 'staffSpeed', name: 'Скорость персонала', description: 'Сотрудница быстрее завершает сеанс.', icon: '⚡', maxLevel: 5 },
   { key: 'capacity', name: 'Дополнительное место', description: 'Больше гостей обслуживаются одновременно.', icon: '👥', maxLevel: 4 },
-  { key: 'quality', name: 'Премиум-сервис', description: 'Каждый гость оставляет больше денег.', icon: '✨', maxLevel: 5 },
+  { key: 'quality', name: 'Премиум-услуга', description: 'Каждый гость оставляет больше денег.', icon: '✨', maxLevel: 5 },
 ];
 
 export const getRoomDefinition = (roomId: RoomId) => ROOM_DEFINITIONS.find((room) => room.id === roomId)!;
@@ -181,7 +196,7 @@ export const UPGRADE_DEFS: UpgradeDefinition[] = [
   {
     key: 'moveSpeed',
     name: 'Ловкие ноги',
-    description: 'Бармен быстрее ходит между столами.',
+    description: 'Кристина быстрее ходит между столами.',
     icon: 'move-speed',
     currency: 'coins',
     baseCost: 38,
@@ -217,7 +232,7 @@ export const UPGRADE_DEFS: UpgradeDefinition[] = [
   {
     key: 'assortment',
     name: 'Новые напитки',
-    description: 'Гости выбирают дороже и платят больше.',
+    description: 'Гости выбирают дороже — и шоу Кристины горячее.',
     icon: 'assortment',
     currency: 'coins',
     baseCost: 92,
@@ -225,7 +240,7 @@ export const UPGRADE_DEFS: UpgradeDefinition[] = [
   },
   {
     key: 'advertising',
-    name: 'Реклама бара',
+    name: 'Реклама борделя',
     description: 'Новые гости приходят чаще.',
     icon: 'advertising',
     currency: 'reputation',
