@@ -12,6 +12,8 @@ export type FurryPose =
   | 'gangbang_center'
   | 'reclining_guest';
 
+export type FurryOutfit = 'dressed' | 'nude';
+
 type Palette = {
   fur: string;
   belly: string;
@@ -306,6 +308,48 @@ function TigerStripes({ color }: { color: string }) {
   );
 }
 
+function OutfitWear({ species, palette }: { species: FurrySpecies; palette: Palette }) {
+  const top = species === 'bear' ? '#ff4fa3' : species === 'rabbit' ? '#f0a0c0' : '#1a1210';
+  const trim = species === 'bear' ? '#ffe08a' : species === 'rabbit' ? '#fff0f6' : '#e88828';
+  const bottom = species === 'bear' ? '#7a1848' : species === 'rabbit' ? '#c45a88' : '#111';
+  return (
+    <group>
+      {/* top / bra / crop */}
+      <mesh castShadow position={[0, 1.18, 0.12]} scale={[1.15, 0.72, 0.85]}>
+        <sphereGeometry args={[0.28, 14, 10]} />
+        <meshStandardMaterial color={top} roughness={0.55} />
+      </mesh>
+      <mesh position={[0, 1.05, 0.16]} scale={[0.9, 0.35, 0.5]}>
+        <boxGeometry args={[0.42, 0.12, 0.08]} />
+        <meshStandardMaterial color={trim} roughness={0.5} />
+      </mesh>
+      {([-0.14, 0.14] as const).map((x) => (
+        <mesh key={x} castShadow position={[x, 1.2, 0.2]} scale={[1.05, 0.85, 0.75]}>
+          <sphereGeometry args={[0.13, 12, 10]} />
+          <meshStandardMaterial color={top} roughness={0.52} />
+        </mesh>
+      ))}
+      {/* skirt / shorts */}
+      <mesh castShadow position={[0, 0.78, 0]}>
+        <cylinderGeometry args={[0.34, 0.42, 0.38, 14]} />
+        <meshStandardMaterial color={bottom} roughness={0.62} />
+      </mesh>
+      {species === 'tiger' && (
+        <mesh position={[0, 0.95, 0.18]}>
+          <torusGeometry args={[0.2, 0.025, 6, 16]} />
+          <meshStandardMaterial color="#e88828" metalness={0.4} roughness={0.4} />
+        </mesh>
+      )}
+      {species === 'rabbit' && (
+        <mesh position={[0, 1.34, 0.2]} rotation={[0.2, 0, 0]}>
+          <boxGeometry args={[0.12, 0.04, 0.02]} />
+          <meshStandardMaterial color="#fff" roughness={0.4} />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
 export function FurryStaff({
   species,
   pose = 'idle',
@@ -314,6 +358,7 @@ export function FurryStaff({
   position = [0, 0, 0],
   rotation = 0,
   scale = 1,
+  outfit = 'dressed',
 }: {
   species: FurrySpecies;
   pose?: FurryPose;
@@ -322,6 +367,7 @@ export function FurryStaff({
   position?: [number, number, number];
   rotation?: number;
   scale?: number;
+  outfit?: FurryOutfit;
 }) {
   const root = useRef<THREE.Group>(null);
   const hips = useRef<THREE.Group>(null);
@@ -334,6 +380,7 @@ export function FurryStaff({
   const palette = PALETTES[species];
   const bustScale = species === 'bear' ? 1.18 : species === 'rabbit' ? 1.05 : 1.0;
   const hipScale = species === 'bear' ? 1.15 : species === 'rabbit' ? 1.08 : 1.05;
+  const nude = outfit === 'nude';
 
   useFrame(({ clock }, delta) => {
     const t = clock.elapsedTime * (active ? 2.4 + speedLevel * 0.55 : 1.2) + phase;
@@ -355,7 +402,8 @@ export function FurryStaff({
 
     if (pose === 'strip_pole' && active) {
       y = Math.abs(Math.sin(t * 1.4)) * 0.22;
-      bodyYaw = t * 0.55;
+      // Spin around the pole but keep facing readable toward the front most of the time.
+      bodyYaw = Math.sin(t * 0.7) * 0.85;
       hipRoll = wave * 0.35;
       hipPitch = Math.abs(wave) * 0.2;
       leftArmX = -2.2 + wave2 * 0.2;
@@ -366,7 +414,7 @@ export function FurryStaff({
       rightLegX = 0.15 - wave * 0.2;
     } else if (pose === 'strip_floor' && active) {
       y = Math.abs(Math.sin(t * 2)) * 0.08;
-      bodyYaw = wave * 0.4;
+      bodyYaw = wave * 0.35;
       hipRoll = wave * 0.45;
       leftArmX = -1.6 + wave * 0.5;
       rightArmX = -1.6 - wave * 0.5;
@@ -375,7 +423,6 @@ export function FurryStaff({
       leftLegX = Math.abs(wave) * 0.5;
       rightLegX = Math.abs(-wave) * 0.5;
     } else if (pose === 'sex_cowgirl' && active) {
-      // Riding: bounce on the partner's penis.
       y = 0.42 + Math.abs(Math.sin(t * 2.6)) * 0.16;
       hipPitch = -0.55 + wave * 0.22;
       bodyPitch = 0.22 + wave * 0.1;
@@ -395,11 +442,10 @@ export function FurryStaff({
       leftLegX = -0.55 + wave * 0.15;
       rightLegX = -0.55 - wave * 0.15;
     } else if (pose === 'gangbang_center' && active) {
-      // Receiving from multiple partners — hips open, bounce on thrusts.
       y = 0.48 + Math.abs(Math.sin(t * 2.9)) * 0.12;
       hipRoll = wave * 0.32;
       hipPitch = -0.35 + wave2 * 0.2;
-      bodyYaw = wave * 0.25;
+      bodyYaw = wave * 0.2;
       bodyPitch = 0.12;
       leftArmX = -1.65 + wave * 0.4;
       rightArmX = -1.65 - wave * 0.4;
@@ -415,14 +461,16 @@ export function FurryStaff({
       leftLegX = -0.5;
       rightLegX = -0.7;
     } else {
+      // Idle dressed: face forward (camera), soft idle sway.
       y = Math.abs(Math.sin(t * 0.8)) * 0.02;
+      bodyYaw = wave * 0.06;
       leftArmX = -0.2 + wave * 0.08;
       rightArmX = -0.2 - wave * 0.08;
-      hipRoll = wave * 0.05;
+      hipRoll = wave * 0.04;
     }
 
     root.current.position.y = THREE.MathUtils.damp(root.current.position.y, y, 10, delta);
-    root.current.rotation.y = THREE.MathUtils.damp(root.current.rotation.y, bodyYaw, pose === 'strip_pole' ? 4 : 8, delta);
+    root.current.rotation.y = THREE.MathUtils.damp(root.current.rotation.y, bodyYaw, pose === 'strip_pole' ? 5 : 8, delta);
     torso.current.rotation.x = THREE.MathUtils.damp(torso.current.rotation.x, bodyPitch, 10, delta);
     hips.current.rotation.z = THREE.MathUtils.damp(hips.current.rotation.z, hipRoll, 10, delta);
     hips.current.rotation.x = THREE.MathUtils.damp(hips.current.rotation.x, hipPitch, 10, delta);
@@ -440,7 +488,6 @@ export function FurryStaff({
     <group position={position} rotation={[0, rotation, 0]} scale={scale}>
       <group ref={root}>
         <group ref={hips}>
-          {/* hips / butt */}
           <mesh castShadow position={[0, 0.82, 0]} scale={[hipScale, 0.85, 0.95]}>
             <sphereGeometry args={[0.28, 14, 12]} />
             <meshStandardMaterial color={palette.fur} roughness={0.74} />
@@ -457,8 +504,12 @@ export function FurryStaff({
             <sphereGeometry args={[0.2, 12, 10]} />
             <meshStandardMaterial color={palette.belly} roughness={0.7} />
           </mesh>
-          <Genitals palette={palette} />
-          <Genitals palette={palette} rear />
+          {nude && (
+            <>
+              <Genitals palette={palette} />
+              <Genitals palette={palette} rear />
+            </>
+          )}
           <Tail species={species} palette={palette} wag={wag} />
 
           <group ref={leftLeg} position={[-0.14, 0.72, 0]}>
@@ -497,7 +548,8 @@ export function FurryStaff({
               <capsuleGeometry args={[0.18, 0.35, 5, 10]} />
               <meshStandardMaterial color={palette.belly} roughness={0.68} />
             </mesh>
-            <BreastPair palette={palette} scale={bustScale} />
+            {nude ? <BreastPair palette={palette} scale={bustScale} /> : null}
+            {!nude && <OutfitWear species={species} palette={palette} />}
             {species === 'tiger' && palette.stripe && <TigerStripes color={palette.stripe} />}
             <Head species={species} palette={palette} />
 

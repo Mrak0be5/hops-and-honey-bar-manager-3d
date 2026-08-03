@@ -230,15 +230,16 @@ function StripInterior({ room, definition }: { room: RoomState; definition: Room
         <mesh castShadow><cylinderGeometry args={[0.05, 0.05, 2.35, 12]} /><meshStandardMaterial color="#d8e7ee" metalness={0.72} roughness={0.18} /></mesh>
         <mesh position={[0, 1.2, 0]}><sphereGeometry args={[0.08, 10, 8]} /><meshStandardMaterial color="#f0f6fa" metalness={0.5} /></mesh>
       </group>
-      {/* Медведица — стриптиз на шесте */}
+      {/* Медведица — лицом к камере; одета, пока нет сеанса */}
       <FurryStaff
         species="bear"
         pose={room.staffState === 'serving' ? 'strip_pole' : room.staffState === 'welcoming' ? 'strip_floor' : 'idle'}
         active={room.staffState === 'serving' || room.staffState === 'welcoming'}
         speedLevel={room.upgrades.staffSpeed}
         position={[0.05, 0, -1.55]}
-        rotation={Math.PI}
+        rotation={0}
         scale={1.05}
+        outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
       />
       {room.staffState === 'serving' && (
         <>
@@ -247,6 +248,11 @@ function StripInterior({ room, definition }: { room: RoomState; definition: Room
           </Text>
           <RoomActionLabel text="strip" position={[0, 2.45, -1.2]} />
         </>
+      )}
+      {room.staffState === 'welcoming' && (
+        <Text position={[0, 2.55, -1.2]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
+          Медведица зазывает гостей
+        </Text>
       )}
       {/* Гости смотрят шоу */}
       {loungeSeats.map((x, index) => (
@@ -341,13 +347,19 @@ function SexInterior({ room, definition, occupiedSlots }: { room: RoomState; def
         pose={room.staffState === 'serving' ? 'sex_cowgirl' : 'idle'}
         active={room.staffState === 'serving'}
         speedLevel={room.upgrades.staffSpeed}
-        position={[-0.15, room.staffState === 'serving' ? 0.72 : 0.55, -1.48]}
-        rotation={Math.PI}
+        position={[-0.15, room.staffState === 'serving' ? 0.72 : 0.55, -1.2]}
+        rotation={0}
         scale={1.02}
+        outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
       />
       {room.staffState === 'serving' && (
         <Text position={[0, 2.55, -1.1]} fontSize={0.2} color="#ffc0d8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
           Крольчиха седлает гостя
+        </Text>
+      )}
+      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && (
+        <Text position={[0, 2.4, -1.0]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
+          {room.staffState === 'welcoming' ? 'Крольчиха встречает гостя' : 'Крольчиха ждёт клиента'}
         </Text>
       )}
       {room.staffState === 'serving' && occupiedSlots.slice(1).map((slot, index) => {
@@ -445,19 +457,25 @@ function GangbangInterior({ room, definition, occupiedSlots }: { room: RoomState
           <meshStandardMaterial color="#4a1730" roughness={0.9} />
         </RoundedBox>
       ))}
-      {/* Тигрица — принимает членов участников */}
+      {/* Тигрица — лицом к камере (юг); одета до сеанса */}
       <FurryStaff
         species="tiger"
         pose={room.staffState === 'serving' ? 'gangbang_center' : 'idle'}
         active={room.staffState === 'serving'}
         speedLevel={room.upgrades.staffSpeed}
-        position={[0, 0.62, -0.1]}
+        position={[0, room.staffState === 'serving' ? 0.62 : 0.05, -0.1]}
         rotation={Math.PI}
         scale={1.08}
+        outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
       />
       {room.staffState === 'serving' && (
         <Text position={[0, 2.7, 0.2]} fontSize={0.2} color="#ff9bb0" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
           Тигрица принимает гостей
+        </Text>
+      )}
+      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && (
+        <Text position={[0, 2.4, 0.2]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
+          {room.staffState === 'welcoming' ? 'Тигрица собирает участников' : 'Тигрица ждёт съёмку'}
         </Text>
       )}
       {[-3.1, 3.1].map((x) => <group key={x} position={[x, 0, -2.45]}><mesh position={[0, 0.32, 0]}><cylinderGeometry args={[0.28, 0.34, 0.58, 12]} /><meshStandardMaterial color="#8b2445" /></mesh><mesh position={[0, 0.86, 0]}><sphereGeometry args={[0.42, 10, 8]} /><meshStandardMaterial color="#8c1d42" emissive="#551022" emissiveIntensity={0.22} /></mesh></group>)}
