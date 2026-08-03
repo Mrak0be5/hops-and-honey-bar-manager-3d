@@ -32,7 +32,7 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
     window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify(save));
   }, fundedSave);
 
-  await page.goto('/');
+  await page.goto('/?legacy=1');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   const panel = page.locator('.upgrade-panel');
   if (!(await panel.evaluate((element) => element.classList.contains('is-open')))) {
@@ -109,7 +109,7 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
     if (message.text().toLowerCase().includes('audiocontext')) audioWarnings.push(message.text());
   });
   await page.addInitScript(() => window.localStorage.removeItem('hops-and-honey-save-v1'));
-  await page.goto('/');
+  await page.goto('/?legacy=1');
 
   const welcome = page.locator('.welcome-card');
   await expect(welcome).toBeVisible();
@@ -148,7 +148,7 @@ test('390px HUD uses compact values and development sheet removes redundant over
     served: 1_400,
     soundEnabled: false,
   });
-  await page.goto('/');
+  await page.goto('/?legacy=1');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   await expect(page.getByRole('button', { name: 'Включить звук' })).toBeVisible();
 

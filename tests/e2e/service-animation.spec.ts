@@ -12,7 +12,7 @@ test('plays a seated guest through drinking and payment', async ({ page }, testI
     if (message.type() === 'error') runtimeErrors.push(message.text());
   });
 
-  await page.goto('/');
+  await page.goto('/?legacy=1');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   await page.getByRole('button', { name: /Скорость игры x1/ }).click();
 

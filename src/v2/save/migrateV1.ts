@@ -83,7 +83,7 @@ export const parseProgressV2 = (raw: string): ProgressV2 | null => {
 
     return {
       schemaVersion: 2,
-      coins: finiteInteger(value.coins, 64),
+      coins: finiteInteger(value.coins, 600),
       prestige: finiteInteger(value.prestige, 3),
       served: finiteInteger(value.served, 0),
       day: finiteInteger(value.day, 1, 1),

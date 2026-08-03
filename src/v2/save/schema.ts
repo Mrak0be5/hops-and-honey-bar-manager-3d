@@ -43,7 +43,7 @@ export const makeDefaultRoomProgress = (): RoomProgressV2 => ({
 
 export const makeDefaultProgressV2 = (): ProgressV2 => ({
   schemaVersion: 2,
-  coins: 64,
+  coins: 600,
   prestige: 3,
   served: 0,
   day: 1,

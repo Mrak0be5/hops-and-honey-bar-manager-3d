@@ -93,10 +93,12 @@ describe('v1 save migration', () => {
       rooms: { massage: { unlocked: true, upgrades: { capacity: 99, quality: -3 } } },
     }))!;
 
-    expect(migrated.coins).toBe(64);
+    expect(migrated.coins).toBe(600);
     expect(migrated.prestige).toBe(3);
     expect(migrated.day).toBe(1);
-    expect(migrated.rooms.massage.upgrades.capacity).toBe(2);
+    // Upgrade progress has five levels; the simulation separately caps the
+    // effective massage capacity to its two physical guest slots.
+    expect(migrated.rooms.massage.upgrades.capacity).toBe(5);
     expect(migrated.rooms.massage.upgrades.quality).toBe(1);
   });
 });

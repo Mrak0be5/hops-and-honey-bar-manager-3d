@@ -6,6 +6,7 @@ import { useGameSnapshot } from './game/useGameSnapshot';
 import { Hud } from './ui/Hud';
 import { Icon, preloadUiIcons } from './ui/Icon';
 import type { VenueView } from './game/types';
+import './styles.css';
 
 export default function LegacyApp() {
   const snapshot = useGameSnapshot(gameEngine);
