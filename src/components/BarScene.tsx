@@ -175,8 +175,7 @@ function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapsho
   const candidates = snapshot.patrons.filter((patron) => {
     if (focus === 'bar') return patron.state !== 'waiting_room' && patron.state !== 'in_room';
     if (patron.roomId !== focus) return false;
-    // The massage room renders the customer lying on the actual table; a
-    // separate DOM bubble at the standing reservation point would be detached.
+    // Gangbang guests are already on the platform mesh — hide duplicate DOM markers.
     return !(focus === 'gangbang' && patron.state === 'in_room');
   });
   const visibleLimit = compact ? (focus === 'bar' ? 4 : 3) : Number.POSITIVE_INFINITY;
@@ -190,13 +189,13 @@ function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapsho
       {focus === 'bar' && (
         <>
           <DecorationMarker x={7.2} y={3.52} z={4.6}>
-            <div className="open-sign">OPEN</div>
+            <div className="open-sign">18+</div>
           </DecorationMarker>
           <DecorationMarker x={-5.7} y={2.15} z={-5.68}>
-            <div className="wall-poster">GOOD<br /><b>VIBES</b></div>
+            <div className="wall-poster">HOT<br /><b>NIGHT</b></div>
           </DecorationMarker>
           <DecorationMarker x={1.2} y={2.65} z={-5.72}>
-            <div className="neon-logo"><span>ХМЕЛЬ</span><i>&amp;</i><b>МЁД</b></div>
+            <div className="neon-logo neon-logo--brothel"><span>БОРДЕЛЬ</span><i>у</i><b>КРИСТОФЕРА</b></div>
           </DecorationMarker>
         </>
       )}

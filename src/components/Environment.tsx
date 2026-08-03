@@ -318,7 +318,7 @@ export function BarEnvironment({ tables }: { tables: TableState[] }) {
       </mesh>
       <FloorTiles />
 
-      {/* Rear wall is split around the massage doorway at x=4.8. */}
+      {/* Rear wall is split around the gangbang doorway at x=4.8. */}
       <mesh receiveShadow castShadow position={[-2.3, 1.7, -6.05]}>
         <boxGeometry args={[11.8, 3.4, 0.38]} />
         <meshStandardMaterial color="#0f8588" roughness={0.82} />
@@ -327,7 +327,7 @@ export function BarEnvironment({ tables }: { tables: TableState[] }) {
         <boxGeometry args={[2.2, 3.4, 0.38]} />
         <meshStandardMaterial color="#0f8588" roughness={0.82} />
       </mesh>
-      {/* West wall is split around the karaoke doorway at z=1.5. */}
+      {/* West wall is split around the strip doorway at z=1.5. */}
       <mesh receiveShadow castShadow position={[-8.05, 1.7, -2.95]}>
         <boxGeometry args={[0.38, 3.4, 6.5]} />
         <meshStandardMaterial color="#ef684f" roughness={0.82} />

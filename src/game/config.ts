@@ -76,6 +76,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     unlockCost: 280,
     baseProfit: 20,
     sessionDuration: 36,
+    startCapacity: 1,
     maxCapacity: 3,
     upgradeBaseCosts: { staffSpeed: 60, capacity: 238, quality: 70 },
     color: '#9b3d6d',
@@ -91,6 +92,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     unlockCost: 750,
     baseProfit: 42,
     sessionDuration: 42,
+    startCapacity: 2,
     maxCapacity: 4,
     upgradeBaseCosts: { staffSpeed: 110, capacity: 638, quality: 130 },
     color: '#b8456b',
@@ -100,12 +102,13 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'gangbang',
     name: 'Зал оргии',
     shortName: 'Оргия',
-    tagline: 'Тигрица ведёт генгбенг на платформе',
+    tagline: 'Тигрица ведёт гангбенг на платформе',
     staffRole: 'Тигрица-порноактриса',
     icon: '🐯',
     unlockCost: 1500,
     baseProfit: 70,
     sessionDuration: 45,
+    startCapacity: 2,
     maxCapacity: 4,
     upgradeBaseCosts: { staffSpeed: 180, capacity: 638, quality: 200 },
     color: '#6b2d5c',
@@ -180,6 +183,18 @@ export const ROOM_UPGRADE_DEFS: RoomUpgradeDefinition[] = [
 ];
 
 export const getRoomDefinition = (roomId: RoomId) => ROOM_DEFINITIONS.find((room) => room.id === roomId)!;
+
+/** Effective guest slots from startCapacity + purchased capacity levels. */
+export const getRoomCapacity = (roomId: RoomId, capacityUpgradeLevel: number) => {
+  const room = getRoomDefinition(roomId);
+  return Math.min(room.maxCapacity, room.startCapacity + Math.max(1, capacityUpgradeLevel) - 1);
+};
+
+/** Max upgrade level for capacity so effective capacity never exceeds maxCapacity. */
+export const getRoomCapacityMaxLevel = (roomId: RoomId) => {
+  const room = getRoomDefinition(roomId);
+  return room.maxCapacity - room.startCapacity + 1;
+};
 
 export const getRoomUpgradeCost = (roomId: RoomId, key: RoomUpgradeKey, currentLevel: number) => {
   const room = getRoomDefinition(roomId);

@@ -1674,25 +1674,25 @@ button {
 
 .open-sign {
   padding: 7px 11px;
-  color: #73ffd1;
+  color: #ff9ec8;
   font-size: 20px;
   letter-spacing: 0.08em;
-  background: #073b46;
-  border: 3px solid #ffe7a4;
+  background: #3a1028;
+  border: 3px solid #ffd0e4;
   border-radius: 9px;
-  box-shadow: 0 0 14px rgba(103, 255, 211, 0.75), inset 0 0 10px rgba(103, 255, 211, 0.2);
+  box-shadow: 0 0 14px rgba(255, 116, 191, 0.75), inset 0 0 10px rgba(255, 116, 191, 0.2);
 }
 
 .wall-poster {
   width: 120px;
   text-align: center;
-  color: #0b6e74;
+  color: #ff8fb8;
   font-size: 18px;
   line-height: 0.95;
   letter-spacing: 0.08em;
 }
 
-.wall-poster b { color: #e64e4b; font-size: 25px; }
+.wall-poster b { color: #ff5c8a; font-size: 25px; }
 
 .neon-logo {
   display: flex;
@@ -1708,8 +1708,19 @@ button {
   box-shadow: 0 0 18px #ffb83d, inset 0 0 12px rgba(255, 184, 61, 0.25);
 }
 
+.neon-logo--brothel {
+  gap: 6px;
+  font-size: 14px;
+  color: #ffe0ef;
+  background: rgba(48, 12, 32, 0.88);
+  border-color: #ff74bf;
+  box-shadow: 0 0 18px rgba(255, 116, 191, 0.65), inset 0 0 12px rgba(255, 116, 191, 0.22);
+}
+
 .neon-logo i { color: #ff6a5e; font-size: 25px; font-style: normal; }
+.neon-logo--brothel i { color: #ff9ec8; font-size: 13px; }
 .neon-logo b { color: #75f3d2; }
+.neon-logo--brothel b { color: #ffd0e4; font-size: 13px; }
 
 .webgl-fallback {
   position: absolute;

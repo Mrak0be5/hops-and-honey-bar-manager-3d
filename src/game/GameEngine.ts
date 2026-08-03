@@ -9,6 +9,8 @@ import {
   getUnlockedDrinks,
   getUpgradeCost,
   INITIAL_UPGRADES,
+  getRoomCapacity,
+  getRoomCapacityMaxLevel,
   getRoomDefinition,
   getRoomProfit,
   getRoomUpgradeCost,
@@ -139,7 +141,7 @@ export class GameEngine {
         unlocked: false,
         staffState: 'locked',
         guests: 0,
-        capacity: 1,
+        capacity: getRoomCapacity(definition.id, 1),
         progress: 0,
         completedSessions: 0,
         revenue: 0,
@@ -233,13 +235,13 @@ export class GameEngine {
     const upgrade = ROOM_UPGRADE_DEFS.find((item) => item.key === key);
     if (!room?.unlocked || !upgrade) return false;
     const currentLevel = room.upgrades[key];
-    const maxLevel = key === 'capacity' ? definition.maxCapacity : upgrade.maxLevel;
+    const maxLevel = key === 'capacity' ? getRoomCapacityMaxLevel(roomId) : upgrade.maxLevel;
     if (currentLevel >= maxLevel) return false;
     const cost = getRoomUpgradeCost(roomId, key, currentLevel);
     if (this.coins < cost) return false;
     this.coins -= cost;
     room.upgrades = { ...room.upgrades, [key]: currentLevel + 1 };
-    room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
+    room.capacity = getRoomCapacity(roomId, room.upgrades.capacity);
     this.pushEvent('upgrade', `${definition.icon} ${upgrade.name} · ур. ${currentLevel + 1}`);
     this.persist();
     this.publish();
@@ -341,7 +343,7 @@ export class GameEngine {
     for (const definition of ROOM_DEFINITIONS) {
       const room = this.rooms[definition.id];
       if (!room.unlocked) continue;
-      room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
+      room.capacity = getRoomCapacity(definition.id, room.upgrades.capacity);
 
       room.guestIds = room.guestIds.filter((guestId) => this.patrons.some((patron) => patron.id === guestId && patron.state === 'in_room'));
       room.guests = room.guestIds.length;
@@ -941,11 +943,11 @@ export class GameEngine {
           if (candidate.upgrades) {
             for (const upgrade of ROOM_UPGRADE_DEFS) {
               const value = candidate.upgrades[upgrade.key];
-              const max = upgrade.key === 'capacity' ? definition.maxCapacity : upgrade.maxLevel;
+              const max = upgrade.key === 'capacity' ? getRoomCapacityMaxLevel(definition.id) : upgrade.maxLevel;
               if (typeof value === 'number') room.upgrades[upgrade.key] = clamp(Math.floor(value), 1, max);
             }
           }
-          room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
+          room.capacity = getRoomCapacity(definition.id, room.upgrades.capacity);
         }
       }
     } catch {

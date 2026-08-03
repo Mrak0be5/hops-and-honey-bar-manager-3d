@@ -143,6 +143,8 @@ export type RoomDefinition = {
   unlockCost: number;
   baseProfit: number;
   sessionDuration: number;
+  /** Guests the room holds at upgrade level 1 (before capacity upgrades). */
+  startCapacity: number;
   maxCapacity: number;
   upgradeBaseCosts: Record<RoomUpgradeKey, number>;
   color: string;

@@ -1,6 +1,6 @@
 ﻿import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { getRoomDefinition, getRoomUpgradeCost, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, UPGRADE_DEFS } from '../game/config';
+import { BARTENDER_NAME, getRoomCapacityMaxLevel, getRoomDefinition, getRoomUpgradeCost, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, UPGRADE_DEFS } from '../game/config';
 import type { GameEngine } from '../game/GameEngine';
 import { gameAudio } from '../game/audio';
 import type { BartenderState, GameSnapshot, RoomId, RoomState, RoomUpgradeKey, UpgradeDefinition, VenueView } from '../game/types';
@@ -28,7 +28,7 @@ const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; d
   },
   gangbang: {
     staffSpeed: { name: 'Темп тигрицы', description: 'Оргия проходит быстрее и жарче.', icon: '🐯' },
-    capacity: { name: 'Больше мест на платформе', description: 'Ещё один участник генгбенга.', icon: '👥' },
+    capacity: { name: 'Больше мест на платформе', description: 'Ещё один участник гангбенга.', icon: '👥' },
     quality: { name: 'Сцена и камеры', description: 'Порно-атмосфера — выше оплата.', icon: '🎬' },
   },
 };
@@ -57,7 +57,7 @@ const ROOM_ACTION_LABELS: Record<RoomId, Record<'waiting' | 'welcoming' | 'servi
   gangbang: {
     waiting: 'Тигрица ждёт съёмку',
     welcoming: 'Тигрица собирает участников',
-    serving: 'Тигрица ведёт генгбенг',
+    serving: 'Тигрица ведёт гангбенг',
     resetting: 'Тигрица заканчивает сцену',
   },
 };
@@ -265,7 +265,7 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
         {ROOM_UPGRADE_DEFS.map((upgrade) => {
           const copy = ROOM_UPGRADE_COPY[room.id][upgrade.key];
           const level = room.upgrades[upgrade.key];
-          const maxLevel = upgrade.key === 'capacity' ? definition.maxCapacity : upgrade.maxLevel;
+          const maxLevel = upgrade.key === 'capacity' ? getRoomCapacityMaxLevel(room.id) : upgrade.maxLevel;
           const maxed = level >= maxLevel;
           const cost = getRoomUpgradeCost(room.id, upgrade.key, level);
           const affordable = !maxed && snapshot.coins >= cost;
@@ -407,7 +407,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
             </button>
           </div>
           <div className="venue-tabs" role="tablist" aria-label="Помещения комплекса">
-            <button className={venueView === 'bar' ? 'is-active' : ''} onClick={() => selectVenue('bar')} role="tab" aria-selected={venueView === 'bar'}><span>🍺</span>Бар</button>
+            <button className={venueView === 'bar' ? 'is-active' : ''} onClick={() => selectVenue('bar')} role="tab" aria-selected={venueView === 'bar'}><span>🏠</span>Зал</button>
             {ROOM_DEFINITIONS.map((room) => {
               const state = snapshot.rooms.find((item) => item.id === room.id)!;
               return <button key={room.id} className={venueView === room.id ? 'is-active' : ''} onClick={() => selectVenue(room.id)} role="tab" aria-selected={venueView === room.id}><span>{room.icon}</span>{room.shortName}<i className={state.unlocked ? 'is-open' : ''} /></button>;
@@ -460,7 +460,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
           {activeRoom && activeRoomDefinition ? (
             <>
               <button className="bartender-pill focus-pill" onClick={() => selectVenue('bar')}>
-                <span className="status-emoji">🍺</span>
+                <span className="status-emoji">🏠</span>
                 <span><small>КОМПЛЕКС</small><b>Вернуться в главный зал</b></span>
               </button>
               <button className="room-pill focus-pill" onClick={() => click(() => onUpgradesOpen(true))}>
@@ -472,7 +472,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
             <>
               <div className="bartender-pill">
                 <span className="status-emoji">{bartenderStatus.emoji}</span>
-                <span><small>БАРМЕН</small><b>{bartenderStatus.label}</b></span>
+                <span><small>{BARTENDER_NAME.toUpperCase()}</small><b>{bartenderStatus.label}</b></span>
               </div>
               <button className="room-pill focus-pill" onClick={() => selectVenue(snapshot.rooms.find((room) => room.unlocked)?.id ?? 'strip')}>
                 <Icon name="customers" />
