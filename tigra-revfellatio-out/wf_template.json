@@ -1,0 +1,77 @@
+{
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": { "ckpt_name": "boleromixPony_v210.safetensors" }
+  },
+  "10": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "lora_name": "Anthro_Tiger_Mk_2.safetensors",
+      "strength_model": 0.6,
+      "strength_clip": 0.75,
+      "model": ["1", 0],
+      "clip": ["1", 1]
+    }
+  },
+  "11": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "lora_name": "wnw2-sdxl-000002.safetensors",
+      "strength_model": 0.55,
+      "strength_clip": 0.6,
+      "model": ["10", 0],
+      "clip": ["10", 1]
+    }
+  },
+  "12": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "lora_name": "Reverse_Fellatio_LoRa__PonyXL.safetensors",
+      "strength_model": 0.9,
+      "strength_clip": 0.9,
+      "model": ["11", 0],
+      "clip": ["11", 1]
+    }
+  },
+  "2": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "PLACEHOLDER_POS",
+      "clip": ["12", 1]
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "futa, futanari, two heads, extra head, double head, black hair, long hair, dark hair, bikini, clothes, clothing, bra, viewfinder, watermark, text, all fours, doggystyle, kneeling blowjob, sitting blowjob, upright head, eyes closed, looking away, vaginal sex, anal sex, blue eyes, human face, bad anatomy, extra limbs, deformed face, white gloves, cock not in mouth, tip only hovering",
+      "clip": ["12", 1]
+    }
+  },
+  "4": {
+    "class_type": "EmptyLatentImage",
+    "inputs": { "width": 896, "height": 1152, "batch_size": 1 }
+  },
+  "5": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["12", 0],
+      "positive": ["2", 0],
+      "negative": ["3", 0],
+      "latent_image": ["4", 0],
+      "seed": 1,
+      "steps": 36,
+      "cfg": 6.5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1
+    }
+  },
+  "6": {
+    "class_type": "VAEDecode",
+    "inputs": { "samples": ["5", 0], "vae": ["1", 2] }
+  },
+  "7": {
+    "class_type": "SaveImage",
+    "inputs": { "images": ["6", 0], "filename_prefix": "tigra-lora-bench/x" }
+  }
+}

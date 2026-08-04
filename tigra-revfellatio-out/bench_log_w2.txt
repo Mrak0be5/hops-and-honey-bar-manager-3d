@@ -1,0 +1,11 @@
+LoRAs to bench: 9 x 10
+Already done keys: 1
+
+===== extreme69_il | Extreme_FaceFuck_Couch_69_IL.safetensors @ 0.75 =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png

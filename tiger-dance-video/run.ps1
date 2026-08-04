@@ -1,0 +1,5 @@
+$sfwUrl = "https://tempfile.aiquickdraw.com/seedream5pro/1785852745668-tgqo5y18d5m.png"
+
+$prompt = "The anthropomorphic tigress character from the reference image comes alive and starts dancing energetically and joyfully. She performs a confident sexy dance routine - hips swaying side to side, arms moving and waving above her head, long striped tail swishing in rhythm with the music, bouncing lightly on her digitigrade paws, silver-white bob hair bouncing with the motion, playful confident smile on her face, green eyes bright. She keeps her black sports bra and black athletic shorts on throughout. Smooth rhythmic full-body dance motion, camera does a slight dynamic move following her. Clean white studio background, soft colored lighting, subtle neon glow. High-quality 3D anthropomorphic furry animation, clean fur shading, cinematic lighting, smooth motion. Full body visible in frame throughout. 5 second clip."
+
+powershell -ExecutionPolicy Bypass -File "tiger-dance-video\gen_pixverse_i2v.ps1" -Prompt $prompt -ImageUrl $sfwUrl -OutFile "tiger-dance-video\tiger-dance.mp4" -Duration 5 -Quality "1080p"

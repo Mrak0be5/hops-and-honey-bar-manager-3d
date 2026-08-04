@@ -1,0 +1,42 @@
+param(
+    [Parameter(Mandatory=$true)][string]$PanelIndicesCsv
+)
+$ErrorActionPreference = "Stop"
+$dir = "C:\Users\hebp\OneDrive\Desktop\manager\hops-and-honey-bar-manager-3d\comic-tigress-circus"
+$refSheet = "https://tempfile.redpandaai.co/kieai/1335989/tigra-comic/1785851154255-0wp14alrbvdf.png"
+$refPose  = "https://tempfile.redpandaai.co/kieai/1335989/tigra-comic/1785851156727-u07lyoxly8.png"
+
+# Identity lock for Tigra (female Tigger) + Christopher Robin
+$tigraLock = "Use the SAME Tigra character from the reference image. Do NOT redesign her. Preserve identity exactly: anthropomorphic tigress (female version of Tigger from Winnie the Pooh), athletic muscular curvaceous build, vibrant orange-tan fur with thick black tiger stripes, white underbelly/chest/muzzle/inner thighs, SHORT WHITE BOB-CUT HAIR with bangs, AMBER-GOLDEN eyes with cat pupils and dark eyeliner, small PINK nose, white muzzle with short whiskers, pink paw pads on hands, sharp black claws, long thick orange-and-black striped tail held upright and curved. Nude. Clean anime-influenced digital art style, glossy fur, smooth shading, well-defined line work."
+
+$crLock = "Christopher Robin as an ADULT man: very tall, large-framed, extremely muscular, dark brown skin glistening with sweat, short dark hair, handsome adult face (NOT a child). Nude or minimal circus-trainer attire (leather harness, boots)."
+
+$styleLock = "Polished digital illustration, anime/manga influence, high-contrast lighting, glossy finish on fur and skin, detailed muscle definition. Comic panel composition."
+
+$panels = @(
+    @{ n="p01_intro"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 1 (page 1): Circus ring under a big top, warm spotlight. Tigra the tigress sits proudly on a round wooden pedestal in the center of the sawdust ring, chest out, confident smirk, tail curled up. Adult Christopher Robin stands beside her in leather harness and boots holding a whip, one hand raised presenting her to the audience. Blurred audience rows in shadow around the ring, red-and-white tent stripes above. Full body three-quarter angle. End state: tigress on pedestal, muscular dark-skinned man beside her with whip, circus arena." },
+    @{ n="p02_trick"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 2 (page 1): Same circus ring. Tigra the tigress performs a trick pose - standing on her hind legs, both feline paws raised up to her chest showing pink pads, back arched, tail curved high. Adult Christopher Robin watches from the side, whip lowered, approving expression. Spotlight on Tigra. Full body, side angle. End state: tigress upright on hind legs paws up, man watching, circus ring." },
+    @{ n="p03_kneel"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 3 (page 1): Backstage dressing room, dim warm light. Tigra the tigress kneels submissively on the wooden floor in front of adult Christopher Robin who stands over her, one large dark hand on her head between her white ears, other hand holding the whip handle at his side. She looks up at him with amber eyes, mouth slightly open. Side three-quarter angle. End state: kneeling nude tigress looking up at standing muscular dark-skinned man, his hand on her head." },
+    @{ n="p04_oral"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 4 (page 1): Same dressing room. Tigra the tigress kneels and performs oral sex on adult Christopher Robin. Her mouth wraps around his erect dark penis, one feline hand with pink pads grips the base, tongue visible at the shaft. She looks up at him with amber eyes, cheeks slightly hollowed. He stands, one hand on her white hair. Side angle, his hips right, tigress left. Wet detail. End state: tigress oral on standing man, penis in mouth, hand on shaft, eyes up." },
+    @{ n="p05_deepthroat"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 5 (page 1): Same dressing room, tight close-up. Tigra the tigress deepthroating adult Christopher Robin - his dark penis buried deep in her mouth to the hilt, her lips wrapped around the base, saliva strings from her chin, her white-bob-cut hair disheveled, amber eyes looking up at him with tears of effort, pink nose touching his groin. Low angle close-up on her face and the shaft. End state: deepthroat close-up, penis fully in mouth to base, saliva, eyes up." },
+    @{ n="p06_position"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 6 (page 1): Same dressing room. Adult Christopher Robin positions Tigra the tigress on all fours on a low wooden bench, his large dark hands on her hips guiding her, her back arched, tail lifted high and curled aside exposing her pink wet vulva from behind, she looks back over her shoulder at him with amber eyes. Rear three-quarter angle. End state: tigress on all fours on bench, man's hands on her hips, tail raised, vulva visible, looking back." },
+    @{ n="p07_doggy"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 7 (page 2): Same dressing room. Adult Christopher Robin penetrates Tigra the tigress from behind - his erect dark penis entering her wet pink vulva, his muscular hips against her raised orange-furred ass, her tail draped over his hip, her claws gripping the bench, mouth open in a moan. Side angle showing penetration clearly. End state: rear penetration, penis in vulva, man behind tigress on bench, mid-thrust." },
+    @{ n="p08_deep"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 8 (page 2): Same dressing room. Close-up side angle of deep penetration - adult Christopher Robin's dark penis buried fully inside Tigra the tigress's wet pink vulva, his hips flush against her orange-furred ass, her tail curled up, her vulva stretched around him, wet juices visible at the connection. Her back arched, claws in wood. End state: explicit deep penetration close-up, penis fully inside, wet detail." },
+    @{ n="p09_cowgirl"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 9 (page 2): Same dressing room. Tigra the tigress rides adult Christopher Robin in cowgirl position - he lies on his back on the bench, she straddles him, his dark penis inside her pink vulva, her feline paws on his muscular dark chest, her heavy breasts and white belly facing viewer, head thrown back, mouth open, tail swishing behind. Front three-quarter angle. End state: tigress riding man cowgirl, penis inside, both full body, facing viewer." },
+    @{ n="p10_matingpress"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 10 (page 2): Same dressing room. Mating press - Tigra the tigress on her back on the bench, legs held up and wide apart by adult Christopher Robin who is on top, his muscular dark body over her orange-furred body, his dark penis deep inside her pink vulva, her feline feet with claws by his head, her white belly and breasts pressed. Side angle. End state: mating press, legs up, deep penetration, both bodies visible." },
+    @{ n="p11_creampie"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 11 (page 2): Same dressing room. Climax close-up - adult Christopher Robin finishes inside Tigra the tigress, his dark penis still inside her stretched pink vulva, white cum overflowing and dripping from her, her orange-furred thighs wet, her claws gripping, mouth open in a roar-moan. Close-up on the connection with cum. End state: creampie close-up, cum overflowing from vulva, penis inside, explicit." },
+    @{ n="p12_afterglow"; p="$tigraLock`n`n$crLock`n`n$styleLock`n`nPANEL 12 (page 2): Same dressing room, warm soft afterglow lighting. Tigra the tigress lies contentedly in adult Christopher Robin's arms on the bench, her white-bob head resting on his muscular dark chest, eyes half-closed purring with a soft smile, tail draped lazily. He holds her, one large dark hand gently petting her white hair between her ears. Tender intimate three-quarter angle, both full body. End state: tigress purring in man's arms, he pets her head, tender afterglow." }
+)
+
+$results = @()
+foreach ($idx in ($PanelIndicesCsv -split ',')) {
+    $idx = [int]$idx
+    $panel = $panels[$idx - 1]
+    Write-Host "===== Generating $($panel.n) ====="
+    $out = Join-Path $dir "$($panel.n).png"
+    $url = & powershell -ExecutionPolicy Bypass -File (Join-Path $dir "gen.ps1") -Prompt $panel.p -RefUrlsCsv "$refSheet|$refPose" -OutFile $out -Strength 0.5 -PollSeconds 12 -MaxWait 600
+    $results += [PSCustomObject]@{ idx = $idx; name = $panel.n; file = $out; url = $url }
+    Write-Host "Done $($panel.n)"
+}
+$results | ConvertTo-Json -Depth 5 | Out-File (Join-Path $dir "panels_v2_result.json") -Encoding utf8 -Append
+Write-Host "BATCH DONE"

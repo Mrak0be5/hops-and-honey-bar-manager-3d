@@ -1,0 +1,77 @@
+LoRAs to bench: 6 x 10
+Already done keys: 0
+
+===== oktaze_pony | Reverse_Fellatio_LoRa__PonyXL.safetensors @ 0.9 =====
+  [1/10] success -> r1_00002_.png
+  [2/10] success -> r2_00002_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== nochekaiser_pony | reverse-fellatio-ponyxl-nochekaiser.safetensors @ 0.85 =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== alxpnt2_pony | Reverse_Fellatio_XL_alxpnt2.safetensors @ 0.85 =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== dangling_pony | Dangling_fellatio_UpsideDown.safetensors @ 0.85 =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== overedge_il | Over_The_Edge_Blowjob_IL.safetensors @ 0.8 =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== povrev_il | POV_Reverse_Fellatio_v2.safetensors @ 0.8 =====
+  [1/10] error -> 
+  [2/10] error -> 
+  [3/10] error -> 
+  [4/10] error -> 
+  [5/10] error -> 
+  [6/10] error -> 
+  [7/10] error -> 
+  [8/10] error -> 
+  [9/10] error -> 
+  [10/10] error -> 
+
+DONE success=50 / total=60
+Results: C:\Users\hebp\OneDrive\Desktop\manager\hops-and-honey-bar-manager-3d\tigra-revfellatio-out\benchmark_results.json

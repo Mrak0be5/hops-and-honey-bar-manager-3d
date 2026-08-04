@@ -1,0 +1,5 @@
+$refUrl = "https://tempfile.redpandaai.co/kieai/1335989/comic-tigress/1785851950940-y7bb45dmkh.png"
+
+$prompt = "Use the SAME female anthropomorphic tigress character from the reference image. Do not redesign her. Preserve identity exactly: orange fur with bold black tiger stripes, white muzzle chest stomach, short silver-white bob haircut with straight bangs, rounded tiger ears, bright green eyes, female breasts with pink nipples, highly toned athletic six-pack abs, long ringed tiger tail, digitigrade paws. She is a female (1girl). She is in cowgirl position, sitting and riding on top of a dark skinned muscular human male partner (1boy, black human man, dark skin human male, no fur on male). Anal sex: his dark penis is entering her anus, female vulva visible. Full body, detailed fur, dynamic camera angle, studio lighting, rating_explicit, explicit adult scene."
+
+powershell -ExecutionPolicy Bypass -File "tiger-dance-video\gen_seedream_i2i.ps1" -Prompt $prompt -ImageUrls @($refUrl) -OutFile "civitai-human-partner-results\seedream_5_pro_smart.png" -Strength 0.55

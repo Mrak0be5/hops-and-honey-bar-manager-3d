@@ -1,0 +1,148 @@
+Rebuilt from disk: 57 successes
+Per slug: oktaze_pony=10, nochekaiser_pony=10, alxpnt2_pony=10, dangling_pony=10, overedge_il=10, extreme69_il=7
+
+===== oktaze_pony =====
+  [1/10] skip
+  [2/10] skip
+  [3/10] skip
+  [4/10] skip
+  [5/10] skip
+  [6/10] skip
+  [7/10] skip
+  [8/10] skip
+  [9/10] skip
+  [10/10] skip
+
+===== nochekaiser_pony =====
+  [1/10] skip
+  [2/10] skip
+  [3/10] skip
+  [4/10] skip
+  [5/10] skip
+  [6/10] skip
+  [7/10] skip
+  [8/10] skip
+  [9/10] skip
+  [10/10] skip
+
+===== alxpnt2_pony =====
+  [1/10] skip
+  [2/10] skip
+  [3/10] skip
+  [4/10] skip
+  [5/10] skip
+  [6/10] skip
+  [7/10] skip
+  [8/10] skip
+  [9/10] skip
+  [10/10] skip
+
+===== dangling_pony =====
+  [1/10] skip
+  [2/10] skip
+  [3/10] skip
+  [4/10] skip
+  [5/10] skip
+  [6/10] skip
+  [7/10] skip
+  [8/10] skip
+  [9/10] skip
+  [10/10] skip
+
+===== overedge_il =====
+  [1/10] skip
+  [2/10] skip
+  [3/10] skip
+  [4/10] skip
+  [5/10] skip
+  [6/10] skip
+  [7/10] skip
+  [8/10] skip
+  [9/10] skip
+  [10/10] skip
+
+===== extreme69_il =====
+  [1/10] skip
+  [2/10] skip
+  [3/10] skip
+  [4/10] skip
+  [5/10] skip
+  [6/10] skip
+  [7/10] skip
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== zoca_il =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== goofy_il =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== rfov_il =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== artyclaw_il =====
+  [1/10] success -> r1_00001_.png
+  [2/10] success -> r2_00001_.png
+  [3/10] success -> r3_00001_.png
+  [4/10] success -> r4_00001_.png
+  [5/10] success -> r5_00001_.png
+  [6/10] success -> r6_00001_.png
+  [7/10] success -> r7_00001_.png
+  [8/10] success -> r8_00001_.png
+  [9/10] success -> r9_00001_.png
+  [10/10] success -> r10_00001_.png
+
+===== povrev_il =====
+  [1/10] error -> 
+  [2/10] error -> 
+  [3/10] error -> 
+  [4/10] error -> 
+  [5/10] error -> 
+  [6/10] error -> 
+  [7/10] error -> 
+  [8/10] error -> 
+  [9/10] error -> 
+  [10/10] error -> 
+
+===== inverted_pony =====
+  [1/10] error -> 
+  [2/10] error -> 
+  [3/10] error -> 
+  [4/10] error -> 
+  [5/10] error -> 
+  [6/10] error -> 
+  [7/10] error -> 
+  [8/10] error -> 
+  [9/10] error -> 
+  [10/10] error -> 
+
+===== facefuck_pony =====
