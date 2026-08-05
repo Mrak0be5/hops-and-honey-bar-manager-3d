@@ -2,11 +2,18 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { ROOM_LAYOUTS } from '../game/config';
-import type { RoomDefinition, RoomState } from '../game/types';
-import { FurryStaff, MaleGuest, RoomActionLabel } from './FurryStaff';
+import { getStaffDefinition, ROOM_LAYOUTS } from '../game/config';
+import type { RoomDefinition, RoomState, StaffCharacterId } from '../game/types';
+import { MaleGuest, RoomActionLabel } from './FurryStaff';
+import { StaffCharacter } from './StaffCharacter';
 
 type RoomActivity = RoomDefinition['id'];
+type StaffPair = [StaffCharacterId | null, StaffCharacterId | null];
+
+function staffLabel(ids: StaffPair, fallback: string) {
+  const names = ids.filter((id): id is StaffCharacterId => id !== null).map((id) => getStaffDefinition(id).name);
+  return names.length > 0 ? names.join(' + ') : fallback;
+}
 
 function RoomPerson({ position, color, active, activity, speedLevel = 1, guest = false, index = 0, rotation = 0 }: {
   position: [number, number, number];
@@ -197,7 +204,7 @@ function LockedInterior({ definition }: { definition: RoomDefinition }) {
   );
 }
 
-function StripInterior({ room, definition }: { room: RoomState; definition: RoomDefinition }) {
+function StripInterior({ room, definition, staffSlots }: { room: RoomState; definition: RoomDefinition; staffSlots: StaffPair }) {
   const lights = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {
     if (!lights.current) return;
@@ -230,28 +237,31 @@ function StripInterior({ room, definition }: { room: RoomState; definition: Room
         <mesh castShadow><cylinderGeometry args={[0.05, 0.05, 2.35, 12]} /><meshStandardMaterial color="#d8e7ee" metalness={0.72} roughness={0.18} /></mesh>
         <mesh position={[0, 1.2, 0]}><sphereGeometry args={[0.08, 10, 8]} /><meshStandardMaterial color="#f0f6fa" metalness={0.5} /></mesh>
       </group>
-      {/* Медведица — лицом к камере; одета, пока нет сеанса */}
-      <FurryStaff
-        species="bear"
-        pose={room.staffState === 'serving' ? 'strip_pole' : room.staffState === 'welcoming' ? 'strip_floor' : 'idle'}
-        active={room.staffState === 'serving' || room.staffState === 'welcoming'}
-        speedLevel={room.upgrades.staffSpeed}
-        position={[0.05, 0, -1.55]}
-        rotation={0}
-        scale={1.05}
-        outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
-      />
-      {room.staffState === 'serving' && (
+      {/* Assigned strip workers — face camera; clothed until serving */}
+      {staffSlots.filter((id): id is StaffCharacterId => id !== null).map((id, index) => (
+        <StaffCharacter
+          key={id}
+          characterId={id}
+          pose={room.staffState === 'serving' ? 'strip_pole' : room.staffState === 'welcoming' ? 'strip_floor' : 'idle'}
+          active={room.staffState === 'serving' || room.staffState === 'welcoming'}
+          speedLevel={room.upgrades.staffSpeed}
+          position={[index === 0 ? 0.05 : 1.15, 0, index === 0 ? -1.55 : -1.35]}
+          rotation={0}
+          scale={1.05}
+          outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
+        />
+      ))}
+      {room.staffState === 'serving' && staffSlots.some(Boolean) && (
         <>
-          <Text position={[0, 2.75, -1.2]} fontSize={0.22} color="#ffb0d8" anchorX="center" outlineWidth={0.012} outlineColor="#2a1020">
-            Медведица танцует стриптиз
+          <Text position={[0, 2.75, -1.2]} fontSize={0.2} color="#ffb0d8" anchorX="center" outlineWidth={0.012} outlineColor="#2a1020">
+            {`${staffLabel(staffSlots, 'Персонал')} · стриптиз`}
           </Text>
           <RoomActionLabel text="strip" position={[0, 2.45, -1.2]} />
         </>
       )}
-      {room.staffState === 'welcoming' && (
+      {room.staffState === 'welcoming' && staffSlots.some(Boolean) && (
         <Text position={[0, 2.55, -1.2]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          Медведица зазывает гостей
+          {`${staffLabel(staffSlots, 'Персонал')} зазывает`}
         </Text>
       )}
       {/* Гости смотрят шоу */}
@@ -302,7 +312,7 @@ function StripInterior({ room, definition }: { room: RoomState; definition: Room
   );
 }
 
-function SexInterior({ room, definition, occupiedSlots }: { room: RoomState; definition: RoomDefinition; occupiedSlots: number[] }) {
+function SexInterior({ room, definition, occupiedSlots, staffSlots }: { room: RoomState; definition: RoomDefinition; occupiedSlots: number[]; staffSlots: StaffPair }) {
   const candleGlow = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {
     if (!candleGlow.current) return;
@@ -331,8 +341,8 @@ function SexInterior({ room, definition, occupiedSlots }: { room: RoomState; def
       <RoundedBox args={[4.9, 0.52, 2.4]} radius={0.24} smoothness={3} position={[-0.2, 0.4, -1.62]} castShadow><meshStandardMaterial color="#6e203f" roughness={0.72} /></RoundedBox>
       <RoundedBox args={[4.62, 0.18, 2.12]} radius={0.18} smoothness={3} position={[-0.2, 0.74, -1.62]} castShadow><meshStandardMaterial color="#f075a9" roughness={0.88} /></RoundedBox>
       <RoundedBox args={[4.62, 0.12, 0.72]} radius={0.15} smoothness={3} position={[-0.2, 0.93, -2.25]} castShadow><meshStandardMaterial color="#ffd1df" roughness={0.92} /></RoundedBox>
-      {/* Крольчиха — секс на кровати: cowgirl на члене гостя */}
-      {room.staffState === 'serving' && (
+      {/* Primary worker cowgirl; second worker waits / assists on bed edge */}
+      {room.staffState === 'serving' && staffSlots[0] && (
         <MaleGuest
           position={[-0.15, 0.82, -1.55]}
           rotation={0}
@@ -342,24 +352,38 @@ function SexInterior({ room, definition, occupiedSlots }: { room: RoomState; def
           insertDepth={0.85}
         />
       )}
-      <FurryStaff
-        species="rabbit"
-        pose={room.staffState === 'serving' ? 'sex_cowgirl' : 'idle'}
-        active={room.staffState === 'serving'}
-        speedLevel={room.upgrades.staffSpeed}
-        position={[-0.15, room.staffState === 'serving' ? 0.72 : 0.55, -1.2]}
-        rotation={0}
-        scale={1.02}
-        outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
-      />
-      {room.staffState === 'serving' && (
+      {staffSlots[0] && (
+        <StaffCharacter
+          characterId={staffSlots[0]}
+          pose={room.staffState === 'serving' ? 'sex_cowgirl' : 'idle'}
+          active={room.staffState === 'serving'}
+          speedLevel={room.upgrades.staffSpeed}
+          position={[-0.15, room.staffState === 'serving' ? 0.72 : 0.55, -1.2]}
+          rotation={0}
+          scale={1.02}
+          outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
+        />
+      )}
+      {staffSlots[1] && (
+        <StaffCharacter
+          characterId={staffSlots[1]}
+          pose={room.staffState === 'serving' ? 'sex_missionary' : 'idle'}
+          active={room.staffState === 'serving'}
+          speedLevel={room.upgrades.staffSpeed}
+          position={[1.35, room.staffState === 'serving' ? 0.7 : 0.55, -1.0]}
+          rotation={-0.4}
+          scale={0.98}
+          outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
+        />
+      )}
+      {room.staffState === 'serving' && staffSlots.some(Boolean) && (
         <Text position={[0, 2.55, -1.1]} fontSize={0.2} color="#ffc0d8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          Крольчиха седлает гостя
+          {`${staffLabel(staffSlots, 'Персонал')} · секс`}
         </Text>
       )}
-      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && (
+      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && staffSlots.some(Boolean) && (
         <Text position={[0, 2.4, -1.0]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          {room.staffState === 'welcoming' ? 'Крольчиха встречает гостя' : 'Крольчиха ждёт клиента'}
+          {room.staffState === 'welcoming' ? `${staffLabel(staffSlots, 'Персонал')} встречает` : `${staffLabel(staffSlots, 'Персонал')} ждёт`}
         </Text>
       )}
       {room.staffState === 'serving' && occupiedSlots.slice(1).map((slot, index) => {
@@ -410,7 +434,7 @@ function SexInterior({ room, definition, occupiedSlots }: { room: RoomState; def
   );
 }
 
-function GangbangInterior({ room, definition, occupiedSlots }: { room: RoomState; definition: RoomDefinition; occupiedSlots: number[] }) {
+function GangbangInterior({ room, definition, occupiedSlots, staffSlots }: { room: RoomState; definition: RoomDefinition; occupiedSlots: number[]; staffSlots: StaffPair }) {
   const slotPositions = (room.capacity <= 2
     ? ([[-1.15, 0], [1.15, 0]] as [number, number][])
     : ([[-1.35, -0.7], [1.35, -0.7], [-1.35, 0.9], [1.35, 0.9]] as [number, number][])
@@ -457,25 +481,28 @@ function GangbangInterior({ room, definition, occupiedSlots }: { room: RoomState
           <meshStandardMaterial color="#4a1730" roughness={0.9} />
         </RoundedBox>
       ))}
-      {/* Тигрица — лицом к камере (юг); одета до сеанса */}
-      <FurryStaff
-        species="tiger"
-        pose={room.staffState === 'serving' ? 'gangbang_center' : 'idle'}
-        active={room.staffState === 'serving'}
-        speedLevel={room.upgrades.staffSpeed}
-        position={[0, room.staffState === 'serving' ? 0.62 : 0.05, -0.1]}
-        rotation={Math.PI}
-        scale={1.08}
-        outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
-      />
-      {room.staffState === 'serving' && (
+      {/* Assigned orgy workers */}
+      {staffSlots.filter((id): id is StaffCharacterId => id !== null).map((id, index) => (
+        <StaffCharacter
+          key={id}
+          characterId={id}
+          pose={room.staffState === 'serving' ? 'gangbang_center' : 'idle'}
+          active={room.staffState === 'serving'}
+          speedLevel={room.upgrades.staffSpeed}
+          position={[index === 0 ? 0 : 1.1, room.staffState === 'serving' ? 0.62 : 0.05, index === 0 ? -0.1 : 0.2]}
+          rotation={Math.PI}
+          scale={index === 0 ? 1.08 : 1.0}
+          outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
+        />
+      ))}
+      {room.staffState === 'serving' && staffSlots.some(Boolean) && (
         <Text position={[0, 2.7, 0.2]} fontSize={0.2} color="#ff9bb0" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          Тигрица принимает гостей
+          {`${staffLabel(staffSlots, 'Персонал')} · оргия`}
         </Text>
       )}
-      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && (
+      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && staffSlots.some(Boolean) && (
         <Text position={[0, 2.4, 0.2]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          {room.staffState === 'welcoming' ? 'Тигрица собирает участников' : 'Тигрица ждёт съёмку'}
+          {room.staffState === 'welcoming' ? `${staffLabel(staffSlots, 'Персонал')} собирает` : `${staffLabel(staffSlots, 'Персонал')} ждёт`}
         </Text>
       )}
       {[-3.1, 3.1].map((x) => <group key={x} position={[x, 0, -2.45]}><mesh position={[0, 0.32, 0]}><cylinderGeometry args={[0.28, 0.34, 0.58, 12]} /><meshStandardMaterial color="#8b2445" /></mesh><mesh position={[0, 0.86, 0]}><sphereGeometry args={[0.42, 10, 8]} /><meshStandardMaterial color="#8c1d42" emissive="#551022" emissiveIntensity={0.22} /></mesh></group>)}
@@ -574,11 +601,13 @@ export function RoomWing({
   definition,
   focused,
   occupiedSlots,
+  staffSlots = [null, null],
 }: {
   room: RoomState;
   definition: RoomDefinition;
   focused: boolean;
   occupiedSlots: number[];
+  staffSlots?: StaffPair;
 }) {
   const layout = ROOM_LAYOUTS[definition.id];
   const wallColor = room.unlocked ? definition.color : '#796f6b';
@@ -614,9 +643,9 @@ export function RoomWing({
       )}
       <PortalArch side={layout.connectionSide} accent={definition.accent} />
       {room.unlocked ? (
-        definition.id === 'strip' ? <StripInterior room={room} definition={definition} />
-          : definition.id === 'sex' ? <SexInterior room={room} definition={definition} occupiedSlots={occupiedSlots} />
-            : <GangbangInterior room={room} definition={definition} occupiedSlots={occupiedSlots} />
+        definition.id === 'strip' ? <StripInterior room={room} definition={definition} staffSlots={staffSlots} />
+          : definition.id === 'sex' ? <SexInterior room={room} definition={definition} occupiedSlots={occupiedSlots} staffSlots={staffSlots} />
+            : <GangbangInterior room={room} definition={definition} occupiedSlots={occupiedSlots} staffSlots={staffSlots} />
       ) : <LockedInterior definition={definition} />}
       {room.unlocked && <ServiceProgress room={room} definition={definition} />}
       {focused && <Sparkles count={26} scale={[7.2, 2.6, 6.3]} position={[0, 1.25, 0]} size={1.6} speed={0.28} color={definition.accent} />}

@@ -1,4 +1,20 @@
-import type { Drink, MilestoneDefinition, RoomDefinition, RoomId, RoomLayout, RoomUpgradeDefinition, RoomUpgradeKey, TableState, UpgradeDefinition, UpgradeLevels, Vec2 } from './types';
+import type {
+  Drink,
+  MilestoneDefinition,
+  RoomDefinition,
+  RoomId,
+  RoomLayout,
+  RoomUpgradeDefinition,
+  RoomUpgradeKey,
+  StaffCharacterId,
+  StaffDefinition,
+  TableState,
+  UpgradeDefinition,
+  UpgradeLevels,
+  Vec2,
+  VenueId,
+  VenueSlots,
+} from './types';
 
 export const ENTRANCE: Vec2 = { x: 7.15, z: 4.5 };
 export const ENTRY_AISLE: Vec2 = { x: 5.35, z: 3.45 };
@@ -14,6 +30,43 @@ export const TABLE_RADIUS = 0.76;
 export const GUEST_CHAIR_OFFSET = 1.16;
 export const VENUE_NAME = 'Бордель у Кристофера';
 export const BARTENDER_NAME = 'Кристина';
+export const VENUE_WORKER_SLOTS = 2;
+/** Max guests visibly waiting at the entrance when nothing is staffed. */
+export const ENTRANCE_QUEUE_CAP = 8;
+/** Second worker shortens bar timers. */
+export const SECOND_BAR_WORKER_SPEED = 0.8;
+/** Second worker shortens room sessions. */
+export const SECOND_ROOM_WORKER_SPEED = 0.8;
+/** Second worker room income multiplier. */
+export const SECOND_ROOM_WORKER_INCOME = 1.1;
+
+export const STAFF_DEFINITIONS: StaffDefinition[] = [
+  { id: 'christina', name: 'Кристина', hireCost: 0, emoji: '💋', mesh: 'christina', accent: '#ff8fb8', blurb: 'Хозяйка зала — стартует у барной стойки.' },
+  { id: 'tigra', name: 'Тигра', hireCost: 180, emoji: '🐯', mesh: 'tigra', accent: '#ff8a3d', blurb: 'Огненная тигрица для любой сцены.' },
+  { id: 'winna', name: 'Винна', hireCost: 220, emoji: '🐻', mesh: 'winna', accent: '#e0a85c', blurb: 'Мягкая медведица с золотым мехом.' },
+  { id: 'krolya', name: 'Кроля', hireCost: 260, emoji: '🐰', mesh: 'krolya', accent: '#f0c090', blurb: 'Ушастая крольчиха — быстрая и гибкая.' },
+  { id: 'ia', name: 'ИА', hireCost: 320, emoji: '🫏', mesh: 'ia', accent: '#6b7a8a', blurb: 'Грустная ослица с глубоким голосом.' },
+  { id: 'piggy', name: 'Пигги', hireCost: 380, emoji: '🐷', mesh: 'piggy', accent: '#f2a0b0', blurb: 'Розовая свинка с игривым нравом.' },
+  { id: 'ru', name: 'Ру', hireCost: 450, emoji: '🦘', mesh: 'ru', accent: '#d4956a', blurb: 'Юная кенгуру — прыгучая и смелая.' },
+  { id: 'mama_ru', name: 'Мама Ру', hireCost: 520, emoji: '👜', mesh: 'mama_ru', accent: '#c87848', blurb: 'Зрелая кенгуриха — опыт и формы.' },
+  { id: 'sova', name: 'Сова', hireCost: 600, emoji: '🦉', mesh: 'sova', accent: '#b8a878', blurb: 'Мудрая сова с крыльями и взглядом.' },
+];
+
+export const getStaffDefinition = (id: StaffCharacterId) => STAFF_DEFINITIONS.find((item) => item.id === id)!;
+
+export const VENUE_IDS: VenueId[] = ['bar', 'strip', 'sex', 'gangbang'];
+
+export const makeDefaultVenueSlots = (): VenueSlots => ({
+  bar: ['christina', null],
+  strip: [null, null],
+  sex: [null, null],
+  gangbang: [null, null],
+});
+
+export const countVenueWorkers = (slots: VenueSlots, venue: VenueId) =>
+  slots[venue].filter((id): id is StaffCharacterId => id !== null).length;
+
+export const venueHasStaff = (slots: VenueSlots, venue: VenueId) => countVenueWorkers(slots, venue) > 0;
 
 export const getDayBonus = (shiftOperatingRevenue: number) =>
   Math.min(DAY_BONUS_CAP, Math.max(0, Math.round(shiftOperatingRevenue * DAY_BONUS_RATE)));
@@ -71,7 +124,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     name: 'Стрип-зал',
     shortName: 'Стрип',
     tagline: 'Медведица танцует у шеста — чаевые летят',
-    staffRole: 'Медведица-стриптизёрша',
+    staffRole: 'Персонал стрипа',
     icon: '🐻',
     unlockCost: 280,
     baseProfit: 20,
@@ -87,7 +140,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     name: 'Комната удовольствий',
     shortName: 'Секс',
     tagline: 'Крольчиха принимает гостей на кровати',
-    staffRole: 'Крольчиха-проститутка',
+    staffRole: 'Персонал секса',
     icon: '🐰',
     unlockCost: 750,
     baseProfit: 42,
@@ -103,7 +156,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     name: 'Зал оргии',
     shortName: 'Оргия',
     tagline: 'Тигрица ведёт гангбенг на платформе',
-    staffRole: 'Тигрица-порноактриса',
+    staffRole: 'Персонал оргии',
     icon: '🐯',
     unlockCost: 1500,
     baseProfit: 70,

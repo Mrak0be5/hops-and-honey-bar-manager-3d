@@ -1,9 +1,9 @@
 ﻿import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { BARTENDER_NAME, getRoomCapacityMaxLevel, getRoomDefinition, getRoomUpgradeCost, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, UPGRADE_DEFS } from '../game/config';
+import { getRoomCapacityMaxLevel, getRoomDefinition, getRoomUpgradeCost, getStaffDefinition, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, STAFF_DEFINITIONS, UPGRADE_DEFS } from '../game/config';
 import type { GameEngine } from '../game/GameEngine';
 import { gameAudio } from '../game/audio';
-import type { BartenderState, GameSnapshot, RoomId, RoomState, RoomUpgradeKey, UpgradeDefinition, VenueView } from '../game/types';
+import type { BartenderState, GameSnapshot, RoomId, RoomState, RoomUpgradeKey, StaffCharacterId, UpgradeDefinition, VenueId, VenueView } from '../game/types';
 import { Icon } from './Icon';
 
 type Props = {
@@ -17,17 +17,17 @@ type Props = {
 
 const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; description: string; icon: string }>> = {
   strip: {
-    staffSpeed: { name: 'Темп медведицы', description: 'Быстрее крутится у шеста и меняет номера.', icon: '🐻' },
+    staffSpeed: { name: 'Темп шоу', description: 'Быстрее крутятся у шеста и меняют номера.', icon: '⚡' },
     capacity: { name: 'Лишний стул у сцены', description: 'Ещё один гость смотрит стриптиз.', icon: '💺' },
     quality: { name: 'Свет и музыка', description: 'Шоу ярче — средний чек выше.', icon: '💡' },
   },
   sex: {
-    staffSpeed: { name: 'Ловкость крольчихи', description: 'Быстрее заканчивает приватный сеанс.', icon: '🐰' },
-    capacity: { name: 'Ещё одна кушетка', description: 'Добавляет место в очереди к крольчихе.', icon: '🛏️' },
+    staffSpeed: { name: 'Ловкость', description: 'Быстрее заканчивает приватный сеанс.', icon: '⚡' },
+    capacity: { name: 'Ещё одна кушетка', description: 'Добавляет место в очереди.', icon: '🛏️' },
     quality: { name: 'Бельё и ароматы', description: 'Премиум-секс повышает цену.', icon: '✨' },
   },
   gangbang: {
-    staffSpeed: { name: 'Темп тигрицы', description: 'Оргия проходит быстрее и жарче.', icon: '🐯' },
+    staffSpeed: { name: 'Темп сцены', description: 'Оргия проходит быстрее и жарче.', icon: '⚡' },
     capacity: { name: 'Больше мест на платформе', description: 'Ещё один участник гангбенга.', icon: '👥' },
     quality: { name: 'Сцена и камеры', description: 'Порно-атмосфера — выше оплата.', icon: '🎬' },
   },
@@ -35,35 +35,14 @@ const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; d
 
 const ROOM_STAFF_LABELS = {
   locked: 'Помещение закрыто',
-  waiting: 'Готовит комнату',
+  waiting: 'Готова принимать',
   welcoming: 'Зазывает гостей',
   serving: 'В деле',
   resetting: 'Наводит порядок',
 } as const;
 
-const ROOM_ACTION_LABELS: Record<RoomId, Record<'waiting' | 'welcoming' | 'serving' | 'resetting', string>> = {
-  strip: {
-    waiting: 'Медведица ждёт публику',
-    welcoming: 'Медведица выходит к шесту',
-    serving: 'Медведица танцует стриптиз',
-    resetting: 'Медведица собирает чаевые',
-  },
-  sex: {
-    waiting: 'Крольчиха ждёт клиента',
-    welcoming: 'Крольчиха встречает гостя',
-    serving: 'Крольчиха занимается сексом',
-    resetting: 'Крольчиха перестилает постель',
-  },
-  gangbang: {
-    waiting: 'Тигрица ждёт съёмку',
-    welcoming: 'Тигрица собирает участников',
-    serving: 'Тигрица ведёт гангбенг',
-    resetting: 'Тигрица заканчивает сцену',
-  },
-};
-
 const BARTENDER_STATUS: Record<BartenderState, { emoji: string; label: string }> = {
-  idle: { emoji: '👀', label: 'Кристина смотрит за залом' },
+  idle: { emoji: '👀', label: 'Смотрит за залом' },
   to_order: { emoji: '🏃', label: 'Идёт за заказом' },
   taking_order: { emoji: '📝', label: 'Принимает заказ' },
   to_bar: { emoji: '🏃', label: 'Спешит к стойке' },
@@ -82,6 +61,130 @@ const ROOM_UNLOCK_VERB: Record<RoomId, 'открыт' | 'открыта'> = {
   sex: 'открыта',
   gangbang: 'открыт',
 };
+
+const VENUE_TITLE: Record<VenueId, string> = {
+  bar: 'Бар',
+  strip: 'Стрип',
+  sex: 'Секс',
+  gangbang: 'Оргия',
+};
+
+function findStaffAssignment(snapshot: GameSnapshot, id: StaffCharacterId): string {
+  for (const venue of Object.keys(snapshot.venueSlots) as VenueId[]) {
+    const slots = snapshot.venueSlots[venue];
+    const slot = slots.findIndex((item) => item === id);
+    if (slot >= 0) return `${VENUE_TITLE[venue]} · ${slot + 1}`;
+  }
+  return 'Резерв';
+}
+
+function VenueSlotAssigner({
+  venue,
+  snapshot,
+  engine,
+}: {
+  venue: VenueId;
+  snapshot: GameSnapshot;
+  engine: GameEngine;
+}) {
+  const slots = snapshot.venueSlots[venue];
+  const freeHired = snapshot.roster.filter((entry) => {
+    if (!entry.hired) return false;
+    return !Object.values(snapshot.venueSlots).some((pair) => pair.includes(entry.id));
+  });
+  return (
+    <div className="staff-slots">
+      <small className="staff-slots-label">Рабочие места · 2 (хватит 1)</small>
+      {([0, 1] as const).map((slotIndex) => {
+        const assigned = slots[slotIndex];
+        const def = assigned ? getStaffDefinition(assigned) : null;
+        return (
+          <div key={slotIndex} className="staff-slot-row">
+            <span className="staff-slot-index">Слот {slotIndex + 1}</span>
+            {def ? (
+              <>
+                <b>{def.emoji} {def.name}</b>
+                <button
+                  type="button"
+                  className="slot-clear"
+                  onClick={() => {
+                    gameAudio.unlock();
+                    if (engine.assignStaff(venue, slotIndex, null)) gameAudio.click();
+                  }}
+                >
+                  Убрать
+                </button>
+              </>
+            ) : (
+              <select
+                aria-label={`Назначить на ${VENUE_TITLE[venue]} слот ${slotIndex + 1}`}
+                value=""
+                onChange={(event) => {
+                  const id = event.target.value as StaffCharacterId;
+                  if (!id) return;
+                  gameAudio.unlock();
+                  if (engine.assignStaff(venue, slotIndex, id)) gameAudio.click();
+                }}
+              >
+                <option value="">— выбрать —</option>
+                {freeHired.map((entry) => {
+                  const staff = getStaffDefinition(entry.id);
+                  return <option key={entry.id} value={entry.id}>{staff.emoji} {staff.name}</option>;
+                })}
+                {assigned === null && freeHired.length === 0 && <option value="" disabled>Нет свободных</option>}
+              </select>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StaffRosterPanel({ snapshot, engine }: { snapshot: GameSnapshot; engine: GameEngine }) {
+  return (
+    <div className="staff-roster">
+      <div className="drink-ribbon">
+        <span className="status-emoji">💋</span>
+        <span>
+          <b>Штат · {snapshot.roster.filter((entry) => entry.hired).length} / 9</b>
+          <small>Нанимай и ставь в бар или комнаты</small>
+        </span>
+      </div>
+      <div className="staff-roster-list">
+        {STAFF_DEFINITIONS.map((definition) => {
+          const entry = snapshot.roster.find((item) => item.id === definition.id)!;
+          const assignment = findStaffAssignment(snapshot, definition.id);
+          const canHire = !entry.hired && snapshot.coins >= definition.hireCost;
+          return (
+            <div key={definition.id} className={`staff-roster-card ${entry.hired ? 'is-hired' : ''}`}>
+              <span className="staff-roster-emoji">{definition.emoji}</span>
+              <span>
+                <b>{definition.name}</b>
+                <small>{entry.hired ? assignment : definition.blurb}</small>
+              </span>
+              {entry.hired ? (
+                <em className="hired-tag">в штате</em>
+              ) : (
+                <button
+                  type="button"
+                  className={`hire-button ${canHire ? 'is-affordable' : ''}`}
+                  disabled={!canHire}
+                  onClick={() => {
+                    gameAudio.unlock();
+                    if (engine.hireStaff(definition.id)) gameAudio.click();
+                  }}
+                >
+                  {definition.hireCost === 0 ? 'Своя' : <>🪙 {definition.hireCost}</>}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function formatCompactNumber(value: number) {
   const sign = value < 0 ? '-' : '';
@@ -249,12 +352,13 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
       <div className="staff-card">
         <span className={`staff-avatar state-${room.staffState}`}>{definition.icon}</span>
         <span>
-          <small>ПЕРСОНАЛ · {definition.staffRole}</small>
-          <b>{room.staffState === 'locked' ? ROOM_STAFF_LABELS.locked : ROOM_ACTION_LABELS[room.id][room.staffState === 'waiting' || room.staffState === 'welcoming' || room.staffState === 'serving' || room.staffState === 'resetting' ? room.staffState : 'waiting']}</b>
+          <small>ПЕРСОНАЛ</small>
+          <b>{ROOM_STAFF_LABELS[room.staffState === 'locked' ? 'locked' : room.staffState === 'waiting' || room.staffState === 'welcoming' || room.staffState === 'serving' || room.staffState === 'resetting' ? room.staffState : 'waiting']}</b>
           <i><span style={{ width: `${Math.round(room.progress * 100)}%` }} /></i>
         </span>
         <strong>{room.guests}/{room.capacity}</strong>
       </div>
+      <VenueSlotAssigner venue={room.id} snapshot={snapshot} engine={engine} />
       <div className="room-economy-grid is-live">
         <span><small>За гостя</small><b>{room.perGuestProfit} 🪙</b></span>
         <span><small>Макс. сеанс</small><b>{room.maxSessionProfit} 🪙</b></span>
@@ -417,6 +521,8 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
         <MilestoneCard snapshot={snapshot} />
         {venueView === 'bar' ? (
           <>
+            <StaffRosterPanel snapshot={snapshot} engine={engine} />
+            <VenueSlotAssigner venue="bar" snapshot={snapshot} engine={engine} />
             <div className="drink-ribbon">
               <Icon name="assortment" />
               <span>
@@ -465,14 +571,31 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
               </button>
               <button className="room-pill focus-pill" onClick={() => click(() => onUpgradesOpen(true))}>
                 <span className="status-emoji">{activeRoomDefinition.icon}</span>
-                <span><small>{activeRoomDefinition.staffRole}</small><b>{(activeRoom.staffState === 'waiting' || activeRoom.staffState === 'welcoming' || activeRoom.staffState === 'serving' || activeRoom.staffState === 'resetting') ? ROOM_ACTION_LABELS[activeRoom.id][activeRoom.staffState] : ROOM_STAFF_LABELS.locked} · {activeRoom.guests}/{activeRoom.capacity}</b></span>
+                <span>
+                  <small>{
+                    snapshot.venueSlots[activeRoom.id].filter(Boolean).map((id) => getStaffDefinition(id!).name).join(' + ')
+                    || activeRoomDefinition.staffRole
+                  }</small>
+                  <b>{ROOM_STAFF_LABELS[activeRoom.staffState === 'locked' ? 'locked' : activeRoom.staffState === 'waiting' || activeRoom.staffState === 'welcoming' || activeRoom.staffState === 'serving' || activeRoom.staffState === 'resetting' ? activeRoom.staffState : 'waiting']} · {activeRoom.guests}/{activeRoom.capacity}</b>
+                </span>
               </button>
             </>
           ) : (
             <>
               <div className="bartender-pill">
                 <span className="status-emoji">{bartenderStatus.emoji}</span>
-                <span><small>{BARTENDER_NAME.toUpperCase()}</small><b>{bartenderStatus.label}</b></span>
+                <span>
+                  <small>{
+                    snapshot.bartender.staffId
+                      ? getStaffDefinition(snapshot.bartender.staffId).name.toUpperCase()
+                      : (snapshot.entranceQueue > 0 ? 'ОЧЕРЕДЬ' : 'БАР ПУСТ')
+                  }</small>
+                  <b>{
+                    snapshot.bartender.staffId
+                      ? bartenderStatus.label
+                      : (snapshot.entranceQueue > 0 ? `У входа · ${snapshot.entranceQueue}` : 'Нет персонала у стойки')
+                  }</b>
+                </span>
               </div>
               <button className="room-pill focus-pill" onClick={() => selectVenue(snapshot.rooms.find((room) => room.unlocked)?.id ?? 'strip')}>
                 <Icon name="customers" />

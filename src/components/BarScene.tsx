@@ -7,7 +7,9 @@ import type { GameEvent, GameSnapshot, VenueView, Vec2 } from '../game/types';
 import { ROOM_DEFINITIONS, ROOM_LAYOUTS } from '../game/config';
 import { RoomWing } from './RoomWing';
 import { BARTENDER_EMOJI, BartenderCharacter, CUSTOMER_EMOJI, PatronCharacter } from './Character';
+import { StaffCharacter } from './StaffCharacter';
 import { BarEnvironment } from './Environment';
+import { BAR_STATION } from '../game/config';
 
 function SimulationLoop({ engine }: { engine: GameEngine }) {
   useFrame((_, delta) => engine.update(delta), -1);
@@ -499,6 +501,7 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
           occupiedSlots={snapshot.patrons
             .filter((patron) => patron.roomId === definition.id && patron.state === 'in_room' && patron.roomSlot !== null)
             .map((patron) => patron.roomSlot as number)}
+          staffSlots={snapshot.venueSlots[definition.id]}
         />
       ))}
       {snapshot.bartender.state === 'preparing' && <PourEffect />}
@@ -507,7 +510,45 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
           ? null
           : <PatronCharacter key={patron.id} patron={patron} />
       ))}
-      <BartenderCharacter bartender={snapshot.bartender} />
+      {snapshot.bartender.staffId ? (
+        <StaffCharacter
+          characterId={snapshot.bartender.staffId}
+          pose="idle"
+          active={snapshot.bartender.state !== 'idle'}
+          position={[snapshot.bartender.position.x, 0, snapshot.bartender.position.z]}
+          rotation={0}
+          scale={1.05}
+          outfit={
+            snapshot.bartender.outfit === 'nude' ? 'nude'
+              : snapshot.bartender.outfit === 'uniform' ? 'dressed'
+                : 'nude'
+          }
+        />
+      ) : (
+        <BartenderCharacter bartender={snapshot.bartender} />
+      )}
+      {snapshot.venueSlots.bar[1] && snapshot.venueSlots.bar[1] !== snapshot.bartender.staffId && (
+        <StaffCharacter
+          characterId={snapshot.venueSlots.bar[1]}
+          pose="idle"
+          active={false}
+          position={[BAR_STATION.x + 1.1, 0, BAR_STATION.z]}
+          rotation={0}
+          scale={1}
+          outfit="dressed"
+        />
+      )}
+      {snapshot.venueSlots.bar[0] && snapshot.venueSlots.bar[0] !== snapshot.bartender.staffId && snapshot.bartender.staffId === snapshot.venueSlots.bar[1] && (
+        <StaffCharacter
+          characterId={snapshot.venueSlots.bar[0]}
+          pose="idle"
+          active={false}
+          position={[BAR_STATION.x + 1.1, 0, BAR_STATION.z]}
+          rotation={0}
+          scale={1}
+          outfit="dressed"
+        />
+      )}
       {serviceKind && serviceTable && <TableActionEffect position={serviceTable.position} kind={serviceKind} />}
       {snapshot.lastEvent && (() => {
         const roomPosition = snapshot.lastEvent.roomId ? ROOM_LAYOUTS[snapshot.lastEvent.roomId].center : null;

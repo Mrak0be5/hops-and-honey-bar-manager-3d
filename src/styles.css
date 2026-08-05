@@ -1270,6 +1270,119 @@ button {
   margin-top: 8px;
 }
 
+.staff-roster {
+  margin: 10px 0 14px;
+}
+
+.staff-roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.staff-roster-card {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(20, 8, 16, 0.45);
+  border: 1px solid rgba(255, 180, 210, 0.18);
+}
+
+.staff-roster-card.is-hired {
+  border-color: rgba(255, 140, 190, 0.45);
+}
+
+.staff-roster-emoji {
+  font-size: 22px;
+  text-align: center;
+}
+
+.staff-roster-card b {
+  display: block;
+  font-size: 13px;
+}
+
+.staff-roster-card small {
+  display: block;
+  opacity: 0.75;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.hire-button,
+.slot-clear {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 800;
+  font-size: 11px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffe8f2;
+}
+
+.hire-button.is-affordable {
+  background: linear-gradient(135deg, #ff6fa8, #ff9a62);
+  color: #2a0a18;
+}
+
+.hire-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hired-tag {
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffb0d0;
+}
+
+.staff-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 14px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(12, 6, 14, 0.5);
+  border: 1px solid rgba(255, 160, 200, 0.2);
+}
+
+.staff-slots-label {
+  opacity: 0.7;
+  font-size: 11px;
+}
+
+.staff-slot-row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.staff-slot-index {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.staff-slot-row select {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 180, 210, 0.25);
+  background: rgba(30, 12, 24, 0.9);
+  color: #ffe8f2;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
 .cheat-button {
   min-height: 40px;
   border-radius: 12px;

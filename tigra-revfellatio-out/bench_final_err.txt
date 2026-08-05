@@ -1,0 +1,10 @@
+Get-Content : Не удается найти путь "C:\Users\hebp\OneDrive\Desktop\manager\hops-and-honey-bar-manager-3d\tigra-revfell
+atio-out\wf_template.json", так как он не существует.
+C:\Users\hebp\OneDrive\Desktop\manager\hops-and-honey-bar-manager-3d\tigra-revfellatio-out\rebuild_and_run.ps1:102 знак
+:10
++     $w = Get-Content $tplPath -Raw | ConvertFrom-Json
++          ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\hebp\O...f_template.json:String) [Get-Content], ItemNotFoundEx 
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 

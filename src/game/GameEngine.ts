@@ -1,11 +1,14 @@
 import {
   BAR_STATION,
+  countVenueWorkers,
   DRINKS,
   ENTRANCE,
+  ENTRANCE_QUEUE_CAP,
   ENTRY_AISLE,
   getArrivalInterval,
   getDayBonus,
   getDeliveryDuration,
+  getStaffDefinition,
   getUnlockedDrinks,
   getUpgradeCost,
   INITIAL_UPGRADES,
@@ -14,6 +17,7 @@ import {
   getRoomDefinition,
   getRoomProfit,
   getRoomUpgradeCost,
+  makeDefaultVenueSlots,
   MILESTONE_DEFINITIONS,
   ROOM_DEFINITIONS,
   ROOM_GROUP_WINDOW,
@@ -21,10 +25,16 @@ import {
   ROOM_MIN_WELCOME_DURATION,
   ROOM_RESET_DURATION,
   ROOM_UPGRADE_DEFS,
+  SECOND_BAR_WORKER_SPEED,
+  SECOND_ROOM_WORKER_INCOME,
+  SECOND_ROOM_WORKER_SPEED,
   SERVICE_GATE,
   SHIFT_DURATION,
+  STAFF_DEFINITIONS,
   TABLE_LAYOUT,
   UPGRADE_DEFS,
+  VENUE_IDS,
+  venueHasStaff,
 } from './config';
 import type {
   Bartender,
@@ -33,14 +43,19 @@ import type {
   GameEvent,
   GameSnapshot,
   Patron,
+  RoomDefinition,
   RoomId,
   RoomState,
   RoomUpgradeKey,
   RoomUpgradeLevels,
+  StaffCharacterId,
+  StaffRosterEntry,
   TableState,
   UpgradeKey,
   UpgradeLevels,
   Vec2,
+  VenueId,
+  VenueSlots,
 } from './types';
 import { findGridPath, makeLevelObstacles } from './navigation';
 
@@ -51,7 +66,7 @@ type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 type MutablePatron = Patron & { route: Vec2[] };
 type MutableBartender = Bartender & { route: Vec2[]; timer: number; deliveryDuration: number };
-type MutableRoom = RoomState & { timer: number; phaseDuration: number; cooldown: number; guestIds: string[] };
+type MutableRoom = RoomState & { timer: number; phaseDuration: number; cooldown: number; guestIds: string[]; sessionWorkers: number };
 
 type SavedProgress = {
   coins: number;
@@ -63,6 +78,8 @@ type SavedProgress = {
   totalOperatingRevenue?: number;
   totalDayBonus?: number;
   rooms?: Partial<Record<RoomId, { unlocked: boolean; completedSessions: number; revenue: number; upgrades: RoomUpgradeLevels }>>;
+  hired?: StaffCharacterId[];
+  venueSlots?: Partial<Record<VenueId, [StaffCharacterId | null, StaffCharacterId | null]>>;
 };
 
 const SAVE_KEY = 'brothel-christopher-v1';
@@ -107,6 +124,8 @@ export class GameEngine {
   private totalOperatingRevenue = 0;
   private totalDayBonus = 0;
   private shiftOperatingRevenue = 0;
+  private hiredStaff: Set<StaffCharacterId> = new Set(['christina']);
+  private venueSlots: VenueSlots = makeDefaultVenueSlots();
 
   constructor(options: { rng?: RandomSource; storage?: StorageLike | null } = {}) {
     this.rng = options.rng ?? Math.random;
@@ -127,6 +146,7 @@ export class GameEngine {
       outfit: 'uniform',
       onTable: false,
       deliveryProgress: 0,
+      staffId: 'christina',
       route: [],
       timer: 0,
       deliveryDuration: 0,
@@ -152,6 +172,7 @@ export class GameEngine {
         phaseDuration: 1,
         cooldown: 0,
         guestIds: [],
+        sessionWorkers: 0,
       };
     }
     return rooms;
@@ -248,6 +269,55 @@ export class GameEngine {
     return true;
   };
 
+  /** Hire a paid roster character; the free starter (Christina) is already hired. */
+  hireStaff = (id: StaffCharacterId): boolean => {
+    if (this.hiredStaff.has(id)) return false;
+    const definition = getStaffDefinition(id);
+    if (this.coins < definition.hireCost) return false;
+    this.coins -= definition.hireCost;
+    this.hiredStaff.add(id);
+    this.pushEvent('hire', `${definition.emoji} ${definition.name} нанята!`);
+    this.persist();
+    this.publish();
+    return true;
+  };
+
+  /** Assign (or clear with `null`) a hired character into a venue slot; unassigns her from any other slot first. */
+  assignStaff = (venue: VenueId, slotIndex: 0 | 1, staffId: StaffCharacterId | null): boolean => {
+    if (staffId !== null && !this.hiredStaff.has(staffId)) return false;
+    if (staffId !== null) {
+      for (const otherVenue of VENUE_IDS) {
+        const slots = this.venueSlots[otherVenue];
+        for (let index = 0; index < slots.length; index += 1) {
+          if (slots[index] === staffId && !(otherVenue === venue && index === slotIndex)) {
+            slots[index] = null;
+          }
+        }
+      }
+    }
+    this.venueSlots[venue][slotIndex] = staffId;
+    this.syncBartenderStaff();
+    this.persist();
+    this.publish();
+    return true;
+  };
+
+  /** Primary bar worker driving the bartender FSM (slot 0 preferred). */
+  getPrimaryBarStaff = (): StaffCharacterId | null => this.venueSlots.bar[0] ?? this.venueSlots.bar[1] ?? null;
+
+  barStaffCount = (): number => countVenueWorkers(this.venueSlots, 'bar');
+
+  roomStaffCount = (roomId: RoomId): number => countVenueWorkers(this.venueSlots, roomId);
+
+  /** True if the bar or any service room currently has at least one worker. */
+  anyServiceStaffed = (): boolean => (
+    this.barStaffCount() > 0 || ROOM_DEFINITIONS.some((definition) => venueHasStaff(this.venueSlots, definition.id))
+  );
+
+  private syncBartenderStaff() {
+    this.bartender.staffId = this.barStaffCount() > 0 ? this.getPrimaryBarStaff() : null;
+  }
+
   resetProgress = () => {
     this.storage?.removeItem(SAVE_KEY);
     this.started = false;
@@ -264,6 +334,8 @@ export class GameEngine {
     this.spawnTimer = 1.3;
     this.patrons = [];
     this.tables = TABLE_LAYOUT.map((table) => ({ ...table, position: cloneVec(table.position), seat: cloneVec(table.seat), service: cloneVec(table.service) }));
+    this.hiredStaff = new Set(['christina']);
+    this.venueSlots = makeDefaultVenueSlots();
     this.bartender = this.makeBartender();
     this.rooms = this.makeRooms();
     this.upgrades = { ...INITIAL_UPGRADES };
@@ -331,6 +403,7 @@ export class GameEngine {
     this.updatePatrons(delta);
     this.updateBartender(delta);
     this.updateRooms(delta);
+    this.promoteQueuedPatrons();
 
     this.publishTimer += delta;
     if (this.publishTimer >= PUBLISH_INTERVAL) {
@@ -344,6 +417,7 @@ export class GameEngine {
       const room = this.rooms[definition.id];
       if (!room.unlocked) continue;
       room.capacity = getRoomCapacity(definition.id, room.upgrades.capacity);
+      const workers = countVenueWorkers(this.venueSlots, definition.id);
 
       room.guestIds = room.guestIds.filter((guestId) => this.patrons.some((patron) => patron.id === guestId && patron.state === 'in_room'));
       room.guests = room.guestIds.length;
@@ -352,7 +426,8 @@ export class GameEngine {
         room.progress = 0;
         room.cooldown = Math.max(0, room.cooldown - delta);
         const arrived = this.patrons.filter((patron) => patron.roomId === definition.id && patron.state === 'waiting_room');
-        if (arrived.length > 0 && room.cooldown <= 0) {
+        // Never start a greeting without at least one assigned worker.
+        if (workers > 0 && arrived.length > 0 && room.cooldown <= 0) {
           room.staffState = 'welcoming';
           // A short gathering window lets several real bar guests form one
           // session instead of conjuring a full decorative batch.
@@ -362,7 +437,18 @@ export class GameEngine {
         continue;
       }
 
+      if (room.staffState === 'welcoming' && workers === 0) {
+        // Staff pulled mid-greeting: hold reserved guests without committing a session.
+        room.staffState = 'waiting';
+        room.cooldown = 0.4;
+        room.progress = 0;
+        continue;
+      }
+
       room.timer -= delta;
+      // Staff pulled mid-session: wrap up the current session immediately
+      // instead of stranding guests indefinitely.
+      if (room.staffState === 'serving' && workers === 0) room.timer = Math.min(room.timer, 0);
       room.progress = clamp(1 - room.timer / Math.max(0.01, room.phaseDuration), 0, 1);
 
       if (room.staffState === 'welcoming') {
@@ -387,7 +473,9 @@ export class GameEngine {
           patron.target = cloneVec(patron.position);
         }
         room.staffState = 'serving';
-        room.phaseDuration = definition.sessionDuration * 0.88 ** (room.upgrades.staffSpeed - 1);
+        room.sessionWorkers = workers;
+        const sessionSpeedBonus = workers >= 2 ? SECOND_ROOM_WORKER_SPEED : 1;
+        room.phaseDuration = definition.sessionDuration * 0.88 ** (room.upgrades.staffSpeed - 1) * sessionSpeedBonus;
         room.timer = room.phaseDuration;
         room.progress = 0;
       } else if (room.staffState === 'serving') {
@@ -395,7 +483,8 @@ export class GameEngine {
         const participants = room.guestIds
           .map((guestId) => this.patrons.find((patron) => patron.id === guestId))
           .filter((patron): patron is MutablePatron => Boolean(patron));
-        const income = getRoomProfit(definition.id, room.upgrades.quality, participants.length);
+        const incomeBonus = room.sessionWorkers >= 2 ? SECOND_ROOM_WORKER_INCOME : 1;
+        const income = Math.round(getRoomProfit(definition.id, room.upgrades.quality, participants.length) * incomeBonus);
         this.coins += income;
         this.totalOperatingRevenue += income;
         this.shiftOperatingRevenue += income;
@@ -428,16 +517,30 @@ export class GameEngine {
     )).length;
   }
 
-  private trySendPatronToRoom(patron: MutablePatron) {
-    if (!patron.barServed) return false;
-    const available = ROOM_DEFINITIONS.map((definition) => {
+  /** Unlocked, staffed rooms with an open reservation slot, ready to receive a new guest. */
+  private getStaffedRoomCandidates(): { definition: RoomDefinition; room: MutableRoom; assignments: number }[] {
+    return ROOM_DEFINITIONS.map((definition) => {
       const room = this.rooms[definition.id];
       return { definition, room, assignments: this.countRoomAssignments(definition.id) };
     }).filter(({ room, assignments }) => (
       room.unlocked
+        && venueHasStaff(this.venueSlots, room.id)
         && (room.staffState === 'waiting' || room.staffState === 'welcoming')
         && assignments < room.capacity
     ));
+  }
+
+  private findFreeRoomSlot(roomId: RoomId, capacity: number): number {
+    const layout = ROOM_LAYOUTS[roomId];
+    const reservedSlots = new Set(this.patrons
+      .filter((item) => item.roomId === roomId && item.roomSlot !== null && item.state !== 'leaving')
+      .map((item) => item.roomSlot));
+    return layout.guestSpots.findIndex((_, index) => index < capacity && !reservedSlots.has(index));
+  }
+
+  private trySendPatronToRoom(patron: MutablePatron) {
+    if (!patron.barServed) return false;
+    const available = this.getStaffedRoomCandidates();
     const visitChance = clamp(0.38 + patron.happiness * 0.42, 0.42, 0.8);
     if (available.length === 0 || this.rng() > visitChance) return false;
 
@@ -454,13 +557,10 @@ export class GameEngine {
       ...preferred.slice(0, firstIndex),
       ...available.filter((candidate) => !preferred.includes(candidate)),
     ];
-    for (const { definition } of ordered) {
-      const layout = ROOM_LAYOUTS[definition.id];
-      const reservedSlots = new Set(this.patrons
-        .filter((item) => item.roomId === definition.id && item.roomSlot !== null && item.state !== 'leaving')
-        .map((item) => item.roomSlot));
-      const slot = layout.guestSpots.findIndex((_, index) => index < this.rooms[definition.id].capacity && !reservedSlots.has(index));
+    for (const { definition, room } of ordered) {
+      const slot = this.findFreeRoomSlot(definition.id, room.capacity);
       if (slot < 0) continue;
+      const layout = ROOM_LAYOUTS[definition.id];
       const destination = layout.guestSpots[slot];
       const route = this.makeRoute(patron.position, destination, [layout.barPortal, layout.roomPortal, destination]);
       if (!route) continue;
@@ -472,6 +572,21 @@ export class GameEngine {
       return true;
     }
     return false;
+  }
+
+  /** Route a patron straight from the entrance into a staffed room, skipping the bar entirely. */
+  private assignPatronToRoomFromEntrance(patron: MutablePatron, definition: RoomDefinition, slot: number): boolean {
+    const layout = ROOM_LAYOUTS[definition.id];
+    const destination = layout.guestSpots[slot];
+    const route = this.makeRoute(patron.position, destination, [ENTRY_AISLE, layout.barPortal, layout.roomPortal, destination]);
+    if (!route) return false;
+    patron.roomId = definition.id;
+    patron.roomSlot = slot;
+    patron.barServed = true;
+    patron.state = 'walking_to_room';
+    patron.route = route;
+    patron.target = cloneVec(route[0] ?? destination);
+    return true;
   }
 
   private startPatronExit(patron: MutablePatron) {
@@ -488,21 +603,16 @@ export class GameEngine {
     patron.target = cloneVec(patron.route[0] ?? patron.position);
   }
 
-  private trySpawnPatron() {
-    const openTables = this.tables.filter((table) => !table.occupantId && !table.dirty);
-    if (openTables.length === 0) return;
-    const table = openTables[Math.floor(this.rng() * openTables.length)] ?? openTables[0];
+  private makeBasePatron(): MutablePatron {
     const id = `guest-${++this.patronSequence}`;
     const initialPatience = 34 + this.rng() * 10;
-    const route = this.makeRoute(ENTRANCE, table.seat);
-    if (!route) return;
-    const patron: MutablePatron = {
+    return {
       id,
-      tableId: table.id,
-      state: 'walking_in',
+      tableId: -1,
+      state: 'queued_entrance',
       position: cloneVec(ENTRANCE),
-      target: cloneVec(ENTRY_AISLE),
-      route,
+      target: cloneVec(ENTRANCE),
+      route: [],
       timer: 0,
       patience: initialPatience,
       initialPatience,
@@ -513,8 +623,79 @@ export class GameEngine {
       roomId: null,
       roomSlot: null,
     };
-    table.occupantId = id;
+  }
+
+  private spawnPatronAtTable(openTables: TableState[]): boolean {
+    const table = openTables[Math.floor(this.rng() * openTables.length)] ?? openTables[0];
+    const route = this.makeRoute(ENTRANCE, table.seat);
+    if (!route) return false;
+    const patron = this.makeBasePatron();
+    patron.tableId = table.id;
+    patron.state = 'walking_in';
+    patron.route = route;
+    patron.target = cloneVec(ENTRY_AISLE);
+    table.occupantId = patron.id;
     this.patrons.push(patron);
+    return true;
+  }
+
+  private spawnPatronDirectlyToRoom(): boolean {
+    for (const { definition, room } of this.getStaffedRoomCandidates()) {
+      const slot = this.findFreeRoomSlot(definition.id, room.capacity);
+      if (slot < 0) continue;
+      const patron = this.makeBasePatron();
+      if (!this.assignPatronToRoomFromEntrance(patron, definition, slot)) continue;
+      this.patrons.push(patron);
+      return true;
+    }
+    return false;
+  }
+
+  private entranceQueueCount() {
+    return this.patrons.filter((patron) => patron.state === 'queued_entrance').length;
+  }
+
+  private spawnPatronToEntranceQueue() {
+    if (this.entranceQueueCount() >= ENTRANCE_QUEUE_CAP) return;
+    this.patrons.push(this.makeBasePatron());
+  }
+
+  private trySpawnPatron() {
+    const openTables = this.tables.filter((table) => !table.occupantId && !table.dirty);
+    if (this.barStaffCount() > 0) {
+      // Bar is open: guests only sit for drinks. Never skip to rooms while the bar is staffed.
+      if (openTables.length > 0) this.spawnPatronAtTable(openTables);
+      else this.spawnPatronToEntranceQueue();
+      return;
+    }
+    if (this.spawnPatronDirectlyToRoom()) return;
+    this.spawnPatronToEntranceQueue();
+  }
+
+  /** Try to move guests waiting at the entrance into a table or a staffed room as capacity opens up. */
+  private promoteQueuedPatrons() {
+    for (const patron of this.patrons) {
+      if (patron.state !== 'queued_entrance') continue;
+      if (this.barStaffCount() > 0) {
+        const table = this.tables.find((item) => !item.occupantId && !item.dirty);
+        if (table) {
+          const route = this.makeRoute(patron.position, table.seat);
+          if (route) {
+            table.occupantId = patron.id;
+            patron.tableId = table.id;
+            patron.state = 'walking_in';
+            patron.route = route;
+            patron.target = cloneVec(route[0] ?? table.seat);
+          }
+        }
+        continue;
+      }
+      for (const { definition, room } of this.getStaffedRoomCandidates()) {
+        const slot = this.findFreeRoomSlot(definition.id, room.capacity);
+        if (slot < 0) continue;
+        if (this.assignPatronToRoomFromEntrance(patron, definition, slot)) break;
+      }
+    }
   }
 
   private updatePatrons(delta: number) {
@@ -560,9 +741,16 @@ export class GameEngine {
   }
 
   private updateBartender(delta: number) {
+    this.syncBartenderStaff();
+    if (this.barStaffCount() === 0) {
+      // No one at the bar: force idle, drop any route, never take new orders.
+      if (this.bartender.state !== 'idle') this.setBartenderIdle();
+      return;
+    }
+
     const moving = this.bartender.state.startsWith('to_') || this.bartender.state === 'returning_dirty';
     if (moving) {
-      const speed = 2.15 * (1 + (this.upgrades.moveSpeed - 1) * 0.16);
+      const speed = (2.15 * (1 + (this.upgrades.moveSpeed - 1) * 0.16)) / this.barSpeedFactor();
       if (this.moveAlongRoute(this.bartender, speed, delta)) this.finishBartenderMove();
       return;
     }
@@ -581,6 +769,11 @@ export class GameEngine {
     }
 
     this.chooseBartenderJob();
+  }
+
+  /** Multiplier applied to bar timers/speed; <1 shortens durations with a second worker. */
+  private barSpeedFactor() {
+    return this.barStaffCount() >= 2 ? SECOND_BAR_WORKER_SPEED : 1;
   }
 
   private chooseBartenderJob() {
@@ -629,12 +822,12 @@ export class GameEngine {
         if (!patron || patron.state !== 'waiting_order') return this.setBartenderIdle();
         patron.state = 'ordering';
         this.bartender.state = 'taking_order';
-        this.bartender.timer = 2.15 * 0.83 ** (this.upgrades.orderSpeed - 1);
+        this.bartender.timer = 2.15 * 0.83 ** (this.upgrades.orderSpeed - 1) * this.barSpeedFactor();
         break;
       case 'to_bar':
         this.bartender.target = { x: BAR_STATION.x, z: -3.35 };
         this.bartender.state = 'preparing';
-        this.bartender.timer = 3.35 * 0.82 ** (this.upgrades.prepSpeed - 1);
+        this.bartender.timer = 3.35 * 0.82 ** (this.upgrades.prepSpeed - 1) * this.barSpeedFactor();
         break;
       case 'to_deliver':
         if (!patron || patron.state !== 'waiting_drink') return this.setBartenderIdle();
@@ -649,7 +842,7 @@ export class GameEngine {
       case 'to_cleanup':
         if (!table || !table.dirty || table.occupantId) return this.setBartenderIdle();
         this.bartender.state = 'cleaning';
-        this.bartender.timer = 2.65 * 0.8 ** (this.upgrades.cleanSpeed - 1);
+        this.bartender.timer = 2.65 * 0.8 ** (this.upgrades.cleanSpeed - 1) * this.barSpeedFactor();
         break;
       case 'returning_dirty':
         this.bartender.carryingDirty = false;
@@ -853,10 +1046,11 @@ export class GameEngine {
         outfit: this.bartender.outfit,
         onTable: this.bartender.onTable,
         deliveryProgress: this.bartender.deliveryProgress,
+        staffId: this.bartender.staffId,
       },
       upgrades: { ...this.upgrades },
       rooms: ROOM_DEFINITIONS.map((definition) => {
-        const { timer: _timer, phaseDuration: _phaseDuration, cooldown: _cooldown, guestIds: _guestIds, ...room } = this.rooms[definition.id];
+        const { timer: _timer, phaseDuration: _phaseDuration, cooldown: _cooldown, guestIds: _guestIds, sessionWorkers: _sessionWorkers, ...room } = this.rooms[definition.id];
         const perGuestProfit = getRoomProfit(definition.id, room.upgrades.quality, 1);
         const maxSessionProfit = getRoomProfit(definition.id, room.upgrades.quality, room.capacity);
         return { ...room, perGuestProfit, maxSessionProfit, upgrades: { ...room.upgrades } };
@@ -871,7 +1065,18 @@ export class GameEngine {
       unlockedDrinks: getUnlockedDrinks(this.upgrades.assortment),
       lastEvent: this.lastEvent ? { ...this.lastEvent } : null,
       soundEnabled: this.soundEnabled,
+      roster: STAFF_DEFINITIONS.map((definition): StaffRosterEntry => ({ id: definition.id, hired: this.hiredStaff.has(definition.id) })),
+      venueSlots: this.cloneVenueSlots(),
+      entranceQueue: this.entranceQueueCount(),
     };
+  }
+
+  private cloneVenueSlots(): VenueSlots {
+    const clone = {} as VenueSlots;
+    for (const venue of VENUE_IDS) {
+      clone[venue] = [...this.venueSlots[venue]] as [StaffCharacterId | null, StaffCharacterId | null];
+    }
+    return clone;
   }
 
   private publish() {
@@ -898,6 +1103,8 @@ export class GameEngine {
           upgrades: room.upgrades,
         }];
       })) as SavedProgress['rooms'],
+      hired: [...this.hiredStaff],
+      venueSlots: this.cloneVenueSlots(),
     };
     try {
       this.storage?.setItem(SAVE_KEY, JSON.stringify(progress));
@@ -911,6 +1118,7 @@ export class GameEngine {
       const raw = this.storage?.getItem(SAVE_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw) as Partial<SavedProgress>;
+      const knownStaffIds = new Set(STAFF_DEFINITIONS.map((definition) => definition.id));
       if (typeof saved.coins === 'number' && saved.coins >= 0) this.coins = Math.floor(saved.coins);
       if (typeof saved.reputation === 'number' && saved.reputation >= 0) this.reputation = Math.floor(saved.reputation);
       if (typeof saved.served === 'number' && saved.served >= 0) this.served = Math.floor(saved.served);
@@ -950,8 +1158,46 @@ export class GameEngine {
           room.capacity = getRoomCapacity(definition.id, room.upgrades.capacity);
         }
       }
+      // Legacy saves predate the roster feature: no `hired`/`venueSlots` means
+      // "keep the defaults" (only Christina hired, at bar slot 0).
+      if (Array.isArray(saved.hired)) {
+        const hired = saved.hired.filter((id): id is StaffCharacterId => knownStaffIds.has(id));
+        this.hiredStaff = new Set(hired);
+      }
+      this.hiredStaff.add('christina');
+      if (saved.venueSlots) {
+        const slots = makeDefaultVenueSlots();
+        for (const venue of VENUE_IDS) {
+          const candidate = saved.venueSlots[venue];
+          if (!Array.isArray(candidate)) continue;
+          slots[venue] = [0, 1].map((index) => {
+            const staffId = candidate[index];
+            return typeof staffId === 'string' && knownStaffIds.has(staffId as StaffCharacterId) ? (staffId as StaffCharacterId) : null;
+          }) as [StaffCharacterId | null, StaffCharacterId | null];
+        }
+        this.venueSlots = slots;
+      }
     } catch {
       this.storage?.removeItem(SAVE_KEY);
+    }
+    this.sanitizeVenueSlots();
+    this.syncBartenderStaff();
+  }
+
+  /** Guarantee "one body, one slot": drop unhired or duplicate assignments left over from a corrupt/legacy save. */
+  private sanitizeVenueSlots() {
+    const seen = new Set<StaffCharacterId>();
+    for (const venue of VENUE_IDS) {
+      const slots = this.venueSlots[venue];
+      for (let index = 0; index < slots.length; index += 1) {
+        const staffId = slots[index];
+        if (staffId === null) continue;
+        if (!this.hiredStaff.has(staffId) || seen.has(staffId)) {
+          slots[index] = null;
+        } else {
+          seen.add(staffId);
+        }
+      }
     }
   }
 }

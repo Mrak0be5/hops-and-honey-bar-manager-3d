@@ -16,6 +16,7 @@ export const CUSTOMER_EMOJI: Record<PatronState, { emoji: string; label: string 
   waiting_room: { emoji: '🛎️', label: 'Ждёт сеанс' },
   in_room: { emoji: '🔥', label: 'В комнате услуг' },
   leaving: { emoji: '😊', label: 'Уходит счастливым' },
+  queued_entrance: { emoji: '🧍', label: 'Очередь у входа' },
 };
 
 export const BARTENDER_EMOJI: Record<Bartender['state'], { emoji: string; label: string }> = {

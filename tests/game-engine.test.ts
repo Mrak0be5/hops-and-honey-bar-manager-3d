@@ -3,6 +3,7 @@ import {
   BAR_STATION,
   DAY_BONUS_CAP,
   ENTRANCE,
+  ENTRANCE_QUEUE_CAP,
   ENTRY_AISLE,
   getRoomUpgradeCost,
   SERVICE_GATE,
@@ -12,6 +13,7 @@ import {
   ROOM_DEFINITIONS,
   ROOM_LAYOUTS,
   SHIFT_DURATION,
+  STAFF_DEFINITIONS,
   TABLE_LAYOUT,
   TABLE_RADIUS,
 } from '../src/game/config';
@@ -51,7 +53,8 @@ describe('GameEngine', () => {
     const state = engine.getSnapshot();
     expect(state.served).toBeGreaterThan(0);
     expect(state.coins).toBeGreaterThan(64);
-    expect(state.patrons.length).toBeLessThanOrEqual(6);
+    // Six seated guests plus an entrance queue of overflow guests when tables fill up.
+    expect(state.patrons.length).toBeLessThanOrEqual(6 + ENTRANCE_QUEUE_CAP);
     expect(state.tables.filter((table) => table.occupantId).length).toBeLessThanOrEqual(6);
   });
 
@@ -207,6 +210,9 @@ describe('GameEngine', () => {
     expect(engine.getSnapshot().coins).toBe(5_000 - karaoke.unlockCost);
     expect(engine.getSnapshot().rooms.find((room) => room.id === 'strip')?.staffState).toBe('waiting');
 
+    expect(engine.hireStaff('tigra')).toBe(true);
+    expect(engine.assignStaff('strip', 0, 'tigra')).toBe(true);
+
     engine.start();
     let sawWalkToRoom = false;
     let sawWaitingRoom = false;
@@ -248,6 +254,8 @@ describe('GameEngine', () => {
     expect(engine.purchaseRoom('strip')).toBe(true);
     expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
     expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
+    expect(engine.hireStaff('tigra')).toBe(true);
+    expect(engine.assignStaff('strip', 0, 'tigra')).toBe(true);
     engine.start();
 
     let sawApproachingReservation = false;
@@ -288,6 +296,8 @@ describe('GameEngine', () => {
     const definition = ROOM_DEFINITIONS.find((room) => room.id === 'strip')!;
     expect(engine.purchaseRoom('strip')).toBe(true);
     expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
+    expect(engine.hireStaff('tigra')).toBe(true);
+    expect(engine.assignStaff('strip', 0, 'tigra')).toBe(true);
     engine.start();
 
     let targetSession = 0;
@@ -318,6 +328,8 @@ describe('GameEngine', () => {
     const { engine, storage } = makeFundedEngine();
     expect(engine.purchaseRoomUpgrade('sex', 'quality')).toBe(false);
     expect(engine.purchaseRoom('strip')).toBe(true);
+    expect(engine.hireStaff('tigra')).toBe(true);
+    expect(engine.assignStaff('strip', 0, 'tigra')).toBe(true);
     expect(engine.purchaseRoomUpgrade('strip', 'staffSpeed')).toBe(true);
     expect(engine.purchaseRoomUpgrade('strip', 'capacity')).toBe(true);
     expect(engine.purchaseRoomUpgrade('strip', 'quality')).toBe(true);
@@ -381,5 +393,41 @@ describe('GameEngine', () => {
     expect(state.nextMilestone).not.toBeNull();
     expect(state.nextMilestone!.current).toBeLessThan(state.nextMilestone!.target);
     expect(state.rooms.every((room) => !room.unlocked)).toBe(true);
+  });
+
+  it('hires staff, assigns exclusively, skips bar when empty, and queues at entrance', () => {
+    const { engine } = makeFundedEngine();
+    expect(engine.hireStaff('tigra')).toBe(true);
+    expect(engine.hireStaff('tigra')).toBe(false);
+    expect(engine.assignStaff('strip', 0, 'tigra')).toBe(true);
+    expect(engine.purchaseRoom('strip')).toBe(true);
+    // Same person cannot occupy two slots.
+    expect(engine.assignStaff('bar', 1, 'tigra')).toBe(true);
+    expect(engine.getSnapshot().venueSlots.strip[0]).toBeNull();
+    expect(engine.getSnapshot().venueSlots.bar[1]).toBe('tigra');
+
+    // Clear bar entirely → guests skip to staffed strip.
+    expect(engine.assignStaff('bar', 0, null)).toBe(true);
+    expect(engine.assignStaff('bar', 1, null)).toBe(true);
+    expect(engine.assignStaff('strip', 0, 'tigra')).toBe(true);
+    engine.start();
+    let sawDirectRoom = false;
+    for (let tick = 0; tick < 240; tick += 1) {
+      engine.advance(0.25);
+      const direct = engine.getSnapshot().patrons.filter((patron) =>
+        patron.roomId === 'strip' && patron.barServed && patron.order === null
+        && (patron.state === 'walking_to_room' || patron.state === 'waiting_room' || patron.state === 'in_room'));
+      if (direct.length > 0) {
+        sawDirectRoom = true;
+        break;
+      }
+    }
+    expect(sawDirectRoom).toBe(true);
+
+    // Clear all staff → entrance queue fills.
+    expect(engine.assignStaff('strip', 0, null)).toBe(true);
+    for (let tick = 0; tick < 80; tick += 1) engine.advance(0.25);
+    expect(engine.getSnapshot().entranceQueue).toBeGreaterThan(0);
+    expect(engine.getSnapshot().entranceQueue).toBeLessThanOrEqual(ENTRANCE_QUEUE_CAP);
   });
 });

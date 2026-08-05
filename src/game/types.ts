@@ -11,7 +11,8 @@ export type PatronState =
   | 'walking_to_room'
   | 'waiting_room'
   | 'in_room'
-  | 'leaving';
+  | 'leaving'
+  | 'queued_entrance';
 
 export type BartenderState =
   | 'idle'
@@ -38,12 +39,42 @@ export type UpgradeKey =
 export type Currency = 'coins' | 'reputation';
 
 export type RoomId = 'strip' | 'sex' | 'gangbang';
-export type VenueView = 'bar' | RoomId;
+export type VenueId = 'bar' | RoomId;
+export type VenueView = VenueId;
 export type BartenderOutfit = 'uniform' | 'topless' | 'skirt_up' | 'nude';
 export type RoomUpgradeKey = 'staffSpeed' | 'capacity' | 'quality';
 export type RoomUpgradeLevels = Record<RoomUpgradeKey, number>;
 export type RoomStaffState = 'locked' | 'waiting' | 'welcoming' | 'serving' | 'resetting';
 export type MilestoneMetric = 'served' | 'roomsUnlocked' | 'roomRevenue' | 'day';
+
+export type StaffCharacterId =
+  | 'christina'
+  | 'tigra'
+  | 'winna'
+  | 'krolya'
+  | 'ia'
+  | 'piggy'
+  | 'ru'
+  | 'mama_ru'
+  | 'sova';
+
+export type VenueSlots = Record<VenueId, [StaffCharacterId | null, StaffCharacterId | null]>;
+
+export type StaffDefinition = {
+  id: StaffCharacterId;
+  name: string;
+  hireCost: number;
+  emoji: string;
+  /** Distinct mesh / silhouette key used by the renderer. */
+  mesh: StaffCharacterId;
+  accent: string;
+  blurb: string;
+};
+
+export type StaffRosterEntry = {
+  id: StaffCharacterId;
+  hired: boolean;
+};
 
 export type MilestoneDefinition = {
   id: string;
@@ -107,13 +138,15 @@ export type Bartender = {
   outfit: BartenderOutfit;
   onTable: boolean;
   deliveryProgress: number;
+  /** Active bar worker driving the FSM (slot 0 preferred). */
+  staffId: StaffCharacterId | null;
 };
 
 export type UpgradeLevels = Record<UpgradeKey, number>;
 
 export type GameEvent = {
   id: number;
-  kind: 'payment' | 'reputation' | 'upgrade' | 'day' | 'full' | 'room_income' | 'room_unlock';
+  kind: 'payment' | 'reputation' | 'upgrade' | 'day' | 'full' | 'room_income' | 'room_unlock' | 'hire';
   amount?: number;
   roomId?: RoomId;
   message: string;
@@ -193,6 +226,9 @@ export type GameSnapshot = {
   unlockedDrinks: Drink[];
   lastEvent: GameEvent | null;
   soundEnabled: boolean;
+  roster: StaffRosterEntry[];
+  venueSlots: VenueSlots;
+  entranceQueue: number;
 };
 
 export type UpgradeDefinition = {
