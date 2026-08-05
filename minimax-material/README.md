@@ -83,8 +83,30 @@ mmx video generate \
 
 - Скилл скачан, CLI установлен локально (`~/.local/node_modules/.bin/mmx`).
 - First-frame и промпты подготовлены.
-- **Генерация не запущена:** на этой машине нет MiniMax API key / Google login.
-- Hailuo web (hailuoai.video) открывается, но Create требует OAuth.
-- Private-worker агент «Minimax анимация стойки» упал в ERROR с пустым transcript — доступ к MiniMax на вашем ПК из этого cloud-рана недоступен.
+- **Генерация не запущена:** у cloud-агента нет доступа к вашему Windows-диску и нет MiniMax MCP.
+- У desktop Cursor MiniMax обычно лежит в `C:\Users\<you>\.cursor\mcp.json` (сервер `MiniMax` / `uvx minimax-mcp` + `MINIMAX_API_KEY`). Этот файл **не монтируется** в cloud-ран.
+- Private-worker агенты («Minimax анимация стойки», «Minimax анимация скилла») падали в ERROR с пустым transcript — конфиг с ПК оттуда тоже не восстановить.
 
-Чтобы догенерировать: задайте `MINIMAX_API_KEY` в окружении агента / на ПК и перезапустите `scripts/generate_handstand.sh`, либо залогиньтесь в Hailuo и загрузите `first-frame-standing-white.png` + промпт вручную.
+### Как достать уже установленный MiniMax с ПК
+
+На Windows (PowerShell в репо):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File minimax-material/scripts/find_and_generate.ps1
+```
+
+Скрипт читает и маскирует ключи из:
+
+- `%USERPROFILE%\.cursor\mcp.json`
+- `%USERPROFILE%\.mmx\config.json`
+- User/Machine env `MINIMAX_API_KEY`
+- MiniMax Hub / `uvx` / `mmx` на PATH
+
+Потом:
+
+```powershell
+mmx auth login --api-key $env:MINIMAX_API_KEY
+bash minimax-material/scripts/generate_handstand.sh
+```
+
+Либо перезапустите задачу как **private worker / local agent** (он видит ваш `mcp.json`), либо вставьте `MINIMAX_API_KEY` в secrets окружения cloud-агента.
