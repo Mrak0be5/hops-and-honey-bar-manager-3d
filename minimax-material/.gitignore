@@ -1,3 +1,2 @@
-output/*.mp4
-output/*.webm
-!.gitkeep
+output/*
+!output/.gitkeep
