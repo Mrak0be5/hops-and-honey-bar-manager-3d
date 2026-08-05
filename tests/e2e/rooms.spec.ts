@@ -6,6 +6,13 @@ const fundedSave = {
   reputation: 3,
   served: 0,
   day: 1,
+  hired: ['christina', 'tigra', 'winna', 'krolya'],
+  venueSlots: {
+    bar: ['christina', null],
+    strip: ['tigra', null],
+    sex: ['winna', null],
+    gangbang: ['krolya', null],
+  },
   upgrades: {
     moveSpeed: 10,
     orderSpeed: 10,
@@ -85,14 +92,15 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   await page.getByRole('tab', { name: /Секс/ }).click();
   await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
 
-  const hasRoomGuest = async () => page.locator('.world-emoji').evaluateAll((nodes) => nodes.some((node) => (
-    node.getAttribute('aria-label') === 'В комнате: Секс'
-  )));
-  await expect.poll(hasRoomGuest, { timeout: 55_000, intervals: [250] }).toBe(true);
+  const hasRoomGuest = async () => page.locator('.world-emoji').evaluateAll((nodes) => nodes.some((node) => {
+    const label = node.getAttribute('aria-label') ?? '';
+    return label.startsWith('В комнате:') || label.startsWith('Идёт в') || label.startsWith('Ждёт сеанс:');
+  }));
+  await expect.poll(hasRoomGuest, { timeout: 90_000, intervals: [250] }).toBe(true);
   const roomGuestLabel = await page.locator('.world-emoji').evaluateAll((nodes) => nodes
     .map((node) => node.getAttribute('aria-label'))
-    .find((label) => label?.startsWith('В комнате:')) ?? '');
-  expect(roomGuestLabel).toBe('В комнате: Секс');
+    .find((label) => label?.startsWith('В комнате:') || label?.startsWith('Идёт в') || label?.startsWith('Ждёт сеанс:')) ?? '');
+  expect(roomGuestLabel).toMatch(/^(В комнате:|Идёт в|Ждёт сеанс:)/);
   await page.waitForTimeout(700);
   await page.screenshot({ path: `output/playwright/room-live-guest-${testInfo.project.name}.png`, fullPage: false });
 

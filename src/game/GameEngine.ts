@@ -277,14 +277,41 @@ export class GameEngine {
     this.coins -= definition.hireCost;
     this.hiredStaff.add(id);
     this.pushEvent('hire', `${definition.emoji} ${definition.name} нанята!`);
+    this.autoAssignFirstEmptySlot(id);
     this.persist();
     this.publish();
     return true;
   };
 
+  private autoAssignFirstEmptySlot(staffId: StaffCharacterId) {
+    if (this.venueSlots.bar[0] === null && this.venueSlots.bar[1] === null) {
+      this.assignStaff('bar', 0, staffId);
+      return;
+    }
+    for (const definition of ROOM_DEFINITIONS) {
+      const room = this.rooms[definition.id];
+      if (room?.unlocked) {
+        const slots = this.venueSlots[definition.id];
+        if (slots[0] === null) {
+          this.assignStaff(definition.id, 0, staffId);
+          return;
+        }
+        if (slots[1] === null) {
+          this.assignStaff(definition.id, 1, staffId);
+          return;
+        }
+      }
+    }
+    if (this.venueSlots.bar[1] === null) {
+      this.assignStaff('bar', 1, staffId);
+      return;
+    }
+  }
+
   /** Assign (or clear with `null`) a hired character into a venue slot; unassigns her from any other slot first. */
   assignStaff = (venue: VenueId, slotIndex: 0 | 1, staffId: StaffCharacterId | null): boolean => {
     if (staffId !== null && !this.hiredStaff.has(staffId)) return false;
+    const barHadStaff = this.barStaffCount() > 0;
     if (staffId !== null) {
       for (const otherVenue of VENUE_IDS) {
         const slots = this.venueSlots[otherVenue];
@@ -297,6 +324,7 @@ export class GameEngine {
     }
     this.venueSlots[venue][slotIndex] = staffId;
     this.syncBartenderStaff();
+    if (barHadStaff && this.barStaffCount() === 0) this.evacuateBarPatrons();
     this.persist();
     this.publish();
     return true;
@@ -316,6 +344,46 @@ export class GameEngine {
 
   private syncBartenderStaff() {
     this.bartender.staffId = this.barStaffCount() > 0 ? this.getPrimaryBarStaff() : null;
+  }
+
+  /**
+   * When the bar loses its last worker, release seated guests so they are not stuck
+   * waiting for drinks forever — send them to a staffed room or out the door.
+   */
+  private evacuateBarPatrons() {
+    this.setBartenderIdle();
+    this.bartender.carryingDrink = null;
+    this.bartender.carryingDirty = false;
+    this.bartender.outfit = 'uniform';
+    this.bartender.onTable = false;
+    this.bartender.deliveryProgress = 0;
+    this.bartender.deliveryDuration = 0;
+
+    const barCycle: Patron['state'][] = [
+      'walking_in',
+      'waiting_order',
+      'ordering',
+      'waiting_drink',
+      'drinking',
+      'ready_to_pay',
+      'paying',
+    ];
+    for (const patron of this.patrons) {
+      if (!barCycle.includes(patron.state)) continue;
+      const table = patron.tableId >= 0 ? this.tables[patron.tableId] : null;
+      if (table?.occupantId === patron.id) {
+        table.occupantId = null;
+        // Abandoned mid-service tables stay dirty only if a drink was already delivered.
+        if (patron.state === 'drinking' || patron.state === 'ready_to_pay' || patron.state === 'paying') {
+          table.dirty = true;
+        }
+      }
+      patron.tableId = -1;
+      patron.order = null;
+      patron.barServed = true;
+      patron.route = [];
+      if (!this.trySendPatronToRoom(patron)) this.startPatronExit(patron);
+    }
   }
 
   resetProgress = () => {

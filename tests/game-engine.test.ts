@@ -430,4 +430,32 @@ describe('GameEngine', () => {
     expect(engine.getSnapshot().entranceQueue).toBeGreaterThan(0);
     expect(engine.getSnapshot().entranceQueue).toBeLessThanOrEqual(ENTRANCE_QUEUE_CAP);
   });
+
+  it('evacuates seated bar guests when the last bartender is removed', () => {
+    const { engine } = makeFundedEngine();
+    expect(engine.purchaseRoom('strip')).toBe(true);
+    expect(engine.hireStaff('tigra')).toBe(true);
+    expect(engine.assignStaff('strip', 0, 'tigra')).toBe(true);
+    engine.start();
+    let seated = false;
+    for (let tick = 0; tick < 200; tick += 1) {
+      engine.advance(0.25);
+      if (engine.getSnapshot().patrons.some((patron) => patron.state === 'waiting_order' || patron.state === 'waiting_drink')) {
+        seated = true;
+        break;
+      }
+    }
+    expect(seated).toBe(true);
+    expect(engine.assignStaff('bar', 0, null)).toBe(true);
+    const snapshot = engine.getSnapshot();
+    expect(snapshot.bartender.staffId).toBeNull();
+    expect(snapshot.venueSlots.bar.every((slot) => slot === null)).toBe(true);
+    const stuck = snapshot.patrons.filter((patron) =>
+      patron.state === 'waiting_order'
+      || patron.state === 'waiting_drink'
+      || patron.state === 'ordering'
+      || patron.state === 'drinking'
+      || patron.state === 'ready_to_pay');
+    expect(stuck).toHaveLength(0);
+  });
 });

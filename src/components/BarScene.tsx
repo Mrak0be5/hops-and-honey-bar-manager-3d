@@ -6,7 +6,7 @@ import type { GameEngine } from '../game/GameEngine';
 import type { GameEvent, GameSnapshot, VenueView, Vec2 } from '../game/types';
 import { ROOM_DEFINITIONS, ROOM_LAYOUTS } from '../game/config';
 import { RoomWing } from './RoomWing';
-import { BARTENDER_EMOJI, BartenderCharacter, CUSTOMER_EMOJI, PatronCharacter } from './Character';
+import { BARTENDER_EMOJI, CUSTOMER_EMOJI, PatronCharacter } from './Character';
 import { StaffCharacter } from './StaffCharacter';
 import { BarEnvironment } from './Environment';
 import { BAR_STATION } from '../game/config';
@@ -233,7 +233,7 @@ function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapsho
           label={`Ещё гостей: ${hiddenPatrons}`}
         />
       )}
-      {focus === 'bar' && (
+      {focus === 'bar' && snapshot.bartender.staffId && (
         <StatusMarker
           x={snapshot.bartender.position.x}
           y={2.47}
@@ -510,7 +510,7 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
           ? null
           : <PatronCharacter key={patron.id} patron={patron} />
       ))}
-      {snapshot.bartender.staffId ? (
+      {snapshot.bartender.staffId && (
         <StaffCharacter
           characterId={snapshot.bartender.staffId}
           pose="idle"
@@ -524,8 +524,6 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
                 : 'nude'
           }
         />
-      ) : (
-        <BartenderCharacter bartender={snapshot.bartender} />
       )}
       {snapshot.venueSlots.bar[1] && snapshot.venueSlots.bar[1] !== snapshot.bartender.staffId && (
         <StaffCharacter

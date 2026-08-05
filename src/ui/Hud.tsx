@@ -39,7 +39,21 @@ const ROOM_STAFF_LABELS = {
   welcoming: 'Зазывает гостей',
   serving: 'В деле',
   resetting: 'Наводит порядок',
+  needsStaff: 'Нужен персонал',
 } as const;
+
+function roomWorkerIds(snapshot: GameSnapshot, roomId: RoomId): StaffCharacterId[] {
+  return snapshot.venueSlots[roomId].filter((id): id is StaffCharacterId => id !== null);
+}
+
+function roomStatusLabel(snapshot: GameSnapshot, room: RoomState): string {
+  if (room.staffState === 'locked' || !room.unlocked) return ROOM_STAFF_LABELS.locked;
+  if (roomWorkerIds(snapshot, room.id).length === 0) return ROOM_STAFF_LABELS.needsStaff;
+  if (room.staffState === 'waiting' || room.staffState === 'welcoming' || room.staffState === 'serving' || room.staffState === 'resetting') {
+    return ROOM_STAFF_LABELS[room.staffState];
+  }
+  return ROOM_STAFF_LABELS.waiting;
+}
 
 const BARTENDER_STATUS: Record<BartenderState, { emoji: string; label: string }> = {
   idle: { emoji: '👀', label: 'Смотрит за залом' },
@@ -75,7 +89,16 @@ function findStaffAssignment(snapshot: GameSnapshot, id: StaffCharacterId): stri
     const slot = slots.findIndex((item) => item === id);
     if (slot >= 0) return `${VENUE_TITLE[venue]} · ${slot + 1}`;
   }
-  return 'Резерв';
+  return 'Свободна';
+}
+
+function findStaffLocation(snapshot: GameSnapshot, id: StaffCharacterId): { venue: VenueId; slotIndex: 0 | 1 } | null {
+  for (const venue of Object.keys(snapshot.venueSlots) as VenueId[]) {
+    const slots = snapshot.venueSlots[venue];
+    const index = slots.findIndex((item) => item === id);
+    if (index === 0 || index === 1) return { venue, slotIndex: index };
+  }
+  return null;
 }
 
 function VenueSlotAssigner({
@@ -94,7 +117,10 @@ function VenueSlotAssigner({
   });
   return (
     <div className="staff-slots">
-      <small className="staff-slots-label">Рабочие места · 2 (хватит 1)</small>
+      <small className="staff-slots-label">
+        Рабочие места · 2 (хватит 1)
+        {slots.every(Boolean) ? ' · бонус 2-го: скорость/доход' : ''}
+      </small>
       {([0, 1] as const).map((slotIndex) => {
         const assigned = slots[slotIndex];
         const def = assigned ? getStaffDefinition(assigned) : null;
@@ -142,6 +168,13 @@ function VenueSlotAssigner({
 }
 
 function StaffRosterPanel({ snapshot, engine }: { snapshot: GameSnapshot; engine: GameEngine }) {
+  const availableVenues: { id: VenueId; title: string }[] = [
+    { id: 'bar', title: 'Бар' },
+    ...ROOM_DEFINITIONS
+      .filter((def) => snapshot.rooms.find((r) => r.id === def.id)?.unlocked)
+      .map((def) => ({ id: def.id, title: def.shortName })),
+  ];
+
   return (
     <div className="staff-roster">
       <div className="drink-ribbon">
@@ -154,17 +187,44 @@ function StaffRosterPanel({ snapshot, engine }: { snapshot: GameSnapshot; engine
       <div className="staff-roster-list">
         {STAFF_DEFINITIONS.map((definition) => {
           const entry = snapshot.roster.find((item) => item.id === definition.id)!;
-          const assignment = findStaffAssignment(snapshot, definition.id);
+          const location = findStaffLocation(snapshot, definition.id);
+          const assignmentText = findStaffAssignment(snapshot, definition.id);
           const canHire = !entry.hired && snapshot.coins >= definition.hireCost;
+          const selectedValue = location ? `${location.venue}:${location.slotIndex}` : '';
+
           return (
             <div key={definition.id} className={`staff-roster-card ${entry.hired ? 'is-hired' : ''}`}>
               <span className="staff-roster-emoji">{definition.emoji}</span>
               <span>
                 <b>{definition.name}</b>
-                <small>{entry.hired ? assignment : definition.blurb}</small>
+                <small>{entry.hired ? assignmentText : definition.blurb}</small>
               </span>
               {entry.hired ? (
-                <em className="hired-tag">в штате</em>
+                <select
+                  aria-label={`Место работы для ${definition.name}`}
+                  className="roster-assign-select"
+                  value={selectedValue}
+                  onChange={(event) => {
+                    const val = event.target.value;
+                    gameAudio.unlock();
+                    if (!val) {
+                      if (location) engine.assignStaff(location.venue, location.slotIndex, null);
+                    } else {
+                      const [venue, slotStr] = val.split(':') as [VenueId, string];
+                      const slotIndex = Number.parseInt(slotStr, 10) as 0 | 1;
+                      engine.assignStaff(venue, slotIndex, definition.id);
+                    }
+                    gameAudio.click();
+                  }}
+                >
+                  <option value="">— Свободна —</option>
+                  {availableVenues.map((v) => (
+                    <optgroup key={v.id} label={v.title}>
+                      <option value={`${v.id}:0`}>{v.title} · Слот 1</option>
+                      <option value={`${v.id}:1`}>{v.title} · Слот 2</option>
+                    </optgroup>
+                  ))}
+                </select>
               ) : (
                 <button
                   type="button"
@@ -350,13 +410,17 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
         <em className="open-badge">ОТКРЫТО</em>
       </div>
       <div className="staff-card">
-        <span className={`staff-avatar state-${room.staffState}`}>{definition.icon}</span>
+        <span className={`staff-avatar state-${room.staffState}`}>
+          {roomWorkerIds(snapshot, room.id)[0]
+            ? getStaffDefinition(roomWorkerIds(snapshot, room.id)[0]!).emoji
+            : definition.icon}
+        </span>
         <span>
-          <small>ПЕРСОНАЛ</small>
-          <b>{ROOM_STAFF_LABELS[room.staffState === 'locked' ? 'locked' : room.staffState === 'waiting' || room.staffState === 'welcoming' || room.staffState === 'serving' || room.staffState === 'resetting' ? room.staffState : 'waiting']}</b>
+          <small>ПЕРСОНАЛ{roomWorkerIds(snapshot, room.id).length ? ` · ${roomWorkerIds(snapshot, room.id).map((id) => getStaffDefinition(id).name).join(' + ')}` : ''}</small>
+          <b>{roomStatusLabel(snapshot, room)}</b>
           <i><span style={{ width: `${Math.round(room.progress * 100)}%` }} /></i>
         </span>
-        <strong>{room.guests}/{room.capacity}</strong>
+        <strong>гости {room.guests}/{room.capacity}</strong>
       </div>
       <VenueSlotAssigner venue={room.id} snapshot={snapshot} engine={engine} />
       <div className="room-economy-grid is-live">
@@ -576,7 +640,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
                     snapshot.venueSlots[activeRoom.id].filter(Boolean).map((id) => getStaffDefinition(id!).name).join(' + ')
                     || activeRoomDefinition.staffRole
                   }</small>
-                  <b>{ROOM_STAFF_LABELS[activeRoom.staffState === 'locked' ? 'locked' : activeRoom.staffState === 'waiting' || activeRoom.staffState === 'welcoming' || activeRoom.staffState === 'serving' || activeRoom.staffState === 'resetting' ? activeRoom.staffState : 'waiting']} · {activeRoom.guests}/{activeRoom.capacity}</b>
+                  <b>{roomStatusLabel(snapshot, activeRoom)} · гости {activeRoom.guests}/{activeRoom.capacity}</b>
                 </span>
               </button>
             </>
@@ -599,7 +663,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
               </div>
               <button className="room-pill focus-pill" onClick={() => selectVenue(snapshot.rooms.find((room) => room.unlocked)?.id ?? 'strip')}>
                 <Icon name="customers" />
-                <span><small>КОМПЛЕКС · +{snapshot.roomRevenue} 🪙</small><b>{snapshot.patrons.length}/6 гостей · {snapshot.rooms.filter((room) => room.unlocked).length}/3 комнат</b></span>
+                <span><small>КОМПЛЕКС · +{snapshot.roomRevenue} 🪙</small><b>зал {snapshot.patrons.filter((patron) => patron.state !== 'queued_entrance' && patron.state !== 'leaving').length}/6 · очередь {snapshot.entranceQueue} · {snapshot.rooms.filter((room) => room.unlocked).length}/3 комнат</b></span>
               </button>
             </>
           )}
@@ -630,7 +694,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
           <section className="welcome-card">
             <span className="welcome-kicker">3D БОРДЕЛЬ-МЕНЕДЖЕР</span>
             <h1>Бордель <i>у</i> Кристофера</h1>
-            <p>Откройте зал, развивайте Кристину и комнаты: стрип, секс и оргию. Гости пьют — потом идут в услуги.</p>
+            <p>Нанимай персонал, ставь в бар и комнаты. Без бара гости сразу идут в услуги; без сотрудников — очередь у входа.</p>
             <div className="welcome-loop">
               <span>🙋</span><i>→</i><span>🍸</span><i>→</i><span>🔥</span><i>→</i><span>💃</span><i>→</i><span>💰</span>
             </div>
