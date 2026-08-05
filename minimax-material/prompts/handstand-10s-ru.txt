@@ -1,0 +1,30 @@
+[OUTPUT SPECIFICATION]
+Create a 10-second, 9:16 animation video from the first-frame image. One continuous shot, no cuts. Use case: character animation / motion reference.
+
+[OVERALL LOOK]
+Clean digital illustration / anime-furry style matching the first frame exactly. Bright even studio lighting. Pure plain white background throughout. No set, no floor texture, no shadows except a soft contact shadow. Silent (no dialogue, no music).
+
+[CHARACTER AND SPATIAL CONTINUITY]
+Single character only: anthropomorphic adult female tigress.
+Preserve exactly from the first frame: orange fur with black tiger stripes, white muzzle/chest/belly/inner limbs, short platinum-blonde/silver bob hair, rounded tiger ears, green eyes, pink nose, pink paw pads, black claws, athletic feminine nude body, long striped tiger tail.
+Identity lock: same face, same body proportions, same fur pattern, same hair. No clothing appears. No extra characters, props, text, or labels.
+
+[TWO-LEVEL TIMELINE]
+Shot 1 | 0:00-0:10 | Duration 10s | First-frame image
+Shot and camera: static full-body camera, fixed framing, character centered, leave headroom above for the inverted pose. No zoom, no pan, no tilt.
+Initial state: character stands upright on white background, facing camera, relaxed standing pose matching the first frame.
+
+In-shot micro-timeline:
+- 0:00-0:01.5: Hold the standing pose; subtle idle breathing only; tail hangs naturally.
+- 0:01.5-0:03.5: Preparation: bends forward, plants both hands flat on the invisible white floor, weight shifts onto the hands.
+- 0:03.5-0:06.0: Core action A: kicks up smoothly into a stable handstand (inverted vertical pose). Legs together, body straight, head down toward the floor, feet toward the top of frame. Tail balances for control. Hold briefly.
+- 0:06.0-0:08.5: Core action B: while staying in the handstand, slowly spreads both legs into a wide straddle / V-split in the air. Controlled, athletic motion.
+- 0:08.5-0:10.0: Settle and hold the inverted straddle handstand on white background until the end.
+
+Locked end state: still the same tigress, nude, alone on pure white; balanced handstand with legs spread wide in a straddle; hands on the floor; face inverted; no props.
+
+[STRICT ACTION ORDER]
+stand idle -> plant hands -> kick up to handstand (legs together) -> open legs into straddle while inverted -> hold.
+
+[NEGATIVE CONSTRAINTS]
+No other people or animals. No clothing. No circus set, no props, no dilators, no text overlays, no watermarks, no Russian labels, no multi-panel sheet. No morphing into a different character. No extra limbs. No camera cuts. Background must stay pure white for the full 10 seconds.

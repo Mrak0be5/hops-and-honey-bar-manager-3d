@@ -1,0 +1,12 @@
+Create a 10-second 9:16 video from the first-frame image. Static camera, pure white background, single character only.
+
+The anthropomorphic adult female tigress from the first frame stands alone on a plain white background. Preserve identity exactly: orange fur, black stripes, white underbelly, short platinum bob hair, tiger ears, green eyes, nude athletic body, long striped tail.
+
+Timeline:
+0.0-1.5s: idle standing pose matching the first frame.
+1.5-3.5s: bends down and plants both hands on the white floor.
+3.5-6.0s: kicks up into a clean vertical handstand, legs together, body inverted.
+6.0-8.5s: while inverted, slowly spreads legs into a wide straddle/V-split.
+8.5-10.0s: holds the straddle handstand.
+
+No cuts, no other characters, no props, no text, no clothing, background stays pure white.
