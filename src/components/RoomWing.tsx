@@ -1,19 +1,14 @@
-﻿import { RoundedBox, Sparkles, Text } from '@react-three/drei';
+﻿import { RoundedBox, Sparkles } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { getStaffDefinition, ROOM_LAYOUTS } from '../game/config';
+import { ROOM_LAYOUTS } from '../game/config';
 import type { RoomDefinition, RoomState, StaffCharacterId } from '../game/types';
 import { MaleGuest, RoomActionLabel } from './FurryStaff';
 import { StaffCharacter } from './StaffCharacter';
 
 type RoomActivity = RoomDefinition['id'];
 type StaffPair = [StaffCharacterId | null, StaffCharacterId | null];
-
-function staffLabel(ids: StaffPair, fallback: string) {
-  const names = ids.filter((id): id is StaffCharacterId => id !== null).map((id) => getStaffDefinition(id).name);
-  return names.length > 0 ? names.join(' + ') : fallback;
-}
 
 function RoomPerson({ position, color, active, activity, speedLevel = 1, guest = false, index = 0, rotation = 0 }: {
   position: [number, number, number];
@@ -252,17 +247,7 @@ function StripInterior({ room, definition, staffSlots }: { room: RoomState; defi
         />
       ))}
       {room.staffState === 'serving' && staffSlots.some(Boolean) && (
-        <>
-          <Text position={[0, 2.75, -1.2]} fontSize={0.2} color="#ffb0d8" anchorX="center" outlineWidth={0.012} outlineColor="#2a1020">
-            {`${staffLabel(staffSlots, 'Персонал')} · стриптиз`}
-          </Text>
-          <RoomActionLabel text="strip" position={[0, 2.45, -1.2]} />
-        </>
-      )}
-      {room.staffState === 'welcoming' && staffSlots.some(Boolean) && (
-        <Text position={[0, 2.55, -1.2]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          {`${staffLabel(staffSlots, 'Персонал')} зазывает`}
-        </Text>
+        <RoomActionLabel text="strip" position={[0, 2.45, -1.2]} />
       )}
       {/* Гости смотрят шоу */}
       {loungeSeats.map((x, index) => (
@@ -358,7 +343,7 @@ function SexInterior({ room, definition, occupiedSlots, staffSlots }: { room: Ro
           pose={room.staffState === 'serving' ? 'sex_cowgirl' : 'idle'}
           active={room.staffState === 'serving'}
           speedLevel={room.upgrades.staffSpeed}
-          position={[-0.15, room.staffState === 'serving' ? 0.72 : 0.55, -1.2]}
+          position={[-0.15, room.staffState === 'serving' ? 0.72 : 0.05, room.staffState === 'serving' ? -1.2 : 0.35]}
           rotation={0}
           scale={1.02}
           outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
@@ -370,21 +355,11 @@ function SexInterior({ room, definition, occupiedSlots, staffSlots }: { room: Ro
           pose={room.staffState === 'serving' ? 'sex_missionary' : 'idle'}
           active={room.staffState === 'serving'}
           speedLevel={room.upgrades.staffSpeed}
-          position={[1.35, room.staffState === 'serving' ? 0.7 : 0.55, -1.0]}
+          position={[1.35, room.staffState === 'serving' ? 0.7 : 0.05, room.staffState === 'serving' ? -1.0 : 0.35]}
           rotation={-0.4}
           scale={0.98}
           outfit={room.staffState === 'serving' ? 'nude' : 'dressed'}
         />
-      )}
-      {room.staffState === 'serving' && staffSlots.some(Boolean) && (
-        <Text position={[0, 2.55, -1.1]} fontSize={0.2} color="#ffc0d8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          {`${staffLabel(staffSlots, 'Персонал')} · секс`}
-        </Text>
-      )}
-      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && staffSlots.some(Boolean) && (
-        <Text position={[0, 2.4, -1.0]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          {room.staffState === 'welcoming' ? `${staffLabel(staffSlots, 'Персонал')} встречает` : `${staffLabel(staffSlots, 'Персонал')} ждёт`}
-        </Text>
       )}
       {room.staffState === 'serving' && occupiedSlots.slice(1).map((slot, index) => {
         const spot = localGuestSpots[slot];
@@ -496,14 +471,7 @@ function GangbangInterior({ room, definition, occupiedSlots, staffSlots }: { roo
         />
       ))}
       {room.staffState === 'serving' && staffSlots.some(Boolean) && (
-        <Text position={[0, 2.7, 0.2]} fontSize={0.2} color="#ff9bb0" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          {`${staffLabel(staffSlots, 'Персонал')} · оргия`}
-        </Text>
-      )}
-      {(room.staffState === 'waiting' || room.staffState === 'welcoming') && staffSlots.some(Boolean) && (
-        <Text position={[0, 2.4, 0.2]} fontSize={0.18} color="#ffd0e8" anchorX="center" outlineWidth={0.01} outlineColor="#2a1020">
-          {room.staffState === 'welcoming' ? `${staffLabel(staffSlots, 'Персонал')} собирает` : `${staffLabel(staffSlots, 'Персонал')} ждёт`}
-        </Text>
+        <RoomActionLabel text="gangbang" position={[0, 2.45, 0.2]} />
       )}
       {[-3.1, 3.1].map((x) => <group key={x} position={[x, 0, -2.45]}><mesh position={[0, 0.32, 0]}><cylinderGeometry args={[0.28, 0.34, 0.58, 12]} /><meshStandardMaterial color="#8b2445" /></mesh><mesh position={[0, 0.86, 0]}><sphereGeometry args={[0.42, 10, 8]} /><meshStandardMaterial color="#8c1d42" emissive="#551022" emissiveIntensity={0.22} /></mesh></group>)}
       <RoundedBox args={[2.2, 0.78, 0.62]} radius={0.1} smoothness={3} position={[0, 0.42, -2.8]} castShadow><meshStandardMaterial color="#54162e" roughness={0.85} /></RoundedBox>

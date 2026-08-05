@@ -19,15 +19,15 @@ const MESH_BASE: Record<StaffCharacterId, { species: FurrySpecies; scale: number
 
 /** Extra tint overrides so each of 9 reads unique even when sharing a base mesh family. */
 const TINT: Record<StaffCharacterId, string> = {
-  christina: '#f2b8c8',
-  tigra: '#e88828',
-  winna: '#c99255',
-  krolya: '#e8c8a0',
-  ia: '#6b7a8a',
-  piggy: '#f2a0b0',
-  ru: '#d4956a',
+  christina: '#ff5fa0',
+  tigra: '#ff7a1a',
+  winna: '#d9922e',
+  krolya: '#f0c090',
+  ia: '#7d8a9c',
+  piggy: '#ff8fa8',
+  ru: '#e0a060',
   mama_ru: '#c87848',
-  sova: '#b8a878',
+  sova: '#c8b878',
 };
 
 /**
@@ -146,6 +146,11 @@ export function StaffCharacter({
           </mesh>
         )}
       </group>
+      {/* Colored waist sash — a quick per-character identity cue shared by all bases */}
+      <mesh position={[0, 1.06, 0.02]} castShadow>
+        <torusGeometry args={[0.27, 0.05, 8, 18]} />
+        <meshStandardMaterial color={TINT[characterId]} roughness={0.55} emissive={TINT[characterId]} emissiveIntensity={0.18} />
+      </mesh>
       {/* Soft identity glow tint */}
       <pointLight intensity={0.35} distance={2.2} color={TINT[characterId]} position={[0, 1.4, 0.4]} />
     </group>

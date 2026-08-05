@@ -138,7 +138,7 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
   await expect(panel).toHaveClass(/is-open/);
   await expect(panel).toBeVisible();
   await expect(page.getByRole('button', { name: 'Закрыть улучшения' })).toBeVisible();
-  await expect(panel.locator('.milestone-card')).toContainText('СЛЕДУЮЩАЯ ЦЕЛЬ');
+  await expect(panel.locator('.milestone-card')).toContainText('ВЕХА');
   expect(audioWarnings).toEqual([]);
   await page.goto('about:blank', { waitUntil: 'commit', timeout: 5_000 });
 });
