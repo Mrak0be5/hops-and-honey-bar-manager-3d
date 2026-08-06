@@ -44,10 +44,21 @@ echo "Auth status:"
   exit 1
 }
 
+REF_ARGS=()
+# Optional identity/anatomy sheet — NEVER use as --image first-frame.
+if [[ -n "${REF_IMAGE:-}" && -f "${REF_IMAGE}" ]]; then
+  REF_ARGS+=(--reference-image "$REF_IMAGE")
+  echo "Reference: $REF_IMAGE"
+elif [[ -f "$ROOT/frames/tigra_sheet_with_dilator.png" ]]; then
+  REF_ARGS+=(--reference-image "$ROOT/frames/tigra_sheet_with_dilator.png")
+  echo "Reference: $ROOT/frames/tigra_sheet_with_dilator.png"
+fi
+
 "$MMX" video generate \
   --model MiniMax-H3 \
   --prompt "$PROMPT" \
   --image "$FRAME" \
+  "${REF_ARGS[@]}" \
   --duration "$DURATION" \
   --ratio "$RATIO" \
   --download "$OUT" \

@@ -45,15 +45,23 @@ MiniMax плохо ест multi-panel reference sheet. Нужен **один п�
 
 Действие: стоит → руки на пол → стойка на руках (ноги вместе) → разводит ноги в шпагат/straddle → hold.
 
-### Вариант: блогер + стойка + close-up (18+)
+### Вариант: блогер + стойка + close-up + расширитель (18+)
 
-- `prompts/handstand-blogger-closeup-10s.txt` — полный storyboard
+- `prompts/handstand-blogger-closeup-10s.txt` — полный storyboard (прозрачный dilator в кадре с момента поворота)
 - `prompts/handstand-blogger-closeup-short.txt` — короткий вариант
 - `scripts/generate_blogger_closeup.sh` — генерация этого варианта
+- `scripts/prepare_first_frame.py` — сборка 9:16 first-frame с headroom
+- `frames/DROP_SHEET_HERE.md` — куда положить шит «Анус с расширителем»
 
-Действие: лицом к камере (блогер) → поворот спиной → руки на пол → стойка жопой к камере → реплика «Полюбуйтесь моей жопой» → разводит ноги → зум камеры к анусу.
+Действие: лицом к камере (блогер) → поворот спиной (виден dilator) → руки на пол → стойка жопой к камере → реплика «Полюбуйтесь моей жопой» → разводит ноги → зум к анусу с расширителем.
 
 ```bash
+# 1) first-frame (solo на белом) — уже лежит first-frame-standing-white.png
+python3 minimax-material/scripts/prepare_first_frame.py
+
+# 2) опционально: дропните шит как frames/tigra_sheet_with_dilator.png (reference-image)
+
+# 3) генерация
 chmod +x minimax-material/scripts/generate_blogger_closeup.sh
 ./minimax-material/scripts/generate_blogger_closeup.sh
 ```
