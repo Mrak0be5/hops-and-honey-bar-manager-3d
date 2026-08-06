@@ -11,7 +11,7 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
     if (message.type() === 'error') runtimeErrors.push(message.text());
   });
 
-  await page.goto('/?legacy=1');
+  await page.goto('/');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
 
   const canvas = page.locator('canvas.presentation-canvas');

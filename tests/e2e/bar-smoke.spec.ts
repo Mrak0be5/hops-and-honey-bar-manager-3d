@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('opens the bar and exposes the full upgrade surface', async ({ page }) => {
-  await page.goto('/?legacy=1');
+  await page.goto('/');
   await expect(page.getByRole('heading', { name: /Хмель/ })).toBeVisible();
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   await expect(page.locator('.bottom-status')).toBeVisible();
@@ -15,7 +15,7 @@ test('opens the bar and exposes the full upgrade surface', async ({ page }) => {
 });
 
 test('fits the mobile viewport without horizontal document overflow', async ({ page }) => {
-  await page.goto('/?legacy=1');
+  await page.goto('/');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   const sizes = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
   expect(sizes.scroll).toBeLessThanOrEqual(sizes.client);
@@ -23,7 +23,7 @@ test('fits the mobile viewport without horizontal document overflow', async ({ p
 
 test('keeps hidden controls out of the welcome-screen tab order', async ({ page }) => {
   await page.setViewportSize({ width: 412, height: 915 });
-  await page.goto('/?legacy=1');
+  await page.goto('/');
   const startButton = page.getByRole('button', { name: 'Открыть бар' });
   await page.keyboard.press('Tab');
   await expect(startButton).toBeFocused();
@@ -31,7 +31,7 @@ test('keeps hidden controls out of the welcome-screen tab order', async ({ page 
 
 test('keeps sound available and collapsed upgrades inert on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/?legacy=1');
+  await page.goto('/');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   await expect(page.getByRole('button', { name: /звук/i })).toBeVisible();
   await expect(page.locator('.upgrade-panel')).toHaveAttribute('inert', '');
@@ -46,7 +46,7 @@ test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({
     { width: 430, height: 932 },
   ]) {
     await page.setViewportSize(viewport);
-    await page.goto('/?legacy=1');
+    await page.goto('/');
     await page.getByRole('button', { name: 'Открыть бар' }).click();
 
     const dock = page.locator('.control-strip');
@@ -91,7 +91,7 @@ test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({
 
 test('fits the welcome card in a landscape phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 844, height: 390 });
-  await page.goto('/?legacy=1');
+  await page.goto('/');
   const card = page.locator('.welcome-card');
   await expect(card).toBeVisible();
   const bounds = await card.boundingBox();
