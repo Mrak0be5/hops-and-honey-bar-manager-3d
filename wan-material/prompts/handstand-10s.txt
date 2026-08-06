@@ -1,0 +1,27 @@
+[OUTPUT SPECIFICATION]
+Create a 10-second, 9:16 animation video from the first-frame image. One continuous shot, no cuts. Character animation / motion reference. Aspect ratio follows the first frame.
+
+[OVERALL LOOK]
+Clean digital illustration / anime-furry style matching the first frame exactly. Bright even studio lighting. Pure plain white background throughout. No set, no floor texture, no shadows except a soft contact shadow. Prefer silence or only subtle motion foley — no dialogue, no music.
+
+[CHARACTER AND SPATIAL CONTINUITY]
+Single character only: anthropomorphic adult female tigress (18+).
+Preserve exactly from the first frame: orange fur with black tiger stripes, white muzzle/chest/belly/inner limbs, short platinum-blonde/silver bob hair, rounded tiger ears, green eyes, pink nose, pink paw pads, black claws, athletic feminine nude body, long striped tiger tail.
+Identity lock: same face, same body proportions, same fur pattern, same hair. No clothing. No extra characters, props, text, or labels.
+
+[TWO-LEVEL TIMELINE]
+Shot 1 | 0:00-0:10 | Duration 10s | First-frame image
+Camera: static full-body framing, character centered, leave headroom above for the inverted pose. No zoom, no pan, no tilt.
+Initial state: character stands upright on white background, facing camera, relaxed standing pose matching the first frame.
+
+In-shot micro-timeline:
+- 0:00-0:01.5: Hold the standing pose; subtle idle breathing only; tail hangs naturally.
+- 0:01.5-0:03.5: Bends forward, plants both hands flat on the white floor, weight shifts onto the hands.
+- 0:03.5-0:06.0: Kicks up smoothly into a stable handstand. Legs together, body straight, head down, feet toward the top of frame. Tail balances. Hold briefly.
+- 0:06.0-0:08.5: While staying in the handstand, slowly spreads both legs into a wide straddle / V-split. Controlled athletic motion.
+- 0:08.5-0:10.0: Settle and hold the inverted straddle handstand on white background until the end.
+
+Locked end state: same nude adult tigress alone on pure white; balanced handstand with legs spread wide in a straddle; hands on the floor; face inverted; no props.
+
+[STRICT ACTION ORDER]
+stand idle -> plant hands -> kick up to handstand (legs together) -> open legs into straddle while inverted -> hold.
