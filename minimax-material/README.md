@@ -45,6 +45,29 @@ MiniMax плохо ест multi-panel reference sheet. Нужен **один п�
 
 Действие: стоит → руки на пол → стойка на руках (ноги вместе) → разводит ноги в шпагат/straddle → hold.
 
+### Вариант: городская улица + блогер + стойка 20с (18+)
+
+Промпт пользователя (crowded city street → handstand → «Полюбуйтесь моей жопой» → зум к анусу с dilator).
+
+| Файл | Назначение |
+|------|------------|
+| `prompts/handstand-city-blogger-20s.txt` | полный 20с storyboard для **локального ComfyUI** |
+| `prompts/handstand-city-blogger-15s-h3.txt` | сжатый вариант (H3 API max **15с**) |
+| `prompts/handstand-city-blogger-user-short.txt` | короткий EN prompt |
+| `scripts/inspect_and_run_city_blogger_20s.py` | очередь в ComfyUI `127.0.0.1:8188` на 20с |
+| `scripts/generate_city_blogger_15s.sh` | cloud `mmx` MiniMax-H3 (≤15с) |
+
+```powershell
+# На ПК: ComfyUI через Stability Matrix уже на :8188
+cd C:\Users\hebp\OneDrive\Desktop\manager\hops-and-honey-bar-manager-3d
+python minimax-material\scripts\inspect_and_run_city_blogger_20s.py
+```
+
+```bash
+# Cloud mmx (нужен MINIMAX_API_KEY), только 15с:
+./minimax-material/scripts/generate_city_blogger_15s.sh
+```
+
 ### Вариант: блогер + стойка + close-up + расширитель (18+)
 
 - `prompts/handstand-blogger-closeup-10s.txt` — полный storyboard (прозрачный dilator в кадре с момента поворота)
