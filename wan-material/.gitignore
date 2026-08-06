@@ -1,3 +1,6 @@
 output/*
 !output/.gitkeep
+!output/.gitkeep
 frames/crops/
+*.mp4
+*.task.json
