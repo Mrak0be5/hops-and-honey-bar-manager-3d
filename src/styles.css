@@ -545,14 +545,18 @@ button {
   right: 5px;
   width: 7px;
   height: 7px;
-  background: #ee6a5b;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 99px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  box-shadow: none;
+  opacity: 0.85;
 }
 
 .venue-tabs button > i.is-open {
   background: #62e49a;
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  opacity: 1;
 }
 
 .venue-tabs button:hover,
@@ -1490,6 +1494,39 @@ button {
   font-size: 11px;
 }
 
+.hire-cta-button {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 2px 0;
+  padding: 8px 12px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 900;
+  background: linear-gradient(145deg, #ffe08a, #ffb84d);
+  border: 2px solid rgba(255, 245, 215, 0.9);
+  border-radius: 14px;
+  box-shadow: 0 3px 0 #a95337;
+  cursor: pointer;
+}
+
+.hire-cta-button:hover,
+.hire-cta-button:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.staff-empty-hint {
+  display: block;
+  margin: 0;
+  color: rgba(255, 236, 196, 0.88);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .staff-slot-row {
   display: grid;
   grid-template-columns: 64px 1fr auto;
@@ -2308,8 +2345,11 @@ button {
   }
 
   .hud.is-development-open .event-toast {
-    bottom: calc(88px + env(safe-area-inset-bottom) + min(62dvh, 520px));
+    bottom: calc(88px + env(safe-area-inset-bottom) + min(48dvh, 420px));
   }
+
+  .currency-value-full { display: none; }
+  .currency-value-compact { display: inline; }
 
   .control-strip {
     position: fixed;
@@ -2414,8 +2454,8 @@ button {
     bottom: calc(80px + env(safe-area-inset-bottom));
     left: max(6px, env(safe-area-inset-left));
     width: auto;
-    height: min(68dvh, 620px);
-    max-height: calc(100dvh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    height: min(48dvh, 440px);
+    max-height: calc(100dvh - 168px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     padding: 9px 11px 11px;
     scroll-padding-bottom: max(10px, env(safe-area-inset-bottom));
     border-radius: 26px 26px 18px 18px;
@@ -2428,11 +2468,17 @@ button {
   }
 
   .upgrade-panel.is-room-view {
-    height: min(68dvh, 620px);
+    height: min(50dvh, 460px);
   }
 
   .staff-panel {
-    height: min(72dvh, 640px);
+    height: min(54dvh, 500px);
+  }
+
+  .hire-cta-button {
+    min-height: 44px;
+    margin: 6px 0 8px;
+    padding: 10px 12px;
   }
 
   .panel-sticky-header {
@@ -2759,8 +2805,6 @@ button {
     text-overflow: clip;
   }
 
-  .currency-value-full { display: none; }
-  .currency-value-compact { display: inline; }
 }
 
 @media (max-width: 380px) and (max-height: 760px) and (orientation: portrait) {
@@ -2768,7 +2812,7 @@ button {
   .currency-strip { height: 54px; }
   .currency-chip { height: 44px; }
   .brand-copy small { display: none; }
-  .upgrade-panel { height: 66dvh; }
+  .upgrade-panel { height: min(50dvh, 420px); }
   .welcome-card p { margin-top: 8px; margin-bottom: 10px; }
   .welcome-loop { margin-bottom: 11px; }
 }

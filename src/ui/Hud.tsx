@@ -188,16 +188,20 @@ function VenueSlotAssigner({
   venue,
   snapshot,
   engine,
+  onOpenStaff,
 }: {
   venue: VenueId;
   snapshot: GameSnapshot;
   engine: GameEngine;
+  onOpenStaff?: () => void;
 }) {
   const slots = snapshot.venueSlots[venue];
   const freeHired = snapshot.roster.filter((entry) => {
     if (!entry.hired) return false;
     return !Object.values(snapshot.venueSlots).some((pair) => pair.includes(entry.id));
   });
+  const hiredCount = snapshot.roster.filter((entry) => entry.hired).length;
+  const needsHire = freeHired.length === 0 && slots.some((id) => id === null);
   const bothFilled = Boolean(slots[0]) && Boolean(slots[1]);
   const secondSlotEmpty = Boolean(slots[0]) && !slots[1];
   return (
@@ -206,6 +210,26 @@ function VenueSlotAssigner({
         Рабочие места · 2 (хватит 1)
         {bothFilled ? ' · бонус 2-го активен: скорость/доход' : secondSlotEmpty ? ' · +2-й работник = ×1.5 доход' : ''}
       </small>
+      {needsHire && onOpenStaff && (
+        <>
+          <button
+            type="button"
+            className="hire-cta-button"
+            onClick={() => {
+              gameAudio.unlock();
+              gameAudio.click();
+              onOpenStaff();
+            }}
+          >
+            {hiredCount === 0 ? '💋 Нанять в Штате' : '💋 Освободить / нанять в Штате'}
+          </button>
+          <small className="staff-empty-hint">
+            {hiredCount === 0
+              ? 'Слоты пустые: сначала найми кого-то во вкладке Штат, потом назначь сюда.'
+              : 'Свободных нет — все уже заняты. Открой Штат и переставь или найми ещё.'}
+          </small>
+        </>
+      )}
       {([0, 1] as const).map((slotIndex) => {
         const assigned = slots[slotIndex];
         const def = assigned ? getStaffDefinition(assigned) : null;
@@ -466,7 +490,17 @@ function UpgradeCard({ definition, snapshot, engine }: { definition: UpgradeDefi
   );
 }
 
-function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot: GameSnapshot; engine: GameEngine }) {
+function RoomDevelopment({
+  room,
+  snapshot,
+  engine,
+  onOpenStaff,
+}: {
+  room: RoomState;
+  snapshot: GameSnapshot;
+  engine: GameEngine;
+  onOpenStaff?: () => void;
+}) {
   const definition = getRoomDefinition(room.id);
   const clickPurchase = () => {
     gameAudio.unlock();
@@ -528,7 +562,7 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
         </span>
         <strong>гости {roomArrivedCount(snapshot, room.id)}/{room.capacity}</strong>
       </div>
-      <VenueSlotAssigner venue={room.id} snapshot={snapshot} engine={engine} />
+      <VenueSlotAssigner venue={room.id} snapshot={snapshot} engine={engine} onOpenStaff={onOpenStaff} />
       {(roomWorkerIds(snapshot, room.id).length > 0) && (
         <button
           type="button"
@@ -788,7 +822,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onShe
         <MilestoneCard snapshot={snapshot} />
         {venueView === 'bar' ? (
           <>
-            <VenueSlotAssigner venue="bar" snapshot={snapshot} engine={engine} />
+            <VenueSlotAssigner venue="bar" snapshot={snapshot} engine={engine} onOpenStaff={() => onSheetMode('staff')} />
             <div className="drink-ribbon">
               <Icon name="assortment" />
               <span>
@@ -802,7 +836,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onShe
               ))}
             </div>
           </>
-        ) : activeRoom ? <RoomDevelopment room={activeRoom} snapshot={snapshot} engine={engine} /> : null}
+        ) : activeRoom ? <RoomDevelopment room={activeRoom} snapshot={snapshot} engine={engine} onOpenStaff={() => onSheetMode('staff')} /> : null}
         {import.meta.env.DEV && (
         <div className="cheat-row">
           <button
