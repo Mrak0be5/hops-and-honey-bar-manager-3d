@@ -1,18 +1,42 @@
 ﻿import { useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { getRoomCapacityMaxLevel, getRoomDefinition, getRoomUpgradeCost, getStaffDefinition, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, STAFF_DEFINITIONS, UPGRADE_DEFS } from '../game/config';
+import {
+  getRoomCapacity,
+  getRoomCapacityMaxLevel,
+  getRoomDefinition,
+  getRoomProfit,
+  getRoomUpgradeCost,
+  getStaffDefinition,
+  getUpgradeCost,
+  ROOM_DEFINITIONS,
+  ROOM_UPGRADE_DEFS,
+  STAFF_DEFINITIONS,
+  UPGRADE_DEFS,
+} from '../game/config';
 import type { GameEngine } from '../game/GameEngine';
 import { gameAudio } from '../game/audio';
-import type { BartenderState, GameSnapshot, RoomId, RoomState, RoomUpgradeKey, StaffCharacterId, UpgradeDefinition, VenueId, VenueView } from '../game/types';
+import type {
+  BartenderState,
+  GameSnapshot,
+  RoomId,
+  RoomState,
+  RoomUpgradeKey,
+  StaffCharacterId,
+  UpgradeDefinition,
+  VenueId,
+  VenueView,
+} from '../game/types';
 import { Icon } from './Icon';
+
+export type SheetMode = null | 'manage' | 'staff';
 
 type Props = {
   engine: GameEngine;
   snapshot: GameSnapshot;
   venueView: VenueView;
   onVenueView: (view: VenueView) => void;
-  upgradesOpen: boolean;
-  onUpgradesOpen: (open: boolean) => void;
+  sheetMode: SheetMode;
+  onSheetMode: (mode: SheetMode) => void;
 };
 
 const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; description: string; icon: string }>> = {
@@ -46,7 +70,6 @@ function roomWorkerIds(snapshot: GameSnapshot, roomId: RoomId): StaffCharacterId
   return snapshot.venueSlots[roomId].filter((id): id is StaffCharacterId => id !== null);
 }
 
-/** Guests physically in the room: walking in, waiting for the session, or mid-session. */
 function roomArrivedCount(snapshot: GameSnapshot, roomId: RoomId): number {
   return snapshot.patrons.filter((patron) => patron.roomId === roomId
     && (patron.state === 'walking_to_room' || patron.state === 'waiting_room' || patron.state === 'in_room')).length;
@@ -103,6 +126,60 @@ function findStaffLocation(snapshot: GameSnapshot, id: StaffCharacterId): { venu
     const slots = snapshot.venueSlots[venue];
     const index = slots.findIndex((item) => item === id);
     if (index === 0 || index === 1) return { venue, slotIndex: index };
+  }
+  return null;
+}
+
+function barHasAffordableUpgrade(snapshot: GameSnapshot): boolean {
+  return UPGRADE_DEFS.some((definition) => {
+    const level = snapshot.upgrades[definition.key];
+    if (level >= definition.maxLevel) return false;
+    const cost = getUpgradeCost(definition, level);
+    const balance = definition.currency === 'coins' ? snapshot.coins : snapshot.reputation;
+    return balance >= cost;
+  });
+}
+
+function roomHasAffordableAction(snapshot: GameSnapshot, room: RoomState): boolean {
+  const definition = getRoomDefinition(room.id);
+  if (!room.unlocked) return snapshot.coins >= definition.unlockCost;
+  return ROOM_UPGRADE_DEFS.some((upgrade) => {
+    const level = room.upgrades[upgrade.key];
+    const maxLevel = upgrade.key === 'capacity' ? getRoomCapacityMaxLevel(room.id) : upgrade.maxLevel;
+    if (level >= maxLevel) return false;
+    return snapshot.coins >= getRoomUpgradeCost(room.id, upgrade.key, level);
+  });
+}
+
+function anyManageAffordance(snapshot: GameSnapshot): boolean {
+  if (barHasAffordableUpgrade(snapshot)) return true;
+  return snapshot.rooms.some((room) => roomHasAffordableAction(snapshot, room));
+}
+
+function roomUpgradeProgress(room: RoomState): number {
+  if (!room.unlocked) return 0;
+  let current = 0;
+  let total = 0;
+  for (const upgrade of ROOM_UPGRADE_DEFS) {
+    const maxLevel = upgrade.key === 'capacity' ? getRoomCapacityMaxLevel(room.id) : upgrade.maxLevel;
+    total += maxLevel;
+    current += Math.min(room.upgrades[upgrade.key], maxLevel);
+  }
+  return total > 0 ? current / total : 0;
+}
+
+function roomUpgradeDelta(room: RoomState, key: RoomUpgradeKey): { current: number; next: number; unit: string } | null {
+  const quality = room.upgrades.quality;
+  const capacity = getRoomCapacity(room.id, room.upgrades.capacity);
+  if (key === 'quality') {
+    const current = getRoomProfit(room.id, quality, 1);
+    const next = getRoomProfit(room.id, quality + 1, 1);
+    return { current, next, unit: 'за гостя' };
+  }
+  if (key === 'capacity') {
+    const current = getRoomProfit(room.id, quality, capacity);
+    const next = getRoomProfit(room.id, quality, capacity + 1);
+    return { current, next, unit: 'макс. сеанс' };
   }
   return null;
 }
@@ -480,6 +557,7 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
           const maxed = level >= maxLevel;
           const cost = getRoomUpgradeCost(room.id, upgrade.key, level);
           const affordable = !maxed && snapshot.coins >= cost;
+          const delta = !maxed ? roomUpgradeDelta(room, upgrade.key) : null;
           return (
             <button
               key={upgrade.key}
@@ -492,7 +570,21 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
               aria-label={`${definition.shortName}: ${copy.name}, уровень ${level}${maxed ? ', максимум' : `, цена ${cost}`}`}
             >
               <span className="room-upgrade-glyph">{copy.icon}</span>
-              <span><b>{copy.name}<em>ур. {level}</em></b><small>{copy.description}</small></span>
+              <span>
+                <b>{copy.name}<em>ур. {level}</em></b>
+                <small>{copy.description}</small>
+                {delta && (
+                  <span className="upgrade-delta">
+                    <span className="upgrade-delta-current">{delta.current} 🪙</span>
+                    <span className="upgrade-delta-next">+{delta.next - delta.current} {delta.unit}</span>
+                  </span>
+                )}
+                {upgrade.key === 'staffSpeed' && !maxed && (
+                  <span className="upgrade-delta">
+                    <span className="upgrade-delta-next">сеанс быстрее</span>
+                  </span>
+                )}
+              </span>
               <strong>{maxed ? 'MAX' : <><Icon name="coins" />{cost}</>}</strong>
             </button>
           );
@@ -502,11 +594,65 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
   );
 }
 
-export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, onUpgradesOpen }: Props) {
+function VenueChips({
+  snapshot,
+  venueView,
+  onSelect,
+}: {
+  snapshot: GameSnapshot;
+  venueView: VenueView;
+  onSelect: (view: VenueView) => void;
+}) {
+  return (
+    <div className="venue-tabs" role="tablist" aria-label="Помещения комплекса">
+      <button
+        className={venueView === 'bar' ? 'is-active' : ''}
+        onClick={() => onSelect('bar')}
+        role="tab"
+        aria-selected={venueView === 'bar'}
+      >
+        <span>🏠</span>Зал
+        {barHasAffordableUpgrade(snapshot) && <em className="affordance-badge" aria-label="Доступно улучшение">!</em>}
+        <i className="is-open" />
+        <span className="venue-chip-progress" aria-hidden="true">
+          <i style={{ width: `${Math.round((Object.values(snapshot.upgrades).reduce((a, b) => a + b, 0) / (UPGRADE_DEFS.reduce((a, d) => a + d.maxLevel, 0))) * 100)}%` }} />
+        </span>
+      </button>
+      {ROOM_DEFINITIONS.map((room) => {
+        const state = snapshot.rooms.find((item) => item.id === room.id)!;
+        const arrived = state.unlocked ? roomArrivedCount(snapshot, room.id) : 0;
+        const progress = roomUpgradeProgress(state);
+        const afford = roomHasAffordableAction(snapshot, state);
+        return (
+          <button
+            key={room.id}
+            className={venueView === room.id ? 'is-active' : ''}
+            onClick={() => onSelect(room.id)}
+            role="tab"
+            aria-selected={venueView === room.id}
+          >
+            <span>{room.icon}</span>{room.shortName}
+            {state.unlocked && arrived > 0 && <em className="tab-load">{arrived}/{state.capacity}</em>}
+            {afford && <em className="affordance-badge" aria-label="Доступно улучшение">!</em>}
+            <i className={state.unlocked ? 'is-open' : ''} />
+            <span className="venue-chip-progress" aria-hidden="true">
+              <i style={{ width: `${Math.round(progress * 100)}%` }} />
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onSheetMode }: Props) {
   const bartenderStatus = BARTENDER_STATUS[snapshot.bartender.state];
   const activeRoom = venueView === 'bar' ? null : snapshot.rooms.find((room) => room.id === venueView) ?? null;
   const activeRoomDefinition = activeRoom ? getRoomDefinition(activeRoom.id) : null;
-  const developmentVisible = snapshot.started && upgradesOpen;
+  const manageOpen = snapshot.started && sheetMode === 'manage';
+  const staffOpen = snapshot.started && sheetMode === 'staff';
+  const sheetOpen = manageOpen || staffOpen;
+  const manageAffordance = anyManageAffordance(snapshot);
   const nextDrink = useMemo(() => {
     const currentLevel = snapshot.upgrades.assortment;
     return currentLevel < 5 ? `Следующий напиток на ${currentLevel + 1} уровне` : 'Вся карта открыта';
@@ -520,15 +666,21 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
 
   const selectVenue = (view: VenueView) => click(() => onVenueView(view));
 
+  const toggleManage = () => click(() => onSheetMode(sheetMode === 'manage' ? null : 'manage'));
+  const toggleStaff = () => click(() => onSheetMode(sheetMode === 'staff' ? null : 'staff'));
+  const closeSheet = () => click(() => onSheetMode(null));
+  const goToScene = () => click(() => onSheetMode(null));
+
   const reset = () => {
     if (window.confirm('Сбросить прогресс борделя и начать заново?')) {
       engine.resetProgress();
       onVenueView('bar');
+      onSheetMode(null);
     }
   };
 
   return (
-    <div className={`hud ${snapshot.started ? 'is-running' : 'is-welcome'} ${developmentVisible ? 'is-development-open' : ''}`}>
+    <div className={`hud ${snapshot.started ? 'is-running' : 'is-welcome'} ${sheetOpen ? 'is-development-open' : ''} ${manageOpen ? 'is-manage-open' : ''} ${staffOpen ? 'is-staff-open' : ''}`}>
       {snapshot.started && (
         <>
       <header className="top-hud">
@@ -550,14 +702,14 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
         </div>
 
         <nav className="control-strip" aria-label="Управление игрой">
+          <button className="icon-button" onClick={() => click(engine.togglePause)} aria-label={snapshot.paused ? 'Продолжить' : 'Пауза'}>
+            <Icon name={snapshot.paused ? 'play' : 'pause'} />
+            <span className="control-label" aria-hidden="true">{snapshot.paused ? 'Играть' : 'Пауза'}</span>
+          </button>
           <button className="icon-button speed-button" onClick={() => click(engine.toggleSpeed)} aria-label={`Скорость игры x${snapshot.speedMultiplier}`}>
             <Icon name="time-speed" />
             <b>×{snapshot.speedMultiplier}</b>
             <span className="control-label" aria-hidden="true">Скорость</span>
-          </button>
-          <button className="icon-button" onClick={() => click(engine.togglePause)} aria-label={snapshot.paused ? 'Продолжить' : 'Пауза'}>
-            <Icon name={snapshot.paused ? 'play' : 'pause'} />
-            <span className="control-label" aria-hidden="true">{snapshot.paused ? 'Играть' : 'Пауза'}</span>
           </button>
           <button
             className={`icon-button ${snapshot.soundEnabled ? '' : 'is-muted'}`}
@@ -571,71 +723,72 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
             <span className="control-label" aria-hidden="true">Звук</span>
           </button>
           <button
-            className={`icon-button upgrades-toggle ${developmentVisible ? 'is-active' : ''}`}
-            onClick={() => click(() => onUpgradesOpen(!upgradesOpen))}
-            aria-label="Улучшения борделя"
-            aria-expanded={developmentVisible}
+            className={`icon-button staff-toggle ${staffOpen ? 'is-active' : ''}`}
+            onClick={toggleStaff}
+            aria-label="Штат"
+            aria-expanded={staffOpen}
+            aria-controls="staff-panel"
+          >
+            <span className="dock-emoji" aria-hidden="true">💋</span>
+            <span className="control-label" aria-hidden="true">Штат</span>
+          </button>
+          <button
+            className={`icon-button upgrades-toggle ${manageOpen ? 'is-active' : ''}`}
+            onClick={toggleManage}
+            aria-label="Управление"
+            aria-expanded={manageOpen}
             aria-controls="upgrade-panel"
           >
             <Icon name="upgrade-arrow" />
-            <span className="control-label" aria-hidden="true">Развитие</span>
+            {manageAffordance && <em className="affordance-badge dock-badge" aria-label="Есть доступные покупки">!</em>}
+            <span className="control-label" aria-hidden="true">Управление</span>
           </button>
         </nav>
       </header>
 
       <button
         type="button"
-        className={`upgrade-backdrop ${developmentVisible ? 'is-open' : ''}`}
-        onClick={() => click(() => onUpgradesOpen(false))}
-        aria-label="Закрыть меню улучшений"
-        aria-hidden={!developmentVisible}
-        tabIndex={developmentVisible ? 0 : -1}
-        inert={!developmentVisible}
+        className={`upgrade-backdrop ${sheetOpen ? 'is-open' : ''}`}
+        onClick={closeSheet}
+        aria-label="Закрыть меню"
+        aria-hidden={!sheetOpen}
+        tabIndex={sheetOpen ? 0 : -1}
+        inert={!sheetOpen}
       />
 
       <aside
         id="upgrade-panel"
-        className={`upgrade-panel ${developmentVisible ? 'is-open' : ''} ${venueView === 'bar' ? '' : 'is-room-view'}`}
-        aria-hidden={!developmentVisible}
-        inert={!developmentVisible}
+        className={`upgrade-panel ${manageOpen ? 'is-open' : ''} ${venueView === 'bar' ? '' : 'is-room-view'}`}
+        aria-hidden={!manageOpen}
+        inert={!manageOpen}
         aria-labelledby="upgrade-panel-title"
       >
         <div className="panel-sticky-header">
           <span className="panel-handle" aria-hidden="true" />
           <div className="panel-heading">
             <div>
-              <span className="eyebrow">МЕНЮ РАЗВИТИЯ</span>
+              <span className="eyebrow">УПРАВЛЕНИЕ</span>
               <h2 id="upgrade-panel-title">{venueView === 'bar' ? 'Улучшения зала' : activeRoomDefinition?.name}</h2>
             </div>
             <Icon name="upgrade-arrow" />
             <button
               type="button"
               className="panel-close"
-              onClick={() => click(() => onUpgradesOpen(false))}
-              aria-label="Закрыть улучшения"
+              onClick={closeSheet}
+              aria-label="Закрыть управление"
             >
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div className="venue-tabs" role="tablist" aria-label="Помещения комплекса">
-            <button className={venueView === 'bar' ? 'is-active' : ''} onClick={() => selectVenue('bar')} role="tab" aria-selected={venueView === 'bar'}><span>🏠</span>Зал</button>
-            {ROOM_DEFINITIONS.map((room) => {
-              const state = snapshot.rooms.find((item) => item.id === room.id)!;
-              const arrived = state.unlocked ? roomArrivedCount(snapshot, room.id) : 0;
-              return (
-                <button key={room.id} className={venueView === room.id ? 'is-active' : ''} onClick={() => selectVenue(room.id)} role="tab" aria-selected={venueView === room.id}>
-                  <span>{room.icon}</span>{room.shortName}
-                  {state.unlocked && arrived > 0 && <em className="tab-load">{arrived}/{state.capacity}</em>}
-                  <i className={state.unlocked ? 'is-open' : ''} />
-                </button>
-              );
-            })}
-          </div>
+          <VenueChips snapshot={snapshot} venueView={venueView} onSelect={selectVenue} />
+          <button type="button" className="goto-scene-button" onClick={goToScene}>
+            К сцене · {venueView === 'bar' ? 'Зал' : activeRoomDefinition?.shortName}
+          </button>
         </div>
         <MilestoneCard snapshot={snapshot} />
         {venueView === 'bar' ? (
           <>
-            <StaffRosterPanel snapshot={snapshot} engine={engine} />
+            <VenueSlotAssigner venue="bar" snapshot={snapshot} engine={engine} />
             <div className="drink-ribbon">
               <Icon name="assortment" />
               <span>
@@ -676,6 +829,34 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
         </button>
       </aside>
 
+      <aside
+        id="staff-panel"
+        className={`upgrade-panel staff-panel ${staffOpen ? 'is-open' : ''}`}
+        aria-hidden={!staffOpen}
+        inert={!staffOpen}
+        aria-labelledby="staff-panel-title"
+      >
+        <div className="panel-sticky-header">
+          <span className="panel-handle" aria-hidden="true" />
+          <div className="panel-heading">
+            <div>
+              <span className="eyebrow">ПЕРСОНАЛ</span>
+              <h2 id="staff-panel-title">Штат</h2>
+            </div>
+            <span className="dock-emoji heading-emoji" aria-hidden="true">💋</span>
+            <button
+              type="button"
+              className="panel-close"
+              onClick={closeSheet}
+              aria-label="Закрыть штат"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+        </div>
+        <StaffRosterPanel snapshot={snapshot} engine={engine} />
+      </aside>
+
       {snapshot.started && (
         <div className="bottom-status">
           {activeRoom && activeRoomDefinition ? (
@@ -684,7 +865,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
                 <span className="status-emoji">🏠</span>
                 <span><small>КОМПЛЕКС</small><b>Вернуться в главный зал</b></span>
               </button>
-              <button className="room-pill focus-pill" onClick={() => click(() => onUpgradesOpen(true))}>
+              <button className="room-pill focus-pill" onClick={toggleManage}>
                 <span className="status-emoji">{activeRoomDefinition.icon}</span>
                 <span>
                   <small>{

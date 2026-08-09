@@ -41,9 +41,9 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
 
   await page.goto('/');
   await page.getByRole('button', { name: 'Открыть бордель' }).click();
-  const panel = page.locator('.upgrade-panel');
+  const panel = page.locator('#upgrade-panel');
   if (!(await panel.evaluate((element) => element.classList.contains('is-open')))) {
-    await page.getByRole('button', { name: 'Улучшения борделя' }).click();
+    await page.getByRole('button', { name: 'Управление', exact: true }).click();
   }
 
   const karaokeTab = page.getByRole('tab', { name: /Стрип/ });
@@ -84,13 +84,13 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
     await page.screenshot({ path: `output/playwright/room-${room.file}-${testInfo.project.name}.png`, fullPage: false });
   }
 
-  await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
+  await page.getByRole('button', { name: 'Закрыть управление' }).click();
   await page.getByRole('button', { name: /Вернуться в главный зал/ }).click();
   await page.getByRole('button', { name: 'Скорость игры x1' }).click();
   await expect(page.getByRole('button', { name: 'Скорость игры x2' })).toBeVisible();
-  await page.getByRole('button', { name: 'Улучшения борделя' }).click();
+  await page.getByRole('button', { name: 'Управление', exact: true }).click();
   await page.getByRole('tab', { name: /Секс/ }).click();
-  await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
+  await page.getByRole('button', { name: 'Закрыть управление' }).click();
 
   const hasRoomGuest = async () => page.locator('.world-emoji').evaluateAll((nodes) => nodes.some((node) => {
     const label = node.getAttribute('aria-label') ?? '';
@@ -122,7 +122,7 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
   const welcome = page.locator('.welcome-card');
   await expect(welcome).toBeVisible();
   await expect(page.locator('.top-hud')).toHaveCount(0);
-  await expect(page.locator('.upgrade-panel')).toHaveCount(0);
+  await expect(page.locator('#upgrade-panel')).toHaveCount(0);
   const welcomeBox = await welcome.boundingBox();
   expect(welcomeBox).not.toBeNull();
   expect(welcomeBox!.y).toBeGreaterThanOrEqual(0);
@@ -130,14 +130,14 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
 
   await page.getByRole('button', { name: 'Открыть бордель' }).click();
   await expect(page.locator('.top-hud')).toBeVisible();
-  const panel = page.locator('.upgrade-panel');
+  const panel = page.locator('#upgrade-panel');
   await expect(panel).toHaveAttribute('aria-hidden', 'true');
   await expect(panel).not.toBeVisible();
 
-  await page.getByRole('button', { name: 'Улучшения борделя' }).click();
+  await page.getByRole('button', { name: 'Управление', exact: true }).click();
   await expect(panel).toHaveClass(/is-open/);
   await expect(panel).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Закрыть улучшения' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Закрыть управление' })).toBeVisible();
   await expect(panel.locator('.milestone-card')).toContainText('ВЕХА');
   expect(audioWarnings).toEqual([]);
   await page.goto('about:blank', { waitUntil: 'commit', timeout: 5_000 });
@@ -171,15 +171,16 @@ test('390px HUD uses compact values and development sheet removes redundant over
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(viewportWidth);
 
-  await page.getByRole('button', { name: 'Улучшения борделя' }).click();
-  const panel = page.locator('.upgrade-panel');
+  await page.getByRole('button', { name: 'Управление', exact: true }).click();
+  const panel = page.locator('#upgrade-panel');
   await expect(panel).toBeVisible();
-  await expect(page.locator('.brand-card')).not.toBeVisible();
-  await expect(page.locator('.currency-strip')).not.toBeVisible();
+  await expect(page.locator('.brand-card')).toBeVisible();
+  await expect(page.locator('.currency-strip')).toBeVisible();
   await expect(page.locator('.bottom-status')).not.toBeVisible();
   await expect(page.locator('.venue-tabs')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Закрыть улучшения' })).toBeVisible();
-  expect(await page.locator('.panel-sticky-header').evaluate((element) => getComputedStyle(element).position)).toBe('sticky');
+  await expect(page.getByRole('button', { name: 'Закрыть управление' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /К сцене/ })).toBeVisible();
+  expect(await page.locator('.panel-sticky-header').first().evaluate((element) => getComputedStyle(element).position)).toBe('sticky');
 
   const panelBox = await panel.boundingBox();
   expect(panelBox).not.toBeNull();
@@ -191,7 +192,8 @@ test('390px HUD uses compact values and development sheet removes redundant over
   await expect(panel).toHaveClass(/is-room-view/);
   const roomPanelBox = await panel.boundingBox();
   expect(roomPanelBox).not.toBeNull();
-  expect(roomPanelBox!.y).toBeGreaterThanOrEqual(844 * 0.38);
-  expect(roomPanelBox!.y).toBeGreaterThanOrEqual(280);
+  expect(roomPanelBox!.height).toBeGreaterThan(280);
+  expect(roomPanelBox!.y).toBeGreaterThanOrEqual(80);
   await page.goto('about:blank', { waitUntil: 'commit', timeout: 5_000 });
 });
+

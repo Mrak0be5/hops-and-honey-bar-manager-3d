@@ -7,13 +7,20 @@ import { Hud } from './ui/Hud';
 import { Icon, preloadUiIcons } from './ui/Icon';
 import type { VenueView } from './game/types';
 
+export type SheetMode = null | 'manage' | 'staff';
+
 export default function App() {
   const snapshot = useGameSnapshot(gameEngine);
   const [contextLost, setContextLost] = useState(false);
   const [venueView, setVenueView] = useState<VenueView>('bar');
-  const [upgradesOpen, setUpgradesOpen] = useState(false);
+  const [sheetMode, setSheetMode] = useState<SheetMode>(null);
   const lastSoundEvent = useRef(0);
   const handleContextLost = useCallback(() => setContextLost(true), []);
+
+  const openManage = useCallback((view?: VenueView) => {
+    if (view) setVenueView(view);
+    setSheetMode('manage');
+  }, []);
 
   useEffect(() => {
     preloadUiIcons();
@@ -25,7 +32,7 @@ export default function App() {
 
   useEffect(() => {
     if (snapshot.started) return;
-    setUpgradesOpen(false);
+    setSheetMode(null);
     setVenueView('bar');
   }, [snapshot.started]);
 
@@ -98,8 +105,9 @@ export default function App() {
           engine={gameEngine}
           snapshot={snapshot}
           focus={venueView}
-          developmentOpen={upgradesOpen}
+          developmentOpen={sheetMode !== null}
           onContextLost={handleContextLost}
+          onSelectVenueManage={openManage}
         />
       )}
       <Hud
@@ -107,8 +115,8 @@ export default function App() {
         snapshot={snapshot}
         venueView={venueView}
         onVenueView={setVenueView}
-        upgradesOpen={upgradesOpen}
-        onUpgradesOpen={setUpgradesOpen}
+        sheetMode={sheetMode}
+        onSheetMode={setSheetMode}
       />
       <div className="scene-vignette" />
     </main>

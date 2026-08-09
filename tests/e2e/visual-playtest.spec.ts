@@ -31,18 +31,18 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
   expect(openingPageImage.byteLength).toBeGreaterThan(openingCanvasImage.byteLength * 0.55);
   await expect(page.locator('.pause-scrim')).toHaveCount(0);
 
-  const panel = page.locator('.upgrade-panel');
+  const panel = page.locator('#upgrade-panel');
   if (testInfo.project.name === 'mobile-chromium') {
-    await page.getByRole('button', { name: 'Улучшения борделя' }).click();
+    await page.getByRole('button', { name: 'Управление', exact: true }).click();
     await expect(panel).toHaveClass(/is-open/);
     await page.waitForTimeout(350);
     await page.screenshot({
       path: `output/playwright/upgrades-${testInfo.project.name}.png`,
       fullPage: false,
     });
-    await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
+    await page.getByRole('button', { name: 'Закрыть управление' }).click();
   } else if (await panel.evaluate((element) => element.classList.contains('is-open'))) {
-    await page.getByRole('button', { name: 'Улучшения борделя' }).click();
+    await page.getByRole('button', { name: 'Управление', exact: true }).click();
   }
 
   await page.waitForTimeout(testInfo.project.name === 'desktop-chromium' ? 9_000 : 5_000);

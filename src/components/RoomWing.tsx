@@ -570,12 +570,14 @@ export function RoomWing({
   focused,
   occupiedSlots,
   staffSlots = [null, null],
+  onSelectManage,
 }: {
   room: RoomState;
   definition: RoomDefinition;
   focused: boolean;
   occupiedSlots: number[];
   staffSlots?: StaffPair;
+  onSelectManage?: (roomId: RoomDefinition['id']) => void;
 }) {
   const layout = ROOM_LAYOUTS[definition.id];
   const wallColor = room.unlocked ? definition.color : '#796f6b';
@@ -586,6 +588,22 @@ export function RoomWing({
       : '#300d20';
   return (
     <group position={[layout.center.x, 0, layout.center.z]}>
+      <mesh
+        position={[0, 1.35, 0]}
+        onClick={(event) => {
+          event.stopPropagation();
+          onSelectManage?.(definition.id);
+        }}
+        onPointerOver={() => {
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        <boxGeometry args={[layout.size.x * 0.92, 2.7, layout.size.z * 0.92]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
       <RoundedBox args={[layout.size.x, 0.18, layout.size.z]} radius={0.2} smoothness={3} position={[0, 0.02, 0]} receiveShadow>
         <meshStandardMaterial color={room.unlocked ? floorColor : '#c7b9a8'} roughness={0.9} />
       </RoundedBox>

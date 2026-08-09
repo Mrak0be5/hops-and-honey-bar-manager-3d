@@ -455,7 +455,17 @@ function EventBurst({ event, position }: { event: GameEvent; position: Vec2 }) {
   );
 }
 
-function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; focus: VenueView; developmentOpen: boolean }) {
+function World({
+  snapshot,
+  focus,
+  developmentOpen,
+  onSelectVenueManage,
+}: {
+  snapshot: GameSnapshot;
+  focus: VenueView;
+  developmentOpen: boolean;
+  onSelectVenueManage?: (view: VenueView) => void;
+}) {
   const serviceKind = snapshot.bartender.state === 'delivering'
     ? 'delivering'
     : snapshot.bartender.state === 'cleaning'
@@ -492,6 +502,24 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
       <pointLight position={[0, 4.2, -3]} intensity={24} distance={10} color="#ffbd62" />
       <pointLight position={[-5, 3.2, 3]} intensity={13} distance={7} color="#46d4c4" />
       <BarEnvironment tables={snapshot.tables} />
+      {onSelectVenueManage && (
+        <mesh
+          position={[0.2, 1.2, 0.6]}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelectVenueManage('bar');
+          }}
+          onPointerOver={() => {
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto';
+          }}
+        >
+          <boxGeometry args={[14.5, 2.4, 9.2]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      )}
       {ROOM_DEFINITIONS.map((definition) => (
         <RoomWing
           key={definition.id}
@@ -502,6 +530,7 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
             .filter((patron) => patron.roomId === definition.id && patron.state === 'in_room' && patron.roomSlot !== null)
             .map((patron) => patron.roomSlot as number)}
           staffSlots={snapshot.venueSlots[definition.id]}
+          onSelectManage={onSelectVenueManage}
         />
       ))}
       {snapshot.bartender.state === 'preparing' && <PourEffect />}
@@ -564,9 +593,10 @@ type Props = {
   focus: VenueView;
   developmentOpen: boolean;
   onContextLost: () => void;
+  onSelectVenueManage?: (view: VenueView) => void;
 };
 
-export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLost }: Props) {
+export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLost, onSelectVenueManage }: Props) {
   const presentationCanvas = useRef<HTMLCanvasElement>(null);
   const statusOverlay = useRef<HTMLDivElement>(null!);
   const [presentationUnavailable, setPresentationUnavailable] = useState(false);
@@ -597,7 +627,7 @@ export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLo
         <Suspense fallback={null}>
           <ContextLossGuard onContextLost={onContextLost} />
           <SimulationLoop engine={engine} />
-          <World snapshot={snapshot} focus={focus} developmentOpen={developmentOpen} />
+          <World snapshot={snapshot} focus={focus} developmentOpen={developmentOpen} onSelectVenueManage={onSelectVenueManage} />
           <WorldStatusProjector target={statusOverlay} />
           <CanvasPresenter
             target={presentationCanvas}

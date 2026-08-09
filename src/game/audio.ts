@@ -11,8 +11,14 @@ class GameAudio {
 
   unlock() {
     if (!this.enabled || typeof window === 'undefined') return;
-    this.context ??= new AudioContext();
-    if (this.context.state === 'suspended') void this.context.resume();
+    const AudioCtx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    try {
+      this.context ??= new AudioCtx();
+      if (this.context.state === 'suspended') void this.context.resume();
+    } catch {
+      this.context = null;
+    }
   }
 
   click() {
