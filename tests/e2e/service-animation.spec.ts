@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 
 test('plays a seated guest through drinking and payment', async ({ page }, testInfo) => {
   test.setTimeout(120_000);
-  test.skip(testInfo.project.name === 'mobile-chromium', 'The full timed walkthrough is captured once on desktop; mobile rendering has its own visual and smoke coverage.');
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'The full timed walkthrough is captured once on desktop; mobile rendering has its own visual and smoke coverage.');
   mkdirSync('output/playwright', { recursive: true });
 
   const runtimeErrors: string[] = [];

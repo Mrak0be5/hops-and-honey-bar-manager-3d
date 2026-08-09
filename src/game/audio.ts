@@ -11,7 +11,10 @@ class GameAudio {
 
   unlock() {
     if (!this.enabled || typeof window === 'undefined') return;
-    this.context ??= new AudioContext();
+    const AudioContextConstructor = window.AudioContext
+      ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextConstructor) return;
+    this.context ??= new AudioContextConstructor();
     if (this.context.state === 'suspended') void this.context.resume();
   }
 

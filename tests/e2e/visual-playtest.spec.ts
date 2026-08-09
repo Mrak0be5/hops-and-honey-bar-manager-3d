@@ -32,7 +32,7 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
   await expect(page.locator('.pause-scrim')).toHaveCount(0);
 
   const panel = page.locator('.upgrade-panel');
-  if (testInfo.project.name === 'mobile-chromium') {
+  if (testInfo.project.name !== 'desktop-chromium') {
     await page.getByRole('button', { name: 'Улучшения бара' }).click();
     await expect(panel).toHaveClass(/is-open/);
     await page.waitForTimeout(350);

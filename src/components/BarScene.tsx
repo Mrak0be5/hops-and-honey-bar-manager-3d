@@ -166,12 +166,24 @@ function DecorationMarker({ x, y, z, children }: { x: number; y: number; z: numb
 }
 
 function WorldStatusOverlay({ snapshot, target, focus }: { snapshot: GameSnapshot; target: RefObject<HTMLDivElement>; focus: VenueView }) {
-  const [compact, setCompact] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 680);
+  const [compact, setCompact] = useState(false);
   useEffect(() => {
-    const update = () => setCompact(window.innerWidth <= 680);
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
+    const container = target.current;
+    if (!container) return;
+
+    const update = (width = container.clientWidth) => setCompact(width <= 680);
+    update();
+
+    if (typeof ResizeObserver === 'undefined') {
+      const onWindowResize = () => update();
+      window.addEventListener('resize', onWindowResize);
+      return () => window.removeEventListener('resize', onWindowResize);
+    }
+
+    const observer = new ResizeObserver(([entry]) => update(entry.contentRect.width));
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [target]);
   const candidates = snapshot.patrons.filter((patron) => {
     if (focus === 'bar') return patron.state !== 'waiting_room' && patron.state !== 'in_room';
     if (patron.roomId !== focus) return false;

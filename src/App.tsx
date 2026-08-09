@@ -12,6 +12,7 @@ export default function App() {
   const [contextLost, setContextLost] = useState(false);
   const [venueView, setVenueView] = useState<VenueView>('bar');
   const [upgradesOpen, setUpgradesOpen] = useState(false);
+  const [portraitPreview, setPortraitPreview] = useState(false);
   const lastSoundEvent = useRef(0);
   const handleContextLost = useCallback(() => setContextLost(true), []);
 
@@ -57,36 +58,59 @@ export default function App() {
     };
   }, [snapshot.paused, snapshot.started]);
 
+  const togglePortraitPreview = () => {
+    gameAudio.setEnabled(snapshot.soundEnabled);
+    gameAudio.click();
+    setPortraitPreview((enabled) => !enabled);
+  };
+
   return (
-    <main className="game-shell">
-      {contextLost ? (
-        <div className="webgl-fallback">
-          <Icon name="reset" />
-          <h1>3D-сцена остановилась</h1>
-          <p>Браузер потерял WebGL-контекст. Прогресс уже сохранён — можно безопасно перезапустить сцену.</p>
-          <button onClick={() => window.location.reload()}>
+    <div className={`app-stage ${portraitPreview ? 'is-portrait-preview' : ''} ${upgradesOpen ? 'is-development-open' : ''}`}>
+      <main className="game-shell" data-viewport-mode={portraitPreview ? 'portrait' : 'adaptive'}>
+        {contextLost ? (
+          <div className="webgl-fallback">
             <Icon name="reset" />
-            Перезапустить
-          </button>
-        </div>
-      ) : (
-        <BarScene
+            <h1>3D-сцена остановилась</h1>
+            <p>Браузер потерял WebGL-контекст. Прогресс уже сохранён — можно безопасно перезапустить сцену.</p>
+            <button onClick={() => window.location.reload()}>
+              <Icon name="reset" />
+              Перезапустить
+            </button>
+          </div>
+        ) : (
+          <BarScene
+            engine={gameEngine}
+            snapshot={snapshot}
+            focus={venueView}
+            developmentOpen={upgradesOpen}
+            onContextLost={handleContextLost}
+          />
+        )}
+        <Hud
           engine={gameEngine}
           snapshot={snapshot}
-          focus={venueView}
-          developmentOpen={upgradesOpen}
-          onContextLost={handleContextLost}
+          venueView={venueView}
+          onVenueView={setVenueView}
+          upgradesOpen={upgradesOpen}
+          onUpgradesOpen={setUpgradesOpen}
         />
-      )}
-      <Hud
-        engine={gameEngine}
-        snapshot={snapshot}
-        venueView={venueView}
-        onVenueView={setVenueView}
-        upgradesOpen={upgradesOpen}
-        onUpgradesOpen={setUpgradesOpen}
-      />
-      <div className="scene-vignette" />
-    </main>
+        <div className="scene-vignette" />
+      </main>
+
+      <button
+        type="button"
+        className={`viewport-mode-toggle ${portraitPreview ? 'is-active' : ''}`}
+        onClick={togglePortraitPreview}
+        aria-label={portraitPreview ? 'Вернуть адаптивный вид' : 'Включить вид 9:16'}
+        aria-pressed={portraitPreview}
+        title={portraitPreview ? 'Вернуть адаптивный вид' : 'Показать интерфейс iPhone в формате 9:16'}
+      >
+        <span className="viewport-mode-device" aria-hidden="true"><i>9:16</i></span>
+        <span className="viewport-mode-copy">
+          <strong>{portraitPreview ? 'Авто' : '9:16'}</strong>
+          <small>{portraitPreview ? 'Во весь экран' : 'Вид iPhone'}</small>
+        </span>
+      </button>
+    </div>
   );
 }

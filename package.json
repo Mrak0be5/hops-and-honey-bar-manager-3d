@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview --host 127.0.0.1 --port 4187",
+    "preview": "vite preview --outDir dist/client --host 127.0.0.1 --port 4187 --strictPort",
     "test:e2e": "playwright test"
   },
   "dependencies": {

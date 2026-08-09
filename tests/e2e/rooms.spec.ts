@@ -137,7 +137,7 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
 
 test('390px HUD uses compact values and development sheet removes redundant overlays', async ({ page }, testInfo) => {
   test.setTimeout(75_000);
-  test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile layout assertion');
+  test.skip(testInfo.project.name === 'desktop-chromium', 'Mobile layout assertion');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript((save) => {
     window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify(save));
