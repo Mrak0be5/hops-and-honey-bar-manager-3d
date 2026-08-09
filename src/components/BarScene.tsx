@@ -607,7 +607,7 @@ export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLo
         className={`game-canvas ${presentationUnavailable ? 'is-direct-visible' : ''}`}
         orthographic
         shadows
-        frameloop={snapshot.paused ? 'demand' : 'always'}
+        frameloop="always"
         dpr={[1, 1.35]}
         camera={{
           position: [11.8, 14.2, 16.2],

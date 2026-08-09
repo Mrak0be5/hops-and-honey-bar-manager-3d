@@ -564,21 +564,6 @@ function RoomDevelopment({
         </span>
         <strong>гости {roomArrivedCount(snapshot, room.id)}/{room.capacity}</strong>
       </div>
-      <VenueSlotAssigner venue={room.id} snapshot={snapshot} engine={engine} onOpenStaff={onOpenStaff} />
-      {(roomWorkerIds(snapshot, room.id).length > 0) && (
-        <button
-          type="button"
-          className="room-quick-clear"
-          onClick={() => {
-            gameAudio.unlock();
-            engine.assignStaff(room.id, 0, null);
-            engine.assignStaff(room.id, 1, null);
-            gameAudio.click();
-          }}
-        >
-          🚪 Освободить комнату
-        </button>
-      )}
       <div className="room-economy-grid is-live">
         <span><small>За гостя</small><b>{room.perGuestProfit} 🪙</b></span>
         <span><small>Макс. сеанс</small><b>{room.maxSessionProfit} 🪙</b></span>
@@ -626,6 +611,21 @@ function RoomDevelopment({
           );
         })}
       </div>
+      <VenueSlotAssigner venue={room.id} snapshot={snapshot} engine={engine} onOpenStaff={onOpenStaff} />
+      {(roomWorkerIds(snapshot, room.id).length > 0) && (
+        <button
+          type="button"
+          className="room-quick-clear"
+          onClick={() => {
+            gameAudio.unlock();
+            engine.assignStaff(room.id, 0, null);
+            engine.assignStaff(room.id, 1, null);
+            gameAudio.click();
+          }}
+        >
+          🚪 Освободить комнату
+        </button>
+      )}
     </div>
   );
 }
@@ -722,7 +722,6 @@ export function Hud({
     onSheetMode(sheetMode === 'staff' ? null : 'staff');
   });
   const closeSheet = () => click(() => onSheetMode(null));
-  const goToScene = () => click(() => onSheetMode(null));
   const toggleSettings = () => click(() => {
     onSheetMode(null);
     setSettingsOpen((open) => !open);
@@ -787,10 +786,6 @@ export function Hud({
         <>
           <button type="button" className="settings-backdrop" onClick={closeSettings} aria-label="Закрыть настройки" />
           <div id="settings-popover" className="settings-popover" role="dialog" aria-label="Настройки">
-            <button type="button" className="settings-row" onClick={() => click(engine.togglePause)}>
-              <Icon name={snapshot.paused ? 'play' : 'pause'} />
-              <span>{snapshot.paused ? 'Продолжить' : 'Пауза'}</span>
-            </button>
             <button type="button" className="settings-row" onClick={() => click(engine.toggleSpeed)}>
               <Icon name="time-speed" />
               <span>Скорость ×{snapshot.speedMultiplier}</span>
@@ -923,14 +918,10 @@ export function Hud({
             </button>
           </div>
           <VenueChips snapshot={snapshot} venueView={venueView} onSelect={selectVenue} />
-          <button type="button" className="goto-scene-button" onClick={goToScene}>
-            К сцене · {venueView === 'bar' ? 'Зал' : activeRoomDefinition?.shortName}
-          </button>
         </div>
         <MilestoneCard snapshot={snapshot} />
         {venueView === 'bar' ? (
           <>
-            <VenueSlotAssigner venue="bar" snapshot={snapshot} engine={engine} onOpenStaff={() => onSheetMode('staff')} />
             <div className="drink-ribbon">
               <Icon name="assortment" />
               <span>
@@ -943,6 +934,7 @@ export function Hud({
                 <UpgradeCard key={definition.key} definition={definition} snapshot={snapshot} engine={engine} />
               ))}
             </div>
+            <VenueSlotAssigner venue="bar" snapshot={snapshot} engine={engine} onOpenStaff={() => onSheetMode('staff')} />
           </>
         ) : activeRoom ? <RoomDevelopment room={activeRoom} snapshot={snapshot} engine={engine} onOpenStaff={() => onSheetMode('staff')} /> : null}
         {import.meta.env.DEV && (
@@ -1048,16 +1040,6 @@ export function Hud({
         <div className={`event-toast event-${snapshot.lastEvent.kind}`} key={snapshot.lastEvent.id} aria-live="polite" role="status">
           <span>{snapshot.lastEvent.kind === 'payment' || snapshot.lastEvent.kind === 'room_income' ? '🪙' : snapshot.lastEvent.kind === 'room_unlock' ? '🔨' : snapshot.lastEvent.kind === 'upgrade' ? '⬆️' : snapshot.lastEvent.kind === 'reputation' ? '⭐' : '🎉'}</span>
           {getEventMessage(snapshot.lastEvent)}
-        </div>
-      )}
-
-      {snapshot.paused && (
-        <div className="pause-scrim">
-          <div className="pause-card">
-            <Icon name="pause" />
-            <b>Бордель на паузе</b>
-            <span>Гости терпеливо подождут.</span>
-          </div>
         </div>
       )}
         </>

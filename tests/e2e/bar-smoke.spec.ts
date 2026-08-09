@@ -91,7 +91,9 @@ test('uses Hotel Empire-style top currency and bottom fabs', async ({ page }, te
     expect(panelBounds!.x).toBeGreaterThanOrEqual(0);
     expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(viewport.width + 1);
 
-    await expect(page.getByRole('button', { name: /К сцене/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /К сцене/ })).toHaveCount(0);
+    await expect(page.locator('.bottom-dock')).toBeHidden();
+    await expect(panel.locator('.upgrade-card').first()).toBeVisible();
 
     await panel.locator('.upgrade-card').last().scrollIntoViewIfNeeded();
     await expect(panel.locator('.upgrade-card').last()).toBeVisible();

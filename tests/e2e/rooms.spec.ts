@@ -179,7 +179,9 @@ test('390px HUD uses compact values and development sheet removes redundant over
   await expect(page.locator('.bottom-status')).not.toBeVisible();
   await expect(page.locator('.venue-tabs')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Закрыть управление' })).toBeVisible();
-  await expect(page.getByRole('button', { name: /К сцене/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /К сцене/ })).toHaveCount(0);
+  await expect(page.locator('.bottom-dock')).toBeHidden();
+  await expect(panel.locator('.upgrade-card').first()).toBeVisible();
   expect(await page.locator('.panel-sticky-header').first().evaluate((element) => getComputedStyle(element).position)).toBe('sticky');
 
   const panelBox = await panel.boundingBox();

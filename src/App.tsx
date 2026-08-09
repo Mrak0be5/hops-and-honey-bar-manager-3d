@@ -64,28 +64,6 @@ export default function App() {
   }, [snapshot.lastEvent, snapshot.started]);
 
   useEffect(() => {
-    let pauseTimer: number | null = null;
-    const clearPauseTimer = () => {
-      if (pauseTimer === null) return;
-      window.clearTimeout(pauseTimer);
-      pauseTimer = null;
-    };
-    const onVisibility = () => {
-      clearPauseTimer();
-      if (!document.hidden || !snapshot.started || snapshot.paused) return;
-      pauseTimer = window.setTimeout(() => {
-        pauseTimer = null;
-        if (document.hidden) gameEngine.setPaused(true);
-      }, 750);
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      clearPauseTimer();
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [snapshot.paused, snapshot.started]);
-
-  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;

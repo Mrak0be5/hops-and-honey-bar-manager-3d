@@ -192,16 +192,13 @@ export class GameEngine {
     this.publish();
   };
 
-  togglePause = () => {
-    if (!this.started) return;
-    this.paused = !this.paused;
-    this.publish();
-  };
+  togglePause = () => {};
 
-  setPaused = (paused: boolean) => {
-    if (!this.started || this.paused === paused) return;
-    this.paused = paused;
-    this.publish();
+  setPaused = (_paused: boolean) => {
+    if (this.paused) {
+      this.paused = false;
+      this.publish();
+    }
   };
 
   toggleSpeed = () => {

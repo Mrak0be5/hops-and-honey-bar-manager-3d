@@ -2733,24 +2733,17 @@ button {
   }
 
   .hud.is-development-open .bottom-status,
-  .hud.is-development-open .live-chip {
+  .hud.is-development-open .live-chip,
+  .hud.is-development-open .bottom-dock,
+  .hud.is-development-open .bottom-actions {
     pointer-events: none;
     visibility: hidden;
     opacity: 0;
     transform: translateY(10px);
   }
 
-  .hud.is-development-open .bottom-dock,
-  .hud.is-development-open .bottom-actions {
-    pointer-events: auto;
-    visibility: visible;
-    opacity: 1;
-    transform: none;
-    z-index: 40;
-  }
-
   .hud.is-development-open .event-toast {
-    bottom: calc(16px + env(safe-area-inset-bottom) + min(50cqh, 440px));
+    bottom: calc(16px + env(safe-area-inset-bottom) + min(70cqh, 560px));
   }
 
   .currency-value-full { display: none; }
@@ -2817,13 +2810,14 @@ button {
     bottom: max(8px, env(safe-area-inset-bottom));
     left: max(8px, env(safe-area-inset-left));
     width: auto;
-    height: min(50cqh, 440px);
-    max-height: calc(100cqh - 112px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    height: min(68cqh, 580px);
+    max-height: calc(100cqh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     padding: 9px 11px 11px;
     scroll-padding-bottom: max(10px, env(safe-area-inset-bottom));
     border-radius: 22px 22px 16px 16px;
     transform: translateY(calc(100% + 24px)) scale(0.985);
     transition: transform 0.28s cubic-bezier(0.2, 0.82, 0.2, 1), opacity 0.18s ease, visibility 0s linear 0.28s;
+    overflow-y: auto;
   }
 
   .upgrade-panel.is-open {
@@ -2831,11 +2825,20 @@ button {
   }
 
   .upgrade-panel.is-room-view {
-    height: min(52cqh, 460px);
+    height: min(70cqh, 600px);
   }
 
   .staff-panel {
-    height: min(56cqh, 500px);
+    height: min(68cqh, 580px);
+  }
+
+  .upgrade-list {
+    flex: 1 1 auto;
+    min-height: 180px;
+  }
+
+  .goto-scene-button {
+    display: none !important;
   }
 
   .hire-cta-button {
@@ -3136,7 +3139,8 @@ button {
   .currency-strip { height: 54px; }
   .currency-chip { height: 44px; }
   .brand-copy small { display: none; }
-  .upgrade-panel { height: min(50cqh, 420px); }
+  .upgrade-panel { height: min(72cqh, 560px); }
+  .upgrade-panel.is-room-view { height: min(74cqh, 580px); }
   .welcome-card p { margin-top: 8px; margin-bottom: 10px; }
   .welcome-loop { margin-bottom: 11px; }
 }
