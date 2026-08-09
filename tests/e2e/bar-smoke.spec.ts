@@ -4,7 +4,7 @@ test('opens the bar and exposes the full upgrade surface', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /Бордель/ })).toBeVisible();
   await page.getByRole('button', { name: 'Открыть бордель' }).click();
-  await expect(page.locator('.bottom-status')).toBeVisible();
+  await expect(page.locator('.bottom-dock')).toBeVisible();
   const panel = page.locator('#upgrade-panel');
   if (!(await panel.evaluate((element) => element.classList.contains('is-open')))) {
     await page.getByRole('button', { name: 'Улучшения', exact: true }).click();
@@ -55,19 +55,29 @@ test('uses Hotel Empire-style top currency and bottom fabs', async ({ page }, te
     await expect(page.getByRole('button', { name: 'Настройки' })).toBeVisible();
     await expect(page.locator('.brand-card')).toBeHidden();
 
-    const actions = page.locator('.bottom-actions');
-    const actionsBounds = await actions.boundingBox();
-    expect(actionsBounds).not.toBeNull();
-    expect(actionsBounds!.y + actionsBounds!.height).toBeLessThanOrEqual(viewport.height + 1);
+    const dock = page.locator('.bottom-dock');
+    const dockBounds = await dock.boundingBox();
+    expect(dockBounds).not.toBeNull();
+    expect(dockBounds!.y + dockBounds!.height).toBeLessThanOrEqual(viewport.height + 1);
 
+    await expect(page.locator('.live-chip')).toBeVisible();
+    const actions = page.locator('.bottom-dock .bottom-actions');
     const fabs = actions.locator('.round-fab');
     await expect(fabs).toHaveCount(2);
     for (let index = 0; index < 2; index += 1) {
-      const bounds = await fabs.nth(index).boundingBox();
+      const face = fabs.nth(index).locator('.round-fab-face');
+      const bounds = await face.boundingBox();
       expect(bounds).not.toBeNull();
       expect(bounds!.width).toBeGreaterThanOrEqual(44);
       expect(bounds!.height).toBeGreaterThanOrEqual(44);
+      expect(bounds!.width).toBeLessThanOrEqual(60);
     }
+
+    const chipBounds = await page.locator('.live-chip').boundingBox();
+    const fabBounds = await fabs.first().boundingBox();
+    expect(chipBounds).not.toBeNull();
+    expect(fabBounds).not.toBeNull();
+    expect(chipBounds!.x + chipBounds!.width).toBeLessThanOrEqual(fabBounds!.x + 1);
 
     const upgradeButton = page.getByRole('button', { name: 'Улучшения', exact: true });
     await expect(upgradeButton).toHaveAttribute('aria-expanded', 'false');

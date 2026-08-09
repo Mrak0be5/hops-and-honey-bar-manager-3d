@@ -803,32 +803,70 @@ export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onShe
         </>
       )}
 
-      <nav className="bottom-actions" aria-label="Действия">
+      <div className="bottom-dock">
         <button
           type="button"
-          className={`round-fab fab-staff ${staffOpen ? 'is-active' : ''}`}
-          onClick={toggleStaff}
-          aria-label="Штат"
-          aria-expanded={staffOpen}
-          aria-controls="staff-panel"
+          className="live-chip"
+          onClick={() => {
+            if (activeRoom) selectVenue('bar');
+            else toggleManage();
+          }}
+          aria-label={activeRoom ? 'Вернуться в зал' : 'Открыть улучшения'}
         >
-          <span className="round-fab-icon" aria-hidden="true">💋</span>
-          <span className="round-fab-label">Штат</span>
-          {staffAffordance && <em className="affordance-badge dock-badge" aria-label="Можно нанять">!</em>}
+          <span className="live-chip-emoji" aria-hidden="true">
+            {activeRoom && activeRoomDefinition
+              ? activeRoomDefinition.icon
+              : bartenderStatus.emoji}
+          </span>
+          <span className="live-chip-copy">
+            <small>
+              {activeRoom && activeRoomDefinition
+                ? activeRoomDefinition.shortName
+                : (snapshot.bartender.staffId
+                  ? getStaffDefinition(snapshot.bartender.staffId).name
+                  : (snapshot.entranceQueue > 0 ? 'Очередь' : 'Бар'))}
+            </small>
+            <b>
+              {activeRoom && activeRoomDefinition
+                ? `${roomStatusLabel(snapshot, activeRoom)} · ${roomArrivedCount(snapshot, activeRoom.id)}/${activeRoom.capacity}`
+                : (snapshot.bartender.staffId
+                  ? bartenderStatus.label
+                  : (snapshot.entranceQueue > 0 ? `У входа ${snapshot.entranceQueue}` : 'Нет персонала'))}
+            </b>
+          </span>
         </button>
-        <button
-          type="button"
-          className={`round-fab fab-manage ${manageOpen ? 'is-active' : ''}`}
-          onClick={toggleManage}
-          aria-label="Улучшения"
-          aria-expanded={manageOpen}
-          aria-controls="upgrade-panel"
-        >
-          <Icon name="upgrade-arrow" />
-          <span className="round-fab-label">Апгрейд</span>
-          {manageAffordance && <em className="affordance-badge dock-badge" aria-label="Есть доступные покупки">!</em>}
-        </button>
-      </nav>
+
+        <nav className="bottom-actions" aria-label="Действия">
+          <button
+            type="button"
+            className={`round-fab fab-staff ${staffOpen ? 'is-active' : ''}`}
+            onClick={toggleStaff}
+            aria-label="Штат"
+            aria-expanded={staffOpen}
+            aria-controls="staff-panel"
+          >
+            <span className="round-fab-face" aria-hidden="true">
+              <span className="round-fab-icon">💋</span>
+              {staffAffordance && <em className="affordance-badge dock-badge" aria-label="Можно нанять">!</em>}
+            </span>
+            <span className="round-fab-label">Штат</span>
+          </button>
+          <button
+            type="button"
+            className={`round-fab fab-manage ${manageOpen ? 'is-active' : ''}`}
+            onClick={toggleManage}
+            aria-label="Улучшения"
+            aria-expanded={manageOpen}
+            aria-controls="upgrade-panel"
+          >
+            <span className="round-fab-face" aria-hidden="true">
+              <Icon name="upgrade-arrow" />
+              {manageAffordance && <em className="affordance-badge dock-badge" aria-label="Есть доступные покупки">!</em>}
+            </span>
+            <span className="round-fab-label">Апгрейд</span>
+          </button>
+        </nav>
+      </div>
 
       <button
         type="button"
