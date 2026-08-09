@@ -111,16 +111,6 @@ export default function App() {
 
   return (
     <div className={`app-stage ${iphoneFrame ? 'is-iphone-frame' : ''}`}>
-      <button
-        type="button"
-        className={`iphone-frame-toggle ${iphoneFrame ? 'is-on' : ''}`}
-        onClick={toggleIphoneFrame}
-        aria-pressed={iphoneFrame}
-        aria-label={iphoneFrame ? 'Выключить режим iPhone 9:16' : 'Включить режим iPhone 9:16'}
-        title="Отображение 9:16"
-      >
-        <span aria-hidden="true">9:16</span>
-      </button>
       <main className="game-shell">
         {contextLost ? (
           <div className="webgl-fallback">
@@ -149,6 +139,8 @@ export default function App() {
           onVenueView={setVenueView}
           sheetMode={sheetMode}
           onSheetMode={setSheetMode}
+          iphoneFrame={iphoneFrame}
+          onToggleIphoneFrame={toggleIphoneFrame}
         />
         <div className="scene-vignette" />
       </main>

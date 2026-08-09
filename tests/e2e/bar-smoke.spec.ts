@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 
 test('opens the bar and exposes the full upgrade surface', async ({ page }) => {
   await page.goto('/');
@@ -33,7 +33,7 @@ test('keeps sound available and collapsed upgrades inert on mobile', async ({ pa
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Открыть бордель' }).click();
-  await page.getByRole('button', { name: 'Настройки' }).click();
+  await page.getByRole('button', { name: 'Настройки', exact: true }).click();
   await expect(page.getByRole('button', { name: /Звук/i })).toBeVisible();
   await expect(page.locator('#upgrade-panel')).toHaveAttribute('inert', '');
   await expect(page.locator('#staff-panel')).toHaveAttribute('inert', '');

@@ -7,14 +7,14 @@ export default defineConfig({
   // starve Chromium's GPU task when desktop and mobile projects overlap.
   workers: 1,
   use: {
-    baseURL: 'http://127.0.0.1:4187',
+    baseURL: 'http://127.0.0.1:4191',
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run dev',
-    url: 'http://127.0.0.1:4187',
-    reuseExistingServer: true,
+    command: 'npm run dev -- --port 4191 --strictPort',
+    url: 'http://127.0.0.1:4191',
+    reuseExistingServer: false,
   },
   projects: [
     { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },

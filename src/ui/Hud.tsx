@@ -37,6 +37,8 @@ type Props = {
   onVenueView: (view: VenueView) => void;
   sheetMode: SheetMode;
   onSheetMode: (mode: SheetMode) => void;
+  iphoneFrame: boolean;
+  onToggleIphoneFrame: () => void;
 };
 
 const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; description: string; icon: string }>> = {
@@ -679,7 +681,16 @@ function VenueChips({
   );
 }
 
-export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onSheetMode }: Props) {
+export function Hud({
+  engine,
+  snapshot,
+  venueView,
+  onVenueView,
+  sheetMode,
+  onSheetMode,
+  iphoneFrame,
+  onToggleIphoneFrame,
+}: Props) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const bartenderStatus = BARTENDER_STATUS[snapshot.bartender.state];
   const activeRoom = venueView === 'bar' ? null : snapshot.rooms.find((room) => room.id === venueView) ?? null;
@@ -794,6 +805,15 @@ export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onShe
             >
               <Icon name="sound" />
               <span>{snapshot.soundEnabled ? 'Звук вкл.' : 'Звук выкл.'}</span>
+            </button>
+            <button
+              type="button"
+              className={`settings-row ${iphoneFrame ? 'is-active-row' : ''}`}
+              onClick={() => click(onToggleIphoneFrame)}
+              aria-pressed={iphoneFrame}
+            >
+              <span className="settings-row-emoji" aria-hidden="true">📱</span>
+              <span>{iphoneFrame ? 'Экран 9:16 вкл.' : 'Экран 9:16'}</span>
             </button>
             <button type="button" className="settings-row is-danger" onClick={() => click(reset)}>
               <Icon name="reset" />
