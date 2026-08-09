@@ -1,4 +1,4 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
 const fundedSave = {
@@ -43,7 +43,7 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   await page.getByRole('button', { name: 'Открыть бордель' }).click();
   const panel = page.locator('#upgrade-panel');
   if (!(await panel.evaluate((element) => element.classList.contains('is-open')))) {
-    await page.getByRole('button', { name: 'Управление', exact: true }).click();
+    await page.getByRole('button', { name: 'Улучшения', exact: true }).click();
   }
 
   const karaokeTab = page.getByRole('tab', { name: /Стрип/ });
@@ -88,7 +88,7 @@ test('repairs the connected rooms and walks a served bar guest into one', async 
   await page.getByRole('button', { name: /Вернуться в главный зал/ }).click();
   await page.getByRole('button', { name: 'Скорость игры x1' }).click();
   await expect(page.getByRole('button', { name: 'Скорость игры x2' })).toBeVisible();
-  await page.getByRole('button', { name: 'Управление', exact: true }).click();
+  await page.getByRole('button', { name: 'Улучшения', exact: true }).click();
   await page.getByRole('tab', { name: /Секс/ }).click();
   await page.getByRole('button', { name: 'Закрыть управление' }).click();
 
@@ -134,7 +134,7 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
   await expect(panel).toHaveAttribute('aria-hidden', 'true');
   await expect(panel).not.toBeVisible();
 
-  await page.getByRole('button', { name: 'Управление', exact: true }).click();
+  await page.getByRole('button', { name: 'Улучшения', exact: true }).click();
   await expect(panel).toHaveClass(/is-open/);
   await expect(panel).toBeVisible();
   await expect(page.getByRole('button', { name: 'Закрыть управление' })).toBeVisible();
@@ -171,7 +171,7 @@ test('390px HUD uses compact values and development sheet removes redundant over
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(viewportWidth);
 
-  await page.getByRole('button', { name: 'Управление', exact: true }).click();
+  await page.getByRole('button', { name: 'Улучшения', exact: true }).click();
   const panel = page.locator('#upgrade-panel');
   await expect(panel).toBeVisible();
   await expect(page.locator('.brand-card')).toBeVisible();

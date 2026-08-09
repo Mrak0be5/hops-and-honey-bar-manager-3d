@@ -33,7 +33,7 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
 
   const panel = page.locator('#upgrade-panel');
   if (testInfo.project.name === 'mobile-chromium') {
-    await page.getByRole('button', { name: 'Управление', exact: true }).click();
+    await page.getByRole('button', { name: 'Улучшения', exact: true }).click();
     await expect(panel).toHaveClass(/is-open/);
     await page.waitForTimeout(350);
     await page.screenshot({
@@ -42,7 +42,7 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
     });
     await page.getByRole('button', { name: 'Закрыть управление' }).click();
   } else if (await panel.evaluate((element) => element.classList.contains('is-open'))) {
-    await page.getByRole('button', { name: 'Управление', exact: true }).click();
+    await page.getByRole('button', { name: 'Улучшения', exact: true }).click();
   }
 
   await page.waitForTimeout(testInfo.project.name === 'desktop-chromium' ? 9_000 : 5_000);

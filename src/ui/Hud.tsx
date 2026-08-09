@@ -680,6 +680,7 @@ function VenueChips({
 }
 
 export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onSheetMode }: Props) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const bartenderStatus = BARTENDER_STATUS[snapshot.bartender.state];
   const activeRoom = venueView === 'bar' ? null : snapshot.rooms.find((room) => room.id === venueView) ?? null;
   const activeRoomDefinition = activeRoom ? getRoomDefinition(activeRoom.id) : null;
@@ -687,6 +688,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onShe
   const staffOpen = snapshot.started && sheetMode === 'staff';
   const sheetOpen = manageOpen || staffOpen;
   const manageAffordance = anyManageAffordance(snapshot);
+  const staffAffordance = snapshot.roster.some((entry) => !entry.hired && snapshot.coins >= getStaffDefinition(entry.id).hireCost);
   const nextDrink = useMemo(() => {
     const currentLevel = snapshot.upgrades.assortment;
     return currentLevel < 5 ? `Следующий напиток на ${currentLevel + 1} уровне` : 'Вся карта открыта';
@@ -700,21 +702,33 @@ export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onShe
 
   const selectVenue = (view: VenueView) => click(() => onVenueView(view));
 
-  const toggleManage = () => click(() => onSheetMode(sheetMode === 'manage' ? null : 'manage'));
-  const toggleStaff = () => click(() => onSheetMode(sheetMode === 'staff' ? null : 'staff'));
+  const toggleManage = () => click(() => {
+    setSettingsOpen(false);
+    onSheetMode(sheetMode === 'manage' ? null : 'manage');
+  });
+  const toggleStaff = () => click(() => {
+    setSettingsOpen(false);
+    onSheetMode(sheetMode === 'staff' ? null : 'staff');
+  });
   const closeSheet = () => click(() => onSheetMode(null));
   const goToScene = () => click(() => onSheetMode(null));
+  const toggleSettings = () => click(() => {
+    onSheetMode(null);
+    setSettingsOpen((open) => !open);
+  });
+  const closeSettings = () => click(() => setSettingsOpen(false));
 
   const reset = () => {
     if (window.confirm('Сбросить прогресс борделя и начать заново?')) {
       engine.resetProgress();
       onVenueView('bar');
       onSheetMode(null);
+      setSettingsOpen(false);
     }
   };
 
   return (
-    <div className={`hud ${snapshot.started ? 'is-running' : 'is-welcome'} ${sheetOpen ? 'is-development-open' : ''} ${manageOpen ? 'is-manage-open' : ''} ${staffOpen ? 'is-staff-open' : ''}`}>
+    <div className={`hud ${snapshot.started ? 'is-running' : 'is-welcome'} ${sheetOpen ? 'is-development-open' : ''} ${manageOpen ? 'is-manage-open' : ''} ${staffOpen ? 'is-staff-open' : ''} ${settingsOpen ? 'is-settings-open' : ''}`}>
       {snapshot.started && (
         <>
       <header className="top-hud">
@@ -735,50 +749,86 @@ export function Hud({ engine, snapshot, venueView, onVenueView, sheetMode, onShe
           <CurrencyChip icon="customers" value={snapshot.served} label="Обслужено гостей" />
         </div>
 
-        <nav className="control-strip" aria-label="Управление игрой">
-          <button className="icon-button" onClick={() => click(engine.togglePause)} aria-label={snapshot.paused ? 'Продолжить' : 'Пауза'}>
-            <Icon name={snapshot.paused ? 'play' : 'pause'} />
-            <span className="control-label" aria-hidden="true">{snapshot.paused ? 'Играть' : 'Пауза'}</span>
-          </button>
-          <button className="icon-button speed-button" onClick={() => click(engine.toggleSpeed)} aria-label={`Скорость игры x${snapshot.speedMultiplier}`}>
-            <Icon name="time-speed" />
-            <b>×{snapshot.speedMultiplier}</b>
-            <span className="control-label" aria-hidden="true">Скорость</span>
-          </button>
+        <div className="top-tools">
           <button
-            className={`icon-button ${snapshot.soundEnabled ? '' : 'is-muted'}`}
-            onClick={() => {
-              engine.toggleSound();
-              gameAudio.setEnabled(!snapshot.soundEnabled);
-            }}
-            aria-label={snapshot.soundEnabled ? 'Выключить звук' : 'Включить звук'}
+            type="button"
+            className={`settings-button ${settingsOpen ? 'is-active' : ''}`}
+            onClick={toggleSettings}
+            aria-label="Настройки"
+            aria-expanded={settingsOpen}
+            aria-controls="settings-popover"
           >
-            <Icon name="sound" />
-            <span className="control-label" aria-hidden="true">Звук</span>
+            <span aria-hidden="true">⚙</span>
           </button>
-          <button
-            className={`icon-button staff-toggle ${staffOpen ? 'is-active' : ''}`}
-            onClick={toggleStaff}
-            aria-label="Штат"
-            aria-expanded={staffOpen}
-            aria-controls="staff-panel"
-          >
-            <span className="dock-emoji" aria-hidden="true">💋</span>
-            <span className="control-label" aria-hidden="true">Штат</span>
-          </button>
-          <button
-            className={`icon-button upgrades-toggle ${manageOpen ? 'is-active' : ''}`}
-            onClick={toggleManage}
-            aria-label="Управление"
-            aria-expanded={manageOpen}
-            aria-controls="upgrade-panel"
-          >
-            <Icon name="upgrade-arrow" />
-            {manageAffordance && <em className="affordance-badge dock-badge" aria-label="Есть доступные покупки">!</em>}
-            <span className="control-label" aria-hidden="true">Управление</span>
-          </button>
-        </nav>
+        </div>
       </header>
+
+      <div className="meta-rail" aria-label="Статус смены">
+        <b>День {snapshot.day}</b>
+        <span>{activeRoomDefinition?.shortName ?? 'Главный зал'}</span>
+        <span className="meta-rail-track" aria-hidden="true">
+          <i style={{ width: `${snapshot.shiftProgress * 100}%` }} />
+        </span>
+        <em>×{snapshot.speedMultiplier}</em>
+      </div>
+
+      {settingsOpen && (
+        <>
+          <button type="button" className="settings-backdrop" onClick={closeSettings} aria-label="Закрыть настройки" />
+          <div id="settings-popover" className="settings-popover" role="dialog" aria-label="Настройки">
+            <button type="button" className="settings-row" onClick={() => click(engine.togglePause)}>
+              <Icon name={snapshot.paused ? 'play' : 'pause'} />
+              <span>{snapshot.paused ? 'Продолжить' : 'Пауза'}</span>
+            </button>
+            <button type="button" className="settings-row" onClick={() => click(engine.toggleSpeed)}>
+              <Icon name="time-speed" />
+              <span>Скорость ×{snapshot.speedMultiplier}</span>
+            </button>
+            <button
+              type="button"
+              className={`settings-row ${snapshot.soundEnabled ? '' : 'is-muted'}`}
+              onClick={() => {
+                engine.toggleSound();
+                gameAudio.setEnabled(!snapshot.soundEnabled);
+              }}
+            >
+              <Icon name="sound" />
+              <span>{snapshot.soundEnabled ? 'Звук вкл.' : 'Звук выкл.'}</span>
+            </button>
+            <button type="button" className="settings-row is-danger" onClick={() => click(reset)}>
+              <Icon name="reset" />
+              <span>Сбросить прогресс</span>
+            </button>
+          </div>
+        </>
+      )}
+
+      <nav className="bottom-actions" aria-label="Действия">
+        <button
+          type="button"
+          className={`round-fab fab-staff ${staffOpen ? 'is-active' : ''}`}
+          onClick={toggleStaff}
+          aria-label="Штат"
+          aria-expanded={staffOpen}
+          aria-controls="staff-panel"
+        >
+          <span className="round-fab-icon" aria-hidden="true">💋</span>
+          <span className="round-fab-label">Штат</span>
+          {staffAffordance && <em className="affordance-badge dock-badge" aria-label="Можно нанять">!</em>}
+        </button>
+        <button
+          type="button"
+          className={`round-fab fab-manage ${manageOpen ? 'is-active' : ''}`}
+          onClick={toggleManage}
+          aria-label="Улучшения"
+          aria-expanded={manageOpen}
+          aria-controls="upgrade-panel"
+        >
+          <Icon name="upgrade-arrow" />
+          <span className="round-fab-label">Апгрейд</span>
+          {manageAffordance && <em className="affordance-badge dock-badge" aria-label="Есть доступные покупки">!</em>}
+        </button>
+      </nav>
 
       <button
         type="button"
