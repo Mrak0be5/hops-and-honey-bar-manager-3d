@@ -9,13 +9,34 @@ import type { VenueView } from './game/types';
 
 export type SheetMode = null | 'manage' | 'staff';
 
+const IPHONE_FRAME_KEY = 'brothel-iphone-9-16';
+
 export default function App() {
   const snapshot = useGameSnapshot(gameEngine);
   const [contextLost, setContextLost] = useState(false);
   const [venueView, setVenueView] = useState<VenueView>('bar');
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
+  const [iphoneFrame, setIphoneFrame] = useState(() => {
+    try {
+      return localStorage.getItem(IPHONE_FRAME_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
   const lastSoundEvent = useRef(0);
   const handleContextLost = useCallback(() => setContextLost(true), []);
+
+  const toggleIphoneFrame = useCallback(() => {
+    setIphoneFrame((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(IPHONE_FRAME_KEY, next ? '1' : '0');
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
 
   const openManage = useCallback((view?: VenueView) => {
     if (view) setVenueView(view);
@@ -89,36 +110,48 @@ export default function App() {
   }, []);
 
   return (
-    <main className="game-shell">
-      {contextLost ? (
-        <div className="webgl-fallback">
-          <Icon name="reset" />
-          <h1>3D-сцена остановилась</h1>
-          <p>Браузер потерял WebGL-контекст. Прогресс уже сохранён — можно безопасно перезапустить сцену.</p>
-          <button onClick={() => window.location.reload()}>
+    <div className={`app-stage ${iphoneFrame ? 'is-iphone-frame' : ''}`}>
+      <button
+        type="button"
+        className={`iphone-frame-toggle ${iphoneFrame ? 'is-on' : ''}`}
+        onClick={toggleIphoneFrame}
+        aria-pressed={iphoneFrame}
+        aria-label={iphoneFrame ? 'Выключить режим iPhone 9:16' : 'Включить режим iPhone 9:16'}
+        title="Отображение 9:16"
+      >
+        <span aria-hidden="true">9:16</span>
+      </button>
+      <main className="game-shell">
+        {contextLost ? (
+          <div className="webgl-fallback">
             <Icon name="reset" />
-            Перезапустить
-          </button>
-        </div>
-      ) : (
-        <BarScene
+            <h1>3D-сцена остановилась</h1>
+            <p>Браузер потерял WebGL-контекст. Прогресс уже сохранён — можно безопасно перезапустить сцену.</p>
+            <button onClick={() => window.location.reload()}>
+              <Icon name="reset" />
+              Перезапустить
+            </button>
+          </div>
+        ) : (
+          <BarScene
+            engine={gameEngine}
+            snapshot={snapshot}
+            focus={venueView}
+            developmentOpen={sheetMode !== null}
+            onContextLost={handleContextLost}
+            onSelectVenueManage={openManage}
+          />
+        )}
+        <Hud
           engine={gameEngine}
           snapshot={snapshot}
-          focus={venueView}
-          developmentOpen={sheetMode !== null}
-          onContextLost={handleContextLost}
-          onSelectVenueManage={openManage}
+          venueView={venueView}
+          onVenueView={setVenueView}
+          sheetMode={sheetMode}
+          onSheetMode={setSheetMode}
         />
-      )}
-      <Hud
-        engine={gameEngine}
-        snapshot={snapshot}
-        venueView={venueView}
-        onVenueView={setVenueView}
-        sheetMode={sheetMode}
-        onSheetMode={setSheetMode}
-      />
-      <div className="scene-vignette" />
-    </main>
+        <div className="scene-vignette" />
+      </main>
+    </div>
   );
 }

@@ -47,15 +47,76 @@ button {
   touch-action: manipulation;
 }
 
+.app-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+}
+
+.app-stage.is-iphone-frame {
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 50% 20%, #1a3a42 0%, transparent 42%),
+    linear-gradient(180deg, #07151a 0%, #0c2228 100%);
+}
+
+.iphone-frame-toggle {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 80;
+  min-width: 52px;
+  min-height: 36px;
+  padding: 6px 10px;
+  color: #fff6de;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  background: linear-gradient(145deg, #0d4a52, #08343c);
+  border: 2px solid rgba(255, 245, 215, 0.85);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 rgba(2, 30, 37, 0.45), 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.iphone-frame-toggle.is-on {
+  color: #082f39;
+  background: linear-gradient(145deg, #ffe08a, #ffb84d);
+  box-shadow: 0 0 0 2px rgba(255, 198, 75, 0.35), 0 4px 0 #a95337;
+}
+
+.app-stage.is-iphone-frame .iphone-frame-toggle {
+  position: absolute;
+}
+
 .game-shell {
   position: relative;
   width: 100%;
   height: 100%;
   min-height: 100dvh;
   isolation: isolate;
+  overflow: hidden;
+  container-type: size;
+  container-name: phone;
   background:
     radial-gradient(circle at 50% 14%, rgba(255, 247, 206, 0.7), transparent 38%),
     linear-gradient(180deg, #b7e8de 0%, #69cfc1 100%);
+}
+
+.app-stage.is-iphone-frame .game-shell {
+  width: min(100vw - 28px, calc((100dvh - 28px) * 9 / 16));
+  height: min(100dvh - 28px, calc((100vw - 28px) * 16 / 9));
+  min-height: 0;
+  aspect-ratio: 9 / 16;
+  border: 3px solid #1f2a2e;
+  border-radius: 28px;
+  box-shadow:
+    0 0 0 2px rgba(255, 245, 215, 0.18),
+    0 22px 60px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .game-canvas {
@@ -2249,7 +2310,7 @@ button {
   .icon-button .game-icon { width: 31px; height: 34px; }
 }
 
-@media (max-width: 700px) and (orientation: portrait) {
+@container phone (max-width: 700px) {
   .scene-vignette {
     box-shadow: inset 0 0 54px rgba(7, 63, 70, 0.17);
   }
@@ -2345,14 +2406,14 @@ button {
   }
 
   .hud.is-development-open .event-toast {
-    bottom: calc(88px + env(safe-area-inset-bottom) + min(48dvh, 420px));
+    bottom: calc(88px + env(safe-area-inset-bottom) + min(48cqh, 420px));
   }
 
   .currency-value-full { display: none; }
   .currency-value-compact { display: inline; }
 
   .control-strip {
-    position: fixed;
+    position: absolute;
     right: 0;
     bottom: 0;
     left: 0;
@@ -2454,8 +2515,8 @@ button {
     bottom: calc(80px + env(safe-area-inset-bottom));
     left: max(6px, env(safe-area-inset-left));
     width: auto;
-    height: min(48dvh, 440px);
-    max-height: calc(100dvh - 168px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    height: min(48cqh, 440px);
+    max-height: calc(100cqh - 168px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     padding: 9px 11px 11px;
     scroll-padding-bottom: max(10px, env(safe-area-inset-bottom));
     border-radius: 26px 26px 18px 18px;
@@ -2468,11 +2529,11 @@ button {
   }
 
   .upgrade-panel.is-room-view {
-    height: min(50dvh, 460px);
+    height: min(50cqh, 460px);
   }
 
   .staff-panel {
-    height: min(54dvh, 500px);
+    height: min(54cqh, 500px);
   }
 
   .hire-cta-button {
@@ -2705,7 +2766,7 @@ button {
     top: calc(72px + env(safe-area-inset-top));
     width: max-content;
     min-width: 154px;
-    max-width: calc(100vw - 28px);
+    max-width: calc(100cqw - 28px);
     min-height: 42px;
     padding: 7px 12px;
     font-size: 11px;
@@ -2716,7 +2777,7 @@ button {
   }
 
   .pause-card {
-    width: min(260px, calc(100vw - 32px));
+    width: min(260px, calc(100cqw - 32px));
     padding: 18px;
   }
 
@@ -2726,8 +2787,8 @@ button {
   }
 
   .welcome-card {
-    width: min(430px, calc(100vw - 18px));
-    max-height: calc(100dvh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    width: min(430px, calc(100cqw - 18px));
+    max-height: calc(100cqh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     padding: 20px 17px;
     border-radius: 24px;
   }
@@ -2750,7 +2811,7 @@ button {
   .world-emoji small { display: none; }
 }
 
-@media (max-width: 390px) and (orientation: portrait) {
+@container phone (max-width: 390px) {
   .top-hud {
     grid-template-columns: minmax(126px, 36vw) minmax(0, 1fr);
     gap: 4px;
@@ -2807,12 +2868,12 @@ button {
 
 }
 
-@media (max-width: 380px) and (max-height: 760px) and (orientation: portrait) {
+@container phone (max-width: 380px) and (max-height: 760px) {
   .brand-card,
   .currency-strip { height: 54px; }
   .currency-chip { height: 44px; }
   .brand-copy small { display: none; }
-  .upgrade-panel { height: min(50dvh, 420px); }
+  .upgrade-panel { height: min(50cqh, 420px); }
   .welcome-card p { margin-top: 8px; margin-bottom: 10px; }
   .welcome-loop { margin-bottom: 11px; }
 }
