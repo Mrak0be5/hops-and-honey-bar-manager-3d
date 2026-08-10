@@ -1,7 +1,7 @@
 name: hops_and_honey_3d
 description: "Full 3D Flutter port of Hops & Honey powered by flutter_scene."
 publish_to: none
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.14.0-110.0.dev
@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
   flutter_scene: 0.20.0
   shared_preferences: ^2.5.5
   vector_math: ^2.2.0

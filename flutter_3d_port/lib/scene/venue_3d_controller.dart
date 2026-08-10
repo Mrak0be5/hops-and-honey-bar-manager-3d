@@ -8,8 +8,9 @@ export 'scene_contract.dart' show SceneVenue, SceneVenueRoom;
 
 /// Owns the bridge between [BarSimulation] and one concrete venue renderer.
 ///
-/// The controller deliberately owns no ticker. [Venue3DSurface] is the sole
-/// frame source and calls [advanceFrame] once for every tick.
+/// The controller deliberately owns no ticker. The concrete renderer is the
+/// sole frame source and calls [advanceFrame] once for every tick through
+/// [Venue3DSurface].
 class Venue3DController {
   Venue3DController({required this.simulation, SceneVenueFactory? sceneFactory})
     : _sceneFactory = sceneFactory ?? FlutterSceneVenue.new;
@@ -69,7 +70,7 @@ class Venue3DController {
     }
   }
 
-  /// Called by the one ticker in [Venue3DSurface].
+  /// Called by the concrete renderer's one frame ticker.
   ///
   /// There is intentionally exactly one [BarSimulation.update] invocation in
   /// this method. The simulation itself owns any fixed-step subdivision.

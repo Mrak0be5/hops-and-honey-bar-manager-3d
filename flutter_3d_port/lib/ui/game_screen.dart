@@ -52,7 +52,14 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: controller,
-      builder: (context, _) {
+      child: RepaintBoundary(
+        child: Venue3DSurface(
+          key: const Key('three-d-scene'),
+          controller: _scene,
+          onVenueSelected: _selectSceneVenue,
+        ),
+      ),
+      builder: (context, sceneSurface) {
         final snapshot = controller.snapshot;
         return LayoutBuilder(
           builder: (context, outer) {
@@ -89,7 +96,7 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                           child: _GameSurface(
                             snapshot: snapshot,
-                            scene: _scene,
+                            sceneSurface: sceneSurface!,
                             developmentOpen: _developmentOpen,
                             settingsOpen: _settingsOpen,
                             selectedRoom: _selectedRoom,
@@ -99,7 +106,6 @@ class _GameScreenState extends State<GameScreen> {
                             onOpenSettings: _openSettings,
                             onCloseSettings: _closeSettings,
                             onSelectRoom: _selectRoom,
-                            onSceneVenueSelected: _selectSceneVenue,
                             onBuyBarUpgrade: controller.purchaseUpgrade,
                             onUnlockRoom: _unlockRoom,
                             onBuyRoomUpgrade: controller.purchaseRoomUpgrade,
@@ -218,7 +224,7 @@ class _GameScreenState extends State<GameScreen> {
 class _GameSurface extends StatelessWidget {
   const _GameSurface({
     required this.snapshot,
-    required this.scene,
+    required this.sceneSurface,
     required this.developmentOpen,
     required this.settingsOpen,
     required this.selectedRoom,
@@ -228,7 +234,6 @@ class _GameSurface extends StatelessWidget {
     required this.onOpenSettings,
     required this.onCloseSettings,
     required this.onSelectRoom,
-    required this.onSceneVenueSelected,
     required this.onBuyBarUpgrade,
     required this.onUnlockRoom,
     required this.onBuyRoomUpgrade,
@@ -242,7 +247,7 @@ class _GameSurface extends StatelessWidget {
   });
 
   final GameSnapshot snapshot;
-  final Venue3DController scene;
+  final Widget sceneSurface;
   final bool developmentOpen;
   final bool settingsOpen;
   final RoomId? selectedRoom;
@@ -252,7 +257,6 @@ class _GameSurface extends StatelessWidget {
   final VoidCallback onOpenSettings;
   final VoidCallback onCloseSettings;
   final ValueChanged<RoomId?> onSelectRoom;
-  final ValueChanged<SceneVenue> onSceneVenueSelected;
   final ValueChanged<UpgradeKey> onBuyBarUpgrade;
   final ValueChanged<RoomId> onUnlockRoom;
   final void Function(RoomId roomId, RoomUpgradeKey key) onBuyRoomUpgrade;
@@ -282,13 +286,7 @@ class _GameSurface extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                RepaintBoundary(
-                  child: Venue3DSurface(
-                    key: const Key('three-d-scene'),
-                    controller: scene,
-                    onVenueSelected: onSceneVenueSelected,
-                  ),
-                ),
+                sceneSurface,
                 if (snapshot.started)
                   _Hud(
                     snapshot: snapshot,

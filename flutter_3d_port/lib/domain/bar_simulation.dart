@@ -52,13 +52,15 @@ class BarSimulation {
   ShiftSummary? _lastShiftSummary;
   List<RoomId> _priorityRoomQueue = [];
   String? _openingPriorityPatronId;
+  GameSnapshot? _snapshotCache;
 
-  GameSnapshot get snapshot => _buildSnapshot();
+  GameSnapshot get snapshot => _snapshotCache ??= _buildSnapshot();
 
   void start() {
     if (_started) return;
     _started = true;
     _pushEvent(GameEventKind.day, 'День $_day: бар открыт!');
+    _invalidateSnapshot();
   }
 
   void reset() {
@@ -68,6 +70,7 @@ class BarSimulation {
 
   int toggleSpeed() {
     _speedMultiplier = _speedMultiplier == 1 ? 2 : 1;
+    _invalidateSnapshot();
     return _speedMultiplier;
   }
 
@@ -87,6 +90,7 @@ class BarSimulation {
     }
     _upgrades = _upgrades.withLevel(key, level + 1);
     _pushEvent(GameEventKind.upgrade, '${definition.name} · ур. ${level + 1}');
+    _invalidateSnapshot();
     return true;
   }
 
@@ -113,6 +117,7 @@ class BarSimulation {
       '${definition.name} $verb!',
       roomId: roomId,
     );
+    _invalidateSnapshot();
     return true;
   }
 
@@ -135,6 +140,7 @@ class BarSimulation {
       '${definition.shortName}: ${_roomUpgradeName(key)} · ур. ${currentLevel + 1}',
       roomId: roomId,
     );
+    _invalidateSnapshot();
     return true;
   }
 
@@ -146,6 +152,7 @@ class BarSimulation {
       _step(delta);
       remaining -= delta;
     }
+    _invalidateSnapshot();
   }
 
   GameSave createSave() => GameSave(
@@ -244,6 +251,7 @@ class BarSimulation {
     _priorityRoomQueue = RoomId.values
         .where((id) => _rooms[id]!.awaitingFirstGuest)
         .toList();
+    _invalidateSnapshot();
   }
 
   void _resetAll() {
@@ -276,7 +284,10 @@ class BarSimulation {
       for (final definition in roomDefinitions.values)
         definition.id: _Room(definition),
     };
+    _invalidateSnapshot();
   }
+
+  void _invalidateSnapshot() => _snapshotCache = null;
 
   void _step(double delta) {
     _shiftElapsed += delta;

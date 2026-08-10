@@ -24,6 +24,14 @@ extension SceneVenueRoom on SceneVenue {
 /// therefore do not need a Flutter GPU context.
 typedef SceneVenueFactory = SceneVenueRenderer Function();
 
+/// Called by the renderer-owned frame source immediately before repainting
+/// the 3D layer. Keeping this callback inside the renderer avoids rebuilding
+/// the surrounding Flutter widget tree for every animation frame.
+typedef SceneVenueFrameCallback = void Function(
+  Duration elapsed,
+  double deltaSeconds,
+);
+
 /// Small lifecycle contract between the simulation/controller and a concrete
 /// 3D backend.
 ///
@@ -31,7 +39,7 @@ typedef SceneVenueFactory = SceneVenueRenderer Function();
 /// advance the gameplay simulation. The surface/controller does that once per
 /// frame before calling [sync].
 abstract interface class SceneVenueRenderer {
-  Widget buildView();
+  Widget buildView({SceneVenueFrameCallback? onFrame});
 
   void focus(SceneVenue venue);
 

@@ -35,6 +35,26 @@ class FlutterSceneVenue implements SceneVenueRenderer {
     );
   }
 
+  @visibleForTesting
+  static List<List<vm.Matrix4>> barFloorTileTransforms() {
+    final batches = List.generate(3, (_) => <vm.Matrix4>[]);
+    for (var ix = 0; ix < 8; ix++) {
+      for (var iz = 0; iz < 6; iz++) {
+        final colorIndex = (ix * 7 + iz * 3).abs() % batches.length;
+        batches[colorIndex].add(
+          _transform(-6.5 + ix * 1.86, 0.12, -4.6 + iz * 1.86),
+        );
+      }
+    }
+    return batches;
+  }
+
+  @visibleForTesting
+  static List<vm.Matrix4> chairLegTransforms() => [
+    for (final legX in [-0.27, 0.27])
+      for (final legZ in [-0.27, 0.27]) _transform(legX, 0.27, legZ),
+  ];
+
   FlutterSceneVenue() {
     _scene = Scene()
       ..exposure = 1.08
@@ -95,13 +115,14 @@ class FlutterSceneVenue implements SceneVenueRenderer {
   double _eventAge = 99;
 
   @override
-  Widget buildView() {
+  Widget buildView({SceneVenueFrameCallback? onFrame}) {
     return Builder(
       builder: (context) => SceneView(
         _scene,
         key: const ValueKey('flutter-scene-venue-view'),
         camera: _camera,
-        autoTick: false,
+        autoTick: onFrame != null,
+        onTick: onFrame,
         pixelRatio: pixelRatioForDevice(MediaQuery.devicePixelRatioOf(context)),
         warmUp: true,
         revealMinDuration: const Duration(milliseconds: 180),
@@ -252,20 +273,16 @@ class FlutterSceneVenue implements SceneVenueRenderer {
       pickable: true,
     );
     const tileColors = [0xFFF7E1BB, 0xFFFFD9B9, 0xFFF2CDA4];
-    for (var ix = 0; ix < 8; ix++) {
-      for (var iz = 0; iz < 6; iz++) {
-        _box(
-          bar,
-          name: 'bar-tile:$ix:$iz',
-          size: const (1.86, 0.035, 1.86),
-          at: (-6.5 + ix * 1.86, 0.12, -4.6 + iz * 1.86),
-          material: _materials.pbr(
-            tileColors[(ix * 7 + iz * 3).abs() % tileColors.length],
-            roughness: 0.96,
-          ),
-          pickable: false,
-        );
-      }
+    final tileTransforms = barFloorTileTransforms();
+    for (var index = 0; index < tileColors.length; index++) {
+      _instancedMeshNode(
+        bar,
+        name: 'bar-tiles:$index',
+        geometry: _geometry.box(1.86, 0.035, 1.86),
+        material: _materials.pbr(tileColors[index], roughness: 0.96),
+        transforms: tileTransforms[index],
+        pickable: false,
+      );
     }
     final wall = _materials.pbr(0xFF087B81, roughness: 0.8);
     final trim = _materials.pbr(0xFFF1BD61, roughness: 0.46, metallic: 0.12);
@@ -569,9 +586,7 @@ class FlutterSceneVenue implements SceneVenueRenderer {
 
     final unlocked = Node(name: 'room:${id.name}:interior');
     final locked = Node(name: 'room:${id.name}:repair');
-    roomRoot
-      ..add(unlocked)
-      ..add(locked);
+    roomRoot.add(locked);
     final capacity = <Node>[];
     final quality = <Node>[];
     final staffSpeed = <Node>[];
@@ -626,6 +641,7 @@ class FlutterSceneVenue implements SceneVenueRenderer {
     roomRoot.add(lightNode);
     return _RoomVisual(
       layout: layout,
+      root: roomRoot,
       floor: floor,
       unlockedRoot: unlocked,
       lockedRoot: locked,
@@ -1267,28 +1283,25 @@ class FlutterSceneVenue implements SceneVenueRenderer {
       at: const (0, 0.88, -0.32),
       material: _materials.pbr(0xFFEF5C4F, roughness: 0.72),
     );
-    for (final legX in [-0.27, 0.27]) {
-      for (final legZ in [-0.27, 0.27]) {
-        _cylinder(
-          chair,
-          name: 'chair-leg',
-          bottomRadius: 0.055,
-          topRadius: 0.045,
-          height: 0.56,
-          at: (legX, 0.27, legZ),
-          material: _materials.pbr(0xFF43382F, roughness: 0.92),
-          radialSegments: 8,
-        );
-      }
-    }
+    _instancedMeshNode(
+      chair,
+      name: 'chair-legs',
+      geometry: _geometry.cylinder(0.055, 0.045, 0.56, 8),
+      material: _materials.pbr(0xFF43382F, roughness: 0.92),
+      transforms: chairLegTransforms(),
+    );
   }
 
   void _syncRooms(GameSnapshot snapshot, double dt) {
     for (final room in snapshot.rooms) {
       final visual = _rooms[room.id];
       if (visual == null) continue;
-      visual.unlockedRoot.visible = room.unlocked;
-      visual.lockedRoot.visible = !room.unlocked;
+      _attachRoomState(visual, unlocked: room.unlocked);
+      if (!room.unlocked) {
+        visual.progress.visible = false;
+        visual.light.intensity = 2.2;
+        continue;
+      }
       for (var index = 0; index < visual.capacity.length; index++) {
         visual.capacity[index].visible = index < room.capacity;
       }
@@ -1299,9 +1312,7 @@ class FlutterSceneVenue implements SceneVenueRenderer {
         visual.staffSpeed[index].visible = index < room.upgrades.staffSpeed;
       }
       visual.progress.visible =
-          room.unlocked &&
-          room.guests > 0 &&
-          room.staffState == RoomStaffState.serving;
+          room.guests > 0 && room.staffState == RoomStaffState.serving;
       if (visual.progress.visible) {
         final scale = 0.7 + room.progress.clamp(0.0, 1.0) * 0.5;
         visual.progress.localTransform = _transform(
@@ -1312,10 +1323,9 @@ class FlutterSceneVenue implements SceneVenueRenderer {
           scale: scale,
         );
       }
-      visual.light.intensity = room.unlocked
-          ? (SceneVenueRoom.fromRoom(room.id) == _focus ? 13.0 : 6.2) +
-                room.upgrades.quality * 0.7
-          : 2.2;
+      visual.light.intensity =
+          (SceneVenueRoom.fromRoom(room.id) == _focus ? 13.0 : 6.2) +
+          room.upgrades.quality * 0.7;
       final staff = _roomStaff[room.id];
       if (staff != null) {
         final waitingSpot = visual.layout.toLocal(visual.layout.staffSpot);
@@ -1341,6 +1351,17 @@ class FlutterSceneVenue implements SceneVenueRenderer {
         staff.carried.visible = active;
       }
     }
+  }
+
+  void _attachRoomState(_RoomVisual visual, {required bool unlocked}) {
+    final active = unlocked ? visual.unlockedRoot : visual.lockedRoot;
+    final inactive = unlocked ? visual.lockedRoot : visual.unlockedRoot;
+    inactive.parent?.remove(inactive);
+    if (!identical(active.parent, visual.root)) {
+      active.parent?.remove(active);
+      visual.root.add(active);
+    }
+    active.visible = true;
   }
 
   void _syncActors(GameSnapshot snapshot, double dt) {
@@ -1860,6 +1881,27 @@ class FlutterSceneVenue implements SceneVenueRenderer {
     parent.add(node);
     return node;
   }
+
+  InstancedMesh _instancedMeshNode(
+    Node parent, {
+    required String name,
+    required Geometry geometry,
+    required PhysicallyBasedMaterial material,
+    required Iterable<vm.Matrix4> transforms,
+    bool staticShadow = true,
+    bool pickable = false,
+  }) {
+    final mesh = InstancedMesh(geometry: geometry, material: material);
+    for (final transform in transforms) {
+      mesh.addInstance(transform);
+    }
+    final node = Node(name: name)
+      ..shadowStatic = staticShadow
+      ..raycastable = pickable
+      ..addComponent(InstancedMeshComponent(mesh));
+    parent.add(node);
+    return mesh;
+  }
 }
 
 class _SceneLoading extends StatelessWidget {
@@ -1921,6 +1963,7 @@ class _CameraPose {
 class _RoomVisual {
   const _RoomVisual({
     required this.layout,
+    required this.root,
     required this.floor,
     required this.unlockedRoot,
     required this.lockedRoot,
@@ -1932,6 +1975,7 @@ class _RoomVisual {
   });
 
   final RoomLayout layout;
+  final Node root;
   final Node floor;
   final Node unlockedRoot;
   final Node lockedRoot;

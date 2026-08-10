@@ -10,10 +10,20 @@ class FakeSceneRenderer implements SceneVenueRenderer {
   SceneVenue? hitTestResult;
   Size viewport = Size.zero;
   int syncCount = 0;
+  int buildCount = 0;
   bool disposed = false;
+  SceneVenueFrameCallback? onFrame;
 
   @override
-  Widget buildView() => const ColoredBox(color: Color(0xFF041D26));
+  Widget buildView({SceneVenueFrameCallback? onFrame}) {
+    buildCount += 1;
+    this.onFrame = onFrame;
+    return const ColoredBox(color: Color(0xFF041D26));
+  }
+
+  void emitFrame(Duration elapsed, double deltaSeconds) {
+    onFrame?.call(elapsed, deltaSeconds);
+  }
 
   @override
   void focus(SceneVenue venue) {

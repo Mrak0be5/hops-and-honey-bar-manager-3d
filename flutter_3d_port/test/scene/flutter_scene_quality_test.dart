@@ -20,4 +20,15 @@ void main() {
     expect(desktop.shadowCascades, 3);
     expect(desktop.shadowResolution, 1024);
   });
+
+  test('bar floor tiles share three instanced render items', () {
+    final batches = FlutterSceneVenue.barFloorTileTransforms();
+
+    expect(batches, hasLength(3));
+    expect(batches.fold(0, (total, batch) => total + batch.length), 48);
+  });
+
+  test('each chair batches four identical legs into one render item', () {
+    expect(FlutterSceneVenue.chairLegTransforms(), hasLength(4));
+  });
 }

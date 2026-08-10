@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import 'scene_contract.dart';
 import 'venue_3d_controller.dart';
 
-/// Bounded host for the 3D venue. It owns the only ticker in this scene stack;
-/// the nested flutter_scene view is configured with `autoTick: false`.
+/// Bounded host for the 3D venue. The nested renderer owns the only frame
+/// ticker and reports frames through [SceneVenueFrameCallback], so this host
+/// does not rebuild its widget subtree on every repaint.
 class Venue3DSurface extends StatefulWidget {
   const Venue3DSurface({
     super.key,
@@ -20,18 +20,14 @@ class Venue3DSurface extends StatefulWidget {
   State<Venue3DSurface> createState() => _Venue3DSurfaceState();
 }
 
-class _Venue3DSurfaceState extends State<Venue3DSurface>
-    with SingleTickerProviderStateMixin {
-  late final Ticker _ticker;
+class _Venue3DSurfaceState extends State<Venue3DSurface> {
   SceneVenueRenderer? _renderer;
-  Duration? _lastElapsed;
   Object? _error;
   StackTrace? _errorStack;
 
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker(_onTick);
     _attach();
   }
 
@@ -40,7 +36,6 @@ class _Venue3DSurfaceState extends State<Venue3DSurface>
     super.didUpdateWidget(oldWidget);
     if (identical(oldWidget.controller, widget.controller)) return;
     oldWidget.controller.detachSurface(this);
-    _lastElapsed = null;
     _error = null;
     _errorStack = null;
     _attach();
@@ -49,27 +44,18 @@ class _Venue3DSurfaceState extends State<Venue3DSurface>
   void _attach() {
     try {
       _renderer = widget.controller.attachSurface(this);
-      if (!_ticker.isActive) _ticker.start();
     } catch (error, stack) {
       _renderer = null;
       _error = error;
       _errorStack = stack;
-      if (_ticker.isActive) _ticker.stop();
     }
   }
 
-  void _onTick(Duration elapsed) {
+  void _onFrame(Duration elapsed, double delta) {
     if (_renderer == null || _error != null) return;
-    final previous = _lastElapsed;
-    _lastElapsed = elapsed;
-    final delta = previous == null
-        ? 0.0
-        : (elapsed - previous).inMicroseconds / Duration.microsecondsPerSecond;
     try {
       widget.controller.advanceFrame(elapsed, delta);
-      if (mounted) setState(() {});
     } catch (error, stack) {
-      _ticker.stop();
       if (!mounted) return;
       setState(() {
         _error = error;
@@ -80,7 +66,6 @@ class _Venue3DSurfaceState extends State<Venue3DSurface>
 
   @override
   void dispose() {
-    _ticker.dispose();
     widget.controller.detachSurface(this);
     super.dispose();
   }
@@ -124,7 +109,7 @@ class _Venue3DSurfaceState extends State<Venue3DSurface>
           );
         }
 
-        final view = _renderer!.buildView();
+        final view = _renderer!.buildView(onFrame: _onFrame);
         return Semantics(
           container: true,
           label: 'Трёхмерный зал «Хмель и мёд»',
@@ -162,9 +147,7 @@ class _Venue3DSurfaceState extends State<Venue3DSurface>
         _renderer = renderer;
         _error = null;
         _errorStack = null;
-        _lastElapsed = null;
       });
-      if (!_ticker.isActive) _ticker.start();
     } catch (error, stack) {
       setState(() {
         _error = error;

@@ -7,7 +7,7 @@ import 'package:hops_and_honey_3d/scene/venue_3d_surface.dart';
 import '../support/fake_scene_renderer.dart';
 
 void main() {
-  testWidgets('surface owns one ticker and updates simulation once per pump', (
+  testWidgets('renderer ticker updates simulation exactly once per frame', (
     tester,
   ) async {
     final simulation = _CountingSimulation();
@@ -30,9 +30,9 @@ void main() {
     );
     final before = simulation.updateCalls;
 
-    await tester.pump(const Duration(milliseconds: 16));
+    renderer.emitFrame(const Duration(milliseconds: 16), 0.016);
     expect(simulation.updateCalls, before + 1);
-    await tester.pump(const Duration(milliseconds: 16));
+    renderer.emitFrame(const Duration(milliseconds: 32), 0.016);
     expect(simulation.updateCalls, before + 2);
     expect(find.byKey(const Key('venue-3d-surface')), findsOneWidget);
     expect(renderer.viewport, const Size(390, 560));
@@ -40,6 +40,34 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     controller.dispose();
     expect(renderer.disposed, isTrue);
+  });
+
+  testWidgets('animation frames do not rebuild the renderer widget subtree', (
+    tester,
+  ) async {
+    final renderer = FakeSceneRenderer();
+    final controller = Venue3DController(
+      simulation: BarSimulation(),
+      sceneFactory: () => renderer,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox.expand(child: Venue3DSurface(controller: controller)),
+      ),
+    );
+    final buildsAfterLayout = renderer.buildCount;
+
+    renderer.emitFrame(const Duration(milliseconds: 16), 0.016);
+    await tester.pump(const Duration(milliseconds: 16));
+    renderer.emitFrame(const Duration(milliseconds: 32), 0.016);
+    await tester.pump(const Duration(milliseconds: 16));
+    renderer.emitFrame(const Duration(milliseconds: 48), 0.016);
+    await tester.pump(const Duration(milliseconds: 16));
+
+    expect(renderer.buildCount, buildsAfterLayout);
+    await tester.pumpWidget(const SizedBox.shrink());
+    controller.dispose();
   });
 
   testWidgets('shows a bounded diagnostic for unbounded constraints', (

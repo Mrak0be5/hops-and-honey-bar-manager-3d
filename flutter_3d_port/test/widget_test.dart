@@ -47,6 +47,18 @@ void main() {
     await tester.pump();
   }
 
+  testWidgets('HUD refreshes do not rebuild the 3D renderer', (tester) async {
+    final renderer = FakeSceneRenderer();
+    final controller = await pumpGame(tester, renderer: renderer);
+    final buildsAfterLayout = renderer.buildCount;
+
+    controller.toggleSpeed();
+    await tester.pump();
+
+    expect(renderer.buildCount, buildsAfterLayout);
+    await disposeGame(tester, controller);
+  });
+
   testWidgets('start, speed and exact development values work', (tester) async {
     final controller = await pumpGame(tester);
 

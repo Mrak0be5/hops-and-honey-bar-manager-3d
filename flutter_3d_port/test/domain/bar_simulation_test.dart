@@ -3,6 +3,25 @@ import 'package:hops_and_honey_3d/domain/bar_simulation.dart';
 
 void main() {
   group('BarSimulation', () {
+    test('reuses immutable snapshots until simulation state changes', () {
+      final simulation = BarSimulation();
+      final initial = simulation.snapshot;
+
+      expect(identical(initial, simulation.snapshot), isTrue);
+      simulation.update(0.05);
+      expect(identical(initial, simulation.snapshot), isTrue);
+
+      simulation.start();
+      final started = simulation.snapshot;
+      expect(identical(initial, started), isFalse);
+      expect(identical(started, simulation.snapshot), isTrue);
+
+      simulation.update(0.05);
+      final advanced = simulation.snapshot;
+      expect(identical(started, advanced), isFalse);
+      expect(identical(advanced, simulation.snapshot), isTrue);
+    });
+
     test('starts with six tables and toggles only between 1x and 2x', () {
       final simulation = BarSimulation();
       expect(simulation.snapshot.started, isFalse);
