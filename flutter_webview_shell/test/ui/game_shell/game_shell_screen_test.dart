@@ -102,6 +102,9 @@ class FakeGameBrowser implements GameBrowserCommands {
   bool canGoBack = false;
 
   @override
+  Future<bool> dismissPageOverlayIfPossible() async => false;
+
+  @override
   Future<bool> goBackIfPossible() async {
     if (!canGoBack) {
       return false;

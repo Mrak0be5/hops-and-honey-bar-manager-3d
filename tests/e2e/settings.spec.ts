@@ -72,6 +72,22 @@ test('puts speed and settings in the top corners and removes pause controls', as
   await expect(settings).toBeFocused();
 });
 
+test('keeps Settings keyboard focus stable between game snapshots', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/');
+  await page.locator('.start-button').click();
+
+  await page.locator('.settings-button').click();
+  const sound = page.locator('.settings-sound-toggle');
+  await expect(page.locator('#settings-dialog')).toBeVisible();
+  await expect(page.locator('.settings-close')).toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expect(sound).toBeFocused();
+  await page.waitForTimeout(350);
+  await expect(sound).toBeFocused();
+});
+
 test('keeps reset behind confirmation and restores a fresh x1 game', async ({ page }) => {
   test.setTimeout(60_000);
   let browserDialogOpened = false;
@@ -104,4 +120,63 @@ test('keeps reset behind confirmation and restores a fresh x1 game', async ({ pa
 
   await page.getByRole('button', { name: 'Открыть бар' }).click();
   await expect(page.getByRole('button', { name: 'Скорость игры x1' })).toBeVisible();
+});
+
+test('closes development with Escape and restores the trigger focus', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  const development = page.getByRole('button', { name: 'Улучшения бара' });
+  await development.click();
+  await expect(page.locator('.upgrade-panel')).toHaveClass(/is-open/);
+
+  await page.keyboard.press('Escape');
+
+  await expect(page.locator('.upgrade-panel')).not.toHaveClass(/is-open/);
+  await expect(development).toBeFocused();
+});
+
+test('does not let a reset double-tap bypass confirmation', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'Android touch regression');
+  test.setTimeout(90_000);
+  await page.setViewportSize({ width: 412, height: 915 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify({
+      coins: 100_000,
+      reputation: 1_000,
+      served: 42,
+      day: 9,
+      upgrades: {
+        moveSpeed: 2,
+        orderSpeed: 2,
+        prepSpeed: 2,
+        cleanSpeed: 2,
+        assortment: 2,
+        advertising: 2,
+      },
+      soundEnabled: true,
+    }));
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Настройки' }).click();
+
+  const reset = page.getByRole('button', { name: 'Сбросить прогресс' });
+  const bounds = await reset.boundingBox();
+  expect(bounds).not.toBeNull();
+  const point = {
+    x: bounds!.x + bounds!.width / 2,
+    y: bounds!.y + bounds!.height / 2,
+  };
+  const firstTap = page.touchscreen.tap(point.x, point.y);
+  await new Promise<void>((resolve) => setTimeout(resolve, 90));
+  const secondTap = page.touchscreen.tap(point.x, point.y);
+  await Promise.all([firstTap, secondTap]);
+
+  await expect(page.getByRole('heading', { name: 'Сбросить весь прогресс?' })).toBeVisible();
+  expect(await page.evaluate(() => window.localStorage.getItem('hops-and-honey-save-v1'))).not.toBeNull();
+
+  await page.waitForTimeout(3_200);
+  await page.touchscreen.tap(point.x, point.y);
+  await expect(page.getByRole('button', { name: 'Открыть бар' })).toBeVisible();
+  expect(await page.evaluate(() => window.localStorage.getItem('hops-and-honey-save-v1'))).toBeNull();
 });

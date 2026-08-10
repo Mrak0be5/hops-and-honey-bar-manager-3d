@@ -65,6 +65,13 @@ class GameShellViewModel extends ChangeNotifier {
   }
 
   Future<bool> handleBack() async {
-    return await _browser?.goBackIfPossible() ?? false;
+    final GameBrowserCommands? browser = _browser;
+    if (browser == null) {
+      return false;
+    }
+    if (await browser.dismissPageOverlayIfPossible()) {
+      return true;
+    }
+    return browser.goBackIfPossible();
   }
 }

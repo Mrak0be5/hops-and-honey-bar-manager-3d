@@ -196,7 +196,7 @@ export function getRoomUpgradeEffect(
   const nextSession = nextValue === null ? null : getRoomProfit(roomId, quality + 1, capacity);
   const guestsToPayback = nextValue === null ? null : Math.ceil(cost / Math.max(1, nextValue - currentValue));
   const detail = nextSession === null
-    ? `Полный сеанс: ${currentSession} 🪙 при ${capacity} мест.`
+    ? `Полный сеанс: ${currentSession} 🪙 · при ${capacity === 1 ? '1 месте' : `${capacity} местах`}`
     : `Полный сеанс: ${currentSession} → ${nextSession} 🪙 · окуп. ≈${guestsToPayback} гостей`;
   return {
     label: 'Доход с гостя',

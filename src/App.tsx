@@ -44,23 +44,26 @@ export default function App() {
     setPortraitPreview((enabled) => !enabled);
   };
 
+  const selectedRoomIsLocked = venueView !== 'bar'
+    && !snapshot.rooms.find((room) => room.id === venueView)?.unlocked;
+
   const handleUpgradesOpen = useCallback((open: boolean) => {
     setUpgradesOpen(open);
-    if (!open && venueView !== 'bar' && !snapshot.rooms.find((room) => room.id === venueView)?.unlocked) {
+    if (!open && selectedRoomIsLocked) {
       setVenueView('bar');
     }
     if (open) setSettingsOpen(false);
-  }, [snapshot.rooms, venueView]);
+  }, [selectedRoomIsLocked]);
 
   const handleSettingsOpen = useCallback((open: boolean) => {
     setSettingsOpen(open);
     if (open) {
       setUpgradesOpen(false);
-      if (venueView !== 'bar' && !snapshot.rooms.find((room) => room.id === venueView)?.unlocked) {
+      if (selectedRoomIsLocked) {
         setVenueView('bar');
       }
     }
-  }, [snapshot.rooms, venueView]);
+  }, [selectedRoomIsLocked]);
 
   return (
     <div className={`app-stage ${portraitPreview ? 'is-portrait-preview' : ''} ${upgradesOpen || settingsOpen ? 'is-menu-open' : ''}`}>

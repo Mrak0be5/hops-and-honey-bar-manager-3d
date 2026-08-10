@@ -46,7 +46,7 @@ async function expectCardsFitHorizontally(cards: Locator) {
 }
 
 test('opens every development window and buys every upgrade to its maximum level', async ({ page }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(480_000);
   mkdirSync('output/playwright', { recursive: true });
   const runtimeErrors: string[] = [];
   page.on('pageerror', (error) => runtimeErrors.push(error.message));
@@ -64,6 +64,7 @@ test('opens every development window and buys every upgrade to its maximum level
 
   const panel = page.locator('.upgrade-panel');
   await expect(panel).toHaveClass(/is-open/);
+  await expect(panel).not.toHaveClass(/is-input-guarded/);
   await expect(panel.locator('.venue-tabs [role="tab"]')).toHaveCount(4);
   await expect(panel.locator('.milestone-card, .drink-ribbon')).toHaveCount(0);
 

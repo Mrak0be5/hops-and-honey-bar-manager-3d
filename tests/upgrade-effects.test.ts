@@ -126,4 +126,23 @@ describe('numeric upgrade copy', () => {
       expect(effect.detail).toContain(`${definition.baseProfit} → ${definition.baseProfit * 2}`);
     }
   });
+
+  it('uses correct Russian wording for places at maximum quality', () => {
+    for (const room of ROOM_DEFINITIONS) {
+      const quality = ROOM_UPGRADE_DEFS.find((upgrade) => upgrade.key === 'quality')!;
+      const effect = getRoomUpgradeEffect(
+        room.id,
+        'quality',
+        quality.maxLevel,
+        quality.maxLevel,
+        room.maxCapacity,
+        quality.maxLevel,
+        0,
+      );
+
+      expect(effect.detail).toContain(`при ${room.maxCapacity} местах`);
+      expect(effect.detail).not.toMatch(/мест\./);
+      expect(effect.ariaLabel).not.toContain('..');
+    }
+  });
 });

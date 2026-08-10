@@ -31,6 +31,35 @@ class GameWebView extends StatefulWidget {
 
 class _GameWebViewState extends State<GameWebView>
     implements GameBrowserCommands {
+  static const String _dismissOverlayScript = r'''
+(() => {
+  const settings = document.querySelector(
+    '.settings-layer.is-open[aria-hidden="false"]',
+  );
+  if (settings) {
+    document.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Escape',
+      code: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    }));
+    return true;
+  }
+
+  const upgrades = document.querySelector(
+    '#upgrade-panel.is-open[aria-hidden="false"]',
+  );
+  const closeUpgrades = upgrades?.querySelector(
+    'button[aria-label="Закрыть улучшения"]',
+  );
+  if (closeUpgrades instanceof HTMLElement) {
+    closeUpgrades.click();
+    return true;
+  }
+  return false;
+})()
+''';
+
   late final WebViewController _controller;
 
   @override
@@ -84,6 +113,14 @@ class _GameWebViewState extends State<GameWebView>
 
   @override
   Future<void> reload() => _controller.reload();
+
+  @override
+  Future<bool> dismissPageOverlayIfPossible() async {
+    final Object result = await _controller.runJavaScriptReturningResult(
+      _dismissOverlayScript,
+    );
+    return result == true;
+  }
 
   @override
   Future<bool> goBackIfPossible() async {

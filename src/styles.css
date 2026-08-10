@@ -685,6 +685,12 @@ button {
   transition-delay: 0s;
 }
 
+.upgrade-panel.is-input-guarded .upgrade-card,
+.upgrade-panel.is-input-guarded .unlock-room-button,
+.upgrade-panel.is-input-guarded .room-upgrade-card {
+  pointer-events: none;
+}
+
 .panel-sticky-header {
   min-width: 0;
   flex: 0 0 auto;
@@ -2166,6 +2172,13 @@ button {
   border: 2px solid rgba(255, 255, 255, 0.68);
   border-radius: 13px;
   transition: transform 0.14s ease, filter 0.14s ease;
+}
+
+.reset-confirm-button:disabled {
+  cursor: wait;
+  pointer-events: none;
+  opacity: 0.68;
+  filter: saturate(0.72);
 }
 
 .reset-cancel-button {

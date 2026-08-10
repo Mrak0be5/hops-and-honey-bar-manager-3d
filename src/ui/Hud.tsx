@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { getRoomDefinition, getRoomUpgradeCost, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, UPGRADE_DEFS } from '../game/config';
 import type { GameEngine } from '../game/GameEngine';
 import { gameAudio } from '../game/audio';
@@ -45,6 +45,81 @@ const ROOM_STAFF_LABELS = {
   serving: 'Проводит сеанс',
   resetting: 'Наводит порядок',
 } as const;
+
+const DEVELOPMENT_INPUT_SETTLE_MS = 360;
+const RESET_CONFIRM_INPUT_SETTLE_MS = 500;
+const GHOST_TAP_RADIUS_PX = 56;
+const GHOST_TAP_QUIET_MS = 3_000;
+
+type InputPoint = { x: number; y: number };
+type GhostTapGuard = InputPoint & { blockedUntil: number };
+type GhostTapGuardRef = { current: GhostTapGuard | null };
+
+function guardFromClick(event: ReactMouseEvent<HTMLButtonElement>): GhostTapGuard | null {
+  if (event.detail === 0) return null;
+  return {
+    x: event.clientX,
+    y: event.clientY,
+    blockedUntil: performance.now() + GHOST_TAP_QUIET_MS,
+  };
+}
+
+function blocksGhostTapAtActivationPoint(
+  event: ReactMouseEvent<HTMLButtonElement>,
+  guardRef: GhostTapGuardRef,
+) {
+  const guard = guardRef.current;
+  if (!guard || event.detail === 0) return false;
+  const isNear = Math.hypot(event.clientX - guard.x, event.clientY - guard.y) <= GHOST_TAP_RADIUS_PX;
+  if (!isNear) {
+    guardRef.current = null;
+    return false;
+  }
+  const now = performance.now();
+  if (now > guard.blockedUntil) {
+    guardRef.current = null;
+    return false;
+  }
+  guard.blockedUntil = now + GHOST_TAP_QUIET_MS;
+  return true;
+}
+
+function usePointerSettleGuard(active: boolean, settleMs: number) {
+  const [ready, setReady] = useState(false);
+  const wasActive = useRef(false);
+  const justActivated = active && !wasActive.current;
+  wasActive.current = active;
+
+  useEffect(() => {
+    if (!active) {
+      setReady(false);
+      return;
+    }
+
+    setReady(false);
+    let settled = false;
+    let timer = 0;
+    const arm = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        settled = true;
+        setReady(true);
+      }, settleMs);
+    };
+    const extendWhileSettling = () => {
+      if (!settled) arm();
+    };
+
+    document.addEventListener('pointerdown', extendWhileSettling, true);
+    arm();
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('pointerdown', extendWhileSettling, true);
+    };
+  }, [active, settleMs]);
+
+  return active && (!ready || justActivated);
+}
 
 const BARTENDER_STATUS: Record<BartenderState, { emoji: string; label: string }> = {
   idle: { emoji: '👀', label: 'Смотрит за залом' },
@@ -128,11 +203,15 @@ function UpgradeCard({
   snapshot,
   engine,
   recommendationReason,
+  inputLocked,
+  blocksGhostTap,
 }: {
   definition: UpgradeDefinition;
   snapshot: GameSnapshot;
   engine: GameEngine;
   recommendationReason?: string;
+  inputLocked: boolean;
+  blocksGhostTap: (event: ReactMouseEvent<HTMLButtonElement>) => boolean;
 }) {
   const level = snapshot.upgrades[definition.key];
   const maxed = level >= definition.maxLevel;
@@ -141,7 +220,8 @@ function UpgradeCard({
   const balance = definition.currency === 'coins' ? snapshot.coins : snapshot.reputation;
   const affordable = !maxed && balance >= cost;
 
-  const purchase = () => {
+  const purchase = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (inputLocked || blocksGhostTap(event)) return;
     gameAudio.unlock();
     if (engine.purchaseUpgrade(definition.key)) gameAudio.click();
   };
@@ -182,11 +262,24 @@ function UpgradeCard({
   );
 }
 
-function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot: GameSnapshot; engine: GameEngine }) {
+function RoomDevelopment({
+  room,
+  snapshot,
+  engine,
+  inputLocked,
+  blocksGhostTap,
+}: {
+  room: RoomState;
+  snapshot: GameSnapshot;
+  engine: GameEngine;
+  inputLocked: boolean;
+  blocksGhostTap: (event: ReactMouseEvent<HTMLButtonElement>) => boolean;
+}) {
   const definition = getRoomDefinition(room.id);
   const guidance = getRoomUpgradeGuidance(room);
   const utilizationPercent = Math.round(room.recentUtilization * 100);
-  const clickPurchase = () => {
+  const clickPurchase = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (inputLocked || blocksGhostTap(event)) return;
     gameAudio.unlock();
     if (engine.purchaseRoom(room.id)) gameAudio.click();
   };
@@ -278,7 +371,8 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
               className={`room-upgrade-card ${affordable ? 'is-affordable' : ''} ${recommendationReason && !maxed ? 'is-recommended' : ''} ${capacityWarning && !maxed ? 'is-caution' : ''}`}
               data-room-upgrade-key={upgrade.key}
               disabled={!affordable}
-              onClick={() => {
+              onClick={(event) => {
+                if (inputLocked || blocksGhostTap(event)) return;
                 gameAudio.unlock();
                 if (engine.purchaseRoomUpgrade(room.id, upgrade.key)) gameAudio.click();
               }}
@@ -315,10 +409,23 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
   const developmentVisible = snapshot.started && upgradesOpen;
   const settingsVisible = snapshot.started && settingsOpen;
   const [resetConfirming, setResetConfirming] = useState(false);
+  const developmentInputLocked = usePointerSettleGuard(
+    developmentVisible,
+    DEVELOPMENT_INPUT_SETTLE_MS,
+  );
+  const resetConfirmInputLocked = usePointerSettleGuard(
+    settingsVisible && resetConfirming,
+    RESET_CONFIRM_INPUT_SETTLE_MS,
+  );
+  const developmentButtonRef = useRef<HTMLButtonElement>(null);
+  const developmentActivationPointRef = useRef<GhostTapGuard | null>(null);
+  const developmentCloseRef = useRef<HTMLButtonElement>(null);
+  const developmentPanelRef = useRef<HTMLElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const settingsCloseRef = useRef<HTMLButtonElement>(null);
   const settingsDialogRef = useRef<HTMLElement>(null);
   const resetButtonRef = useRef<HTMLButtonElement>(null);
+  const resetActivationPointRef = useRef<GhostTapGuard | null>(null);
   const resetCancelRef = useRef<HTMLButtonElement>(null);
   const click = (action: () => void) => {
     gameAudio.setEnabled(snapshot.soundEnabled);
@@ -335,20 +442,66 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
     if (enabled) gameAudio.click();
   };
 
+  const closeDevelopment = (restoreFocus = true) => {
+    developmentActivationPointRef.current = null;
+    onUpgradesOpen(false);
+    if (restoreFocus) {
+      window.requestAnimationFrame(() => developmentButtonRef.current?.focus());
+    }
+  };
+
   const closeSettings = (restoreFocus = true) => {
+    resetActivationPointRef.current = null;
     setResetConfirming(false);
     onSettingsOpen(false);
     if (restoreFocus) window.requestAnimationFrame(() => settingsButtonRef.current?.focus());
   };
 
   const cancelReset = () => {
+    resetActivationPointRef.current = null;
     setResetConfirming(false);
     window.requestAnimationFrame(() => resetButtonRef.current?.focus());
   };
 
   useEffect(() => {
+    if (!developmentVisible) return;
+    const focusFrame = window.requestAnimationFrame(() => developmentCloseRef.current?.focus());
+    return () => window.cancelAnimationFrame(focusFrame);
+  }, [developmentVisible]);
+
+  useEffect(() => {
+    if (!developmentVisible) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDevelopment();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(developmentPanelRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])') ?? []);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [developmentVisible, onUpgradesOpen]);
+
+  useEffect(() => {
     if (!settingsVisible) return;
     const focusFrame = window.requestAnimationFrame(() => settingsCloseRef.current?.focus());
+    return () => window.cancelAnimationFrame(focusFrame);
+  }, [settingsVisible]);
+
+  useEffect(() => {
+    if (!settingsVisible) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
@@ -374,10 +527,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
       }
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.cancelAnimationFrame(focusFrame);
-      document.removeEventListener('keydown', onKeyDown);
-    };
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [onSettingsOpen, resetConfirming, settingsVisible]);
 
   useEffect(() => {
@@ -386,7 +536,12 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
     return () => window.cancelAnimationFrame(focusFrame);
   }, [resetConfirming, settingsVisible]);
 
-  const confirmReset = () => {
+  const confirmReset = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (
+      resetConfirmInputLocked
+      || blocksGhostTapAtActivationPoint(event, resetActivationPointRef)
+    ) return;
+    resetActivationPointRef.current = null;
     engine.resetProgress();
     onVenueView('bar');
     closeSettings(false);
@@ -420,8 +575,14 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
         <div className="top-actions">
           <nav className="control-strip" aria-label="Управление игрой">
             <button
+              ref={developmentButtonRef}
               className={`icon-button upgrades-toggle ${developmentVisible ? 'is-active' : ''}`}
-              onClick={() => click(() => onUpgradesOpen(!upgradesOpen))}
+              onClick={(event) => {
+                developmentActivationPointRef.current = upgradesOpen
+                  ? null
+                  : guardFromClick(event);
+                click(() => onUpgradesOpen(!upgradesOpen));
+              }}
               aria-label="Улучшения бара"
               aria-expanded={developmentVisible}
               aria-controls="upgrade-panel"
@@ -467,7 +628,7 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
       <button
         type="button"
         className={`upgrade-backdrop ${developmentVisible ? 'is-open' : ''}`}
-        onClick={() => click(() => onUpgradesOpen(false))}
+        onClick={() => click(closeDevelopment)}
         aria-label="Закрыть меню улучшений"
         aria-hidden={!developmentVisible}
         tabIndex={developmentVisible ? 0 : -1}
@@ -475,8 +636,11 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
       />
 
       <aside
+        ref={developmentPanelRef}
         id="upgrade-panel"
-        className={`upgrade-panel ${developmentVisible ? 'is-open' : ''} ${venueView === 'bar' ? '' : 'is-room-view'}`}
+        className={`upgrade-panel ${developmentVisible ? 'is-open' : ''} ${developmentInputLocked ? 'is-input-guarded' : ''} ${venueView === 'bar' ? '' : 'is-room-view'}`}
+        role="dialog"
+        aria-modal={developmentVisible ? 'true' : undefined}
         aria-hidden={!developmentVisible}
         inert={!developmentVisible}
         aria-labelledby="upgrade-panel-title"
@@ -490,9 +654,10 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
             </div>
             <Icon name="upgrade-arrow" />
             <button
+              ref={developmentCloseRef}
               type="button"
               className="panel-close"
-              onClick={() => click(() => onUpgradesOpen(false))}
+              onClick={() => click(closeDevelopment)}
               aria-label="Закрыть улучшения"
             >
               <span aria-hidden="true">×</span>
@@ -532,11 +697,21 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
                   snapshot={snapshot}
                   engine={engine}
                   recommendationReason={barRecommendation?.key === definition.key ? barRecommendation.reason : undefined}
+                  inputLocked={developmentInputLocked}
+                  blocksGhostTap={(event) => blocksGhostTapAtActivationPoint(event, developmentActivationPointRef)}
                 />
               ))}
             </div>
           </>
-        ) : activeRoom ? <RoomDevelopment room={activeRoom} snapshot={snapshot} engine={engine} /> : null}
+        ) : activeRoom ? (
+          <RoomDevelopment
+            room={activeRoom}
+            snapshot={snapshot}
+            engine={engine}
+            inputLocked={developmentInputLocked}
+            blocksGhostTap={(event) => blocksGhostTapAtActivationPoint(event, developmentActivationPointRef)}
+          />
+        ) : null}
       </aside>
 
       <div className={`settings-layer ${settingsVisible ? 'is-open' : ''}`} aria-hidden={!settingsVisible} inert={!settingsVisible}>
@@ -571,7 +746,12 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
               <p id="reset-confirm-description">Будут удалены монеты, комнаты и все прокачки. Отменить это действие после подтверждения нельзя.</p>
               <div className="reset-confirmation-actions">
                 <button ref={resetCancelRef} type="button" className="reset-cancel-button" onClick={() => click(cancelReset)}>Отмена</button>
-                <button type="button" className="reset-confirm-button" onClick={() => click(confirmReset)}>
+                <button
+                  type="button"
+                  className="reset-confirm-button"
+                  disabled={resetConfirmInputLocked}
+                  onClick={(event) => click(() => confirmReset(event))}
+                >
                   <Icon name="reset" />
                   Да, сбросить
                 </button>
@@ -600,7 +780,14 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
               <div className="settings-danger-zone">
                 <span className="eyebrow">ДАННЫЕ ИГРЫ</span>
                 <p>Сброс удалит все покупки, комнаты и улучшения. Это действие нельзя отменить.</p>
-                <button ref={resetButtonRef} className="reset-button" onClick={() => click(() => setResetConfirming(true))}>
+                <button
+                  ref={resetButtonRef}
+                  className="reset-button"
+                  onClick={(event) => click(() => {
+                    resetActivationPointRef.current = guardFromClick(event);
+                    setResetConfirming(true);
+                  })}
+                >
                   <Icon name="reset" />
                   Сбросить прогресс
                 </button>

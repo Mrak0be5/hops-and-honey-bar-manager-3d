@@ -45,6 +45,63 @@ test('keeps sound inside settings and collapsed upgrades inert on mobile', async
   await expect(page.locator('.upgrade-panel')).toHaveAttribute('inert', '');
 });
 
+test('does not turn rapid development taps into accidental purchases', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'Android touch regression');
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify({
+      coins: 100_000,
+      reputation: 1_000,
+      served: 0,
+      day: 1,
+      upgrades: {
+        moveSpeed: 1,
+        orderSpeed: 1,
+        prepSpeed: 1,
+        cleanSpeed: 1,
+        assortment: 1,
+        advertising: 1,
+      },
+      soundEnabled: true,
+    }));
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Открыть бар' }).click();
+
+  const development = page.getByRole('button', { name: 'Улучшения бара' });
+  const bounds = await development.boundingBox();
+  expect(bounds).not.toBeNull();
+  const point = {
+    x: bounds!.x + bounds!.width / 2,
+    y: bounds!.y + bounds!.height / 2,
+  };
+  for (let tap = 0; tap < 10; tap += 1) {
+    await page.touchscreen.tap(point.x, point.y);
+    await page.waitForTimeout(60);
+  }
+
+  await expect(page.locator('.upgrade-panel')).toHaveClass(/is-open/);
+  const save = await page.evaluate(() => JSON.parse(
+    window.localStorage.getItem('hops-and-honey-save-v1') ?? '{}',
+  ));
+  expect(save.coins).toBe(100_000);
+  expect(save.upgrades).toEqual({
+    moveSpeed: 1,
+    orderSpeed: 1,
+    prepSpeed: 1,
+    cleanSpeed: 1,
+    assortment: 1,
+    advertising: 1,
+  });
+
+  await page.waitForTimeout(3_200);
+  await page.touchscreen.tap(point.x, point.y);
+  await expect.poll(() => page.evaluate(() => JSON.parse(
+    window.localStorage.getItem('hops-and-honey-save-v1') ?? '{}',
+  ).upgrades?.assortment)).toBe(2);
+});
+
 test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'desktop-chromium', 'Portrait dock is covered by the mobile projects');
   test.setTimeout(180_000);

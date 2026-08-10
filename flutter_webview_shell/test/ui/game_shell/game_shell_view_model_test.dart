@@ -47,12 +47,35 @@ void main() {
     expect(await viewModel.handleBack(), isTrue);
     expect(browser.goBackCount, 1);
   });
+
+  test('dismisses an in-page overlay before using browser history', () async {
+    final FakeGameBrowser browser = FakeGameBrowser()
+      ..canDismissPageOverlay = true
+      ..canGoBack = true;
+    final GameShellViewModel viewModel = GameShellViewModel()
+      ..attachBrowser(browser);
+
+    expect(await viewModel.handleBack(), isTrue);
+    expect(browser.dismissPageOverlayCount, 1);
+    expect(browser.goBackCount, 0);
+  });
 }
 
 class FakeGameBrowser implements GameBrowserCommands {
   int reloadCount = 0;
   int goBackCount = 0;
+  int dismissPageOverlayCount = 0;
   bool canGoBack = false;
+  bool canDismissPageOverlay = false;
+
+  @override
+  Future<bool> dismissPageOverlayIfPossible() async {
+    if (!canDismissPageOverlay) {
+      return false;
+    }
+    dismissPageOverlayCount += 1;
+    return true;
+  }
 
   @override
   Future<bool> goBackIfPossible() async {
