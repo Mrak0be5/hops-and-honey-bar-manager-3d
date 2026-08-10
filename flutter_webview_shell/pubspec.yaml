@@ -1,0 +1,26 @@
+name: hops_and_honey_shell
+description: "Native Flutter shell for the original Hops & Honey HTML5 game."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: 4.14.1
+  webview_flutter_android: 4.13.0
+  webview_flutter_wkwebview: 3.26.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/html5/
+    - assets/html5/assets/
+    - assets/html5/assets/ui/
