@@ -1,0 +1,11 @@
+---
+description: Strict model fallback policy for Seedance 2.5 requests
+alwaysApply: true
+---
+
+# Seedance 2.5 Generation Policy
+
+When the user requests video generation using Seedance 2.5:
+
+1. **Strict Version Enforcement**: Do NOT fall back, downgrade, or substitute with Seedance 2.0, Seedance Mini, or any alternative model if Seedance 2.5 is unavailable or fails.
+2. **Error Reporting**: If Seedance 2.5 fails, returns an API error, or is unavailable, immediately report the error to the user and stop execution.
