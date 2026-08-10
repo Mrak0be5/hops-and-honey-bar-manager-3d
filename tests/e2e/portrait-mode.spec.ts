@@ -15,6 +15,22 @@ async function waitForPanelTransition(panel: Locator) {
   ));
 }
 
+const fundedSave = {
+  coins: 5_000,
+  reputation: 50,
+  served: 0,
+  day: 1,
+  upgrades: {
+    moveSpeed: 1,
+    orderSpeed: 1,
+    prepSpeed: 1,
+    cleanSpeed: 1,
+    assortment: 1,
+    advertising: 1,
+  },
+  soundEnabled: false,
+};
+
 test('switches the live game into a contained 9:16 iPhone view without resetting play', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'The in-page preview toggle is a desktop web-build control');
   test.setTimeout(120_000);
@@ -79,6 +95,63 @@ test('switches the live game into a contained 9:16 iPhone view without resetting
   await expect(adaptiveToggle).toBeHidden();
   await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
   await expect(page.getByRole('button', { name: 'Включить вид 9:16' })).toBeVisible();
+});
+
+test('keeps the 9:16 shell fixed when reopening active-room development and returns locked views to the bar', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'The regression concerns the desktop 9:16 preview');
+  test.setTimeout(120_000);
+  await page.addInitScript((save) => {
+    window.localStorage.setItem('hops-and-honey-save-v1', JSON.stringify(save));
+  }, fundedSave);
+
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Включить вид 9:16' }).click();
+  await page.getByRole('button', { name: 'Улучшения бара' }).click();
+
+  const shell = page.locator('.game-shell');
+  const panel = page.locator('.upgrade-panel');
+  const mobileDock = page.locator('.control-strip');
+  await page.getByRole('tab', { name: /Караоке/ }).click();
+  await page.locator('.unlock-room-button').click();
+  await expect(panel.locator('.room-development')).toHaveClass(/is-open/);
+  await expect(mobileDock).not.toBeVisible();
+  await expect(page.locator('.expansion-progress')).toHaveCount(0);
+
+  await panel.locator('.room-development').evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
+  await expect(panel).not.toBeVisible();
+  await expect(mobileDock).toBeVisible();
+
+  await page.locator('.room-pill').click();
+  await expect(panel).toBeVisible();
+  await waitForPanelTransition(panel);
+  await expect(page.getByRole('heading', { name: 'Караоке-зал', level: 2 })).toBeVisible();
+
+  const shellBounds = await shell.boundingBox();
+  const panelBounds = await panel.boundingBox();
+  expect(shellBounds).not.toBeNull();
+  expect(panelBounds).not.toBeNull();
+  expectInside(panelBounds!, shellBounds!);
+  const shellScroll = await shell.evaluate((element) => ({
+    top: element.scrollTop,
+    left: element.scrollLeft,
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+  }));
+  expect(shellScroll.top).toBe(0);
+  expect(shellScroll.left).toBe(0);
+  expect(shellScroll.scrollHeight).toBeLessThanOrEqual(shellScroll.clientHeight);
+
+  await page.getByRole('tab', { name: /Сауна/ }).click();
+  await expect(panel.locator('.room-development')).toHaveClass(/is-locked/);
+  await page.getByRole('button', { name: 'Закрыть улучшения' }).click();
+  await expect(panel).not.toBeVisible();
+  await page.getByRole('button', { name: 'Улучшения бара' }).click();
+  await expect(page.getByRole('heading', { name: 'Улучшения бара', level: 2 })).toBeVisible();
+  expect(await shell.evaluate((element) => element.scrollTop)).toBe(0);
 });
 
 test('keeps the HUD and upgrade sheet inside an exact 9:16 iPhone viewport', async ({ page }, testInfo) => {

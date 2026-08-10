@@ -29,7 +29,6 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
     'base64',
   );
   expect(openingPageImage.byteLength).toBeGreaterThan(openingCanvasImage.byteLength * 0.55);
-  await expect(page.locator('.pause-scrim')).toHaveCount(0);
 
   const panel = page.locator('.upgrade-panel');
   if (testInfo.project.name !== 'desktop-chromium') {
@@ -50,7 +49,6 @@ test('captures a representative running bar scene', async ({ page }, testInfo) =
   // Portrait mode deliberately hides redundant patron markers and keeps one
   // useful status marker, which is not necessarily first in DOM order.
   await expect(page.locator('.world-status-marker:visible').first()).toBeVisible();
-  await expect(page.locator('.pause-scrim')).toHaveCount(0);
   await expect(page.locator('.bottom-status')).toBeVisible();
 
   const pageImage = await page.screenshot({

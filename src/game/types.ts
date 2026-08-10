@@ -43,6 +43,33 @@ export type RoomUpgradeKey = 'staffSpeed' | 'capacity' | 'quality';
 export type RoomUpgradeLevels = Record<RoomUpgradeKey, number>;
 export type RoomStaffState = 'locked' | 'waiting' | 'welcoming' | 'serving' | 'resetting';
 export type MilestoneMetric = 'served' | 'roomsUnlocked' | 'roomRevenue' | 'day';
+export type BarBottleneck = 'none' | 'orders' | 'drinks' | 'payments' | 'cleaning' | 'tables';
+
+export type BarDiagnostics = {
+  waitingOrders: number;
+  waitingDrinks: number;
+  waitingPayments: number;
+  occupiedTables: number;
+  dirtyTables: number;
+  openTables: number;
+  blockedArrivals: number;
+  primaryBottleneck: BarBottleneck;
+};
+
+export type RoomSessionSample = {
+  guests: number;
+  capacity: number;
+  revenue: number;
+};
+
+export type ShiftSummary = {
+  dayNumber: number;
+  operatingRevenue: number;
+  servedThisShift: number;
+  roomRevenueThisShift: number;
+  blockedArrivals: number;
+  bonus: number;
+};
 
 export type MilestoneDefinition = {
   id: string;
@@ -118,6 +145,7 @@ export type GameEvent = {
 export type RoomState = {
   id: RoomId;
   unlocked: boolean;
+  awaitingFirstGuest: boolean;
   staffState: RoomStaffState;
   guests: number;
   capacity: number;
@@ -126,6 +154,10 @@ export type RoomState = {
   revenue: number;
   perGuestProfit: number;
   maxSessionProfit: number;
+  recentSessions: RoomSessionSample[];
+  recentUtilization: number;
+  realizedRevenuePerSession: number;
+  recentAverageRevenuePerSession: number;
   upgrades: RoomUpgradeLevels;
 };
 
@@ -165,7 +197,6 @@ export type RoomUpgradeDefinition = {
 
 export type GameSnapshot = {
   started: boolean;
-  paused: boolean;
   speedMultiplier: 1 | 2;
   coins: number;
   reputation: number;
@@ -180,10 +211,12 @@ export type GameSnapshot = {
   roomRevenue: number;
   totalOperatingRevenue: number;
   totalDayBonus: number;
+  lastShiftSummary: ShiftSummary | null;
   nextMilestone: MilestoneProgress | null;
   achievedMilestoneCount: number;
   totalMilestoneCount: number;
   queueCount: number;
+  barDiagnostics: BarDiagnostics;
   unlockedDrinks: Drink[];
   lastEvent: GameEvent | null;
   soundEnabled: boolean;

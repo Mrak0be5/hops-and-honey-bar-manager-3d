@@ -7,9 +7,11 @@ export const SERVICE_GATE: Vec2 = { x: 3.55, z: -3.2 };
 export const SHIFT_DURATION = 150;
 export const DAY_BONUS_CAP = 60;
 export const DAY_BONUS_RATE = 0.2;
-export const ROOM_GROUP_WINDOW = 4.8;
 export const ROOM_MIN_WELCOME_DURATION = 0.8;
 export const ROOM_RESET_DURATION = 1.15;
+export const ROOM_COOLDOWN_DURATION = 2.4;
+export const ROOM_STAFF_TIME_FACTOR = 0.85;
+export const BAR_ACTION_MAX_LEVEL = 6;
 export const TABLE_RADIUS = 0.76;
 export const GUEST_CHAIR_OFFSET = 1.16;
 
@@ -60,11 +62,11 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     tagline: 'Песни, сцена и вечерние чаевые',
     staffRole: 'Ведущий караоке',
     icon: '🎤',
-    unlockCost: 280,
+    unlockCost: 230,
     baseProfit: 20,
     sessionDuration: 36,
     maxCapacity: 3,
-    upgradeBaseCosts: { staffSpeed: 60, capacity: 238, quality: 70 },
+    upgradeBaseCosts: { staffSpeed: 60, capacity: 140, quality: 70 },
     color: '#7357d9',
     accent: '#ff74bf',
   },
@@ -79,7 +81,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     baseProfit: 42,
     sessionDuration: 42,
     maxCapacity: 4,
-    upgradeBaseCosts: { staffSpeed: 110, capacity: 638, quality: 130 },
+    upgradeBaseCosts: { staffSpeed: 110, capacity: 320, quality: 130 },
     color: '#d97839',
     accent: '#ffd36a',
   },
@@ -94,7 +96,7 @@ export const ROOM_DEFINITIONS: RoomDefinition[] = [
     baseProfit: 70,
     sessionDuration: 45,
     maxCapacity: 2,
-    upgradeBaseCosts: { staffSpeed: 180, capacity: 1275, quality: 200 },
+    upgradeBaseCosts: { staffSpeed: 110, capacity: 650, quality: 200 },
     color: '#2ba99a',
     accent: '#a9f0d8',
   },
@@ -159,9 +161,9 @@ export const ROOM_LAYOUTS: Record<RoomId, RoomLayout> = {
 };
 
 export const ROOM_UPGRADE_DEFS: RoomUpgradeDefinition[] = [
-  { key: 'staffSpeed', name: 'Мастерство персонала', description: 'Сотрудник быстрее завершает сеанс.', icon: '⚡', maxLevel: 5 },
-  { key: 'capacity', name: 'Дополнительное место', description: 'Больше гостей обслуживаются одновременно.', icon: '👥', maxLevel: 4 },
-  { key: 'quality', name: 'Премиум-сервис', description: 'Каждый гость оставляет больше денег.', icon: '✨', maxLevel: 5 },
+  { key: 'staffSpeed', name: 'Мастерство персонала', description: 'Сеанс, уборка и подготовка короче на 15% за уровень.', icon: '⚡', maxLevel: 5 },
+  { key: 'capacity', name: 'Дополнительное место', description: 'Добавляет место; доход растёт при заполненном сеансе.', icon: '👥', maxLevel: 4 },
+  { key: 'quality', name: 'Премиум-сервис', description: 'Базовый доход с каждого гостя выше на 15% за уровень.', icon: '✨', maxLevel: 5 },
 ];
 
 export const getRoomDefinition = (roomId: RoomId) => ROOM_DEFINITIONS.find((room) => room.id === roomId)!;
@@ -177,47 +179,82 @@ export const getRoomProfit = (roomId: RoomId, qualityLevel: number, guests: numb
   return Math.round(room.baseProfit * guests * (1 + (qualityLevel - 1) * 0.15));
 };
 
+const normalizedLevel = (level: number, maxLevel = Number.POSITIVE_INFINITY) =>
+  Math.min(maxLevel, Math.max(1, Math.floor(Number.isFinite(level) ? level : 1)));
+
+/** Exact simulation values shared by the engine and the upgrade UI. */
+export const getBartenderMoveSpeed = (level: number) =>
+  2.15 * (1 + (normalizedLevel(level, BAR_ACTION_MAX_LEVEL) - 1) * 0.16);
+
+export const getOrderDuration = (level: number) =>
+  2.15 * 0.83 ** (normalizedLevel(level, BAR_ACTION_MAX_LEVEL) - 1);
+
+export const getPreparationDuration = (level: number) =>
+  3.35 * 0.82 ** (normalizedLevel(level, BAR_ACTION_MAX_LEVEL) - 1);
+
+export const getCleaningDuration = (level: number) =>
+  2.65 * 0.8 ** (normalizedLevel(level, BAR_ACTION_MAX_LEVEL) - 1);
+
+const getRoomStaffTimeMultiplier = (staffLevel: number) =>
+  ROOM_STAFF_TIME_FACTOR ** (normalizedLevel(staffLevel, 5) - 1);
+
+export const getRoomSessionDuration = (roomId: RoomId, staffLevel: number) =>
+  getRoomDefinition(roomId).sessionDuration * getRoomStaffTimeMultiplier(staffLevel);
+
+export const getRoomResetDuration = (staffLevel: number) =>
+  ROOM_RESET_DURATION * getRoomStaffTimeMultiplier(staffLevel);
+
+export const getRoomCooldownDuration = (staffLevel: number) =>
+  ROOM_COOLDOWN_DURATION * getRoomStaffTimeMultiplier(staffLevel);
+
+/**
+ * Larger rooms get a longer maximum batching window, while a full group can
+ * still start after the short minimum welcome beat.
+ */
+export const getRoomGroupWindow = (capacity: number) =>
+  8 + (Math.min(4, Math.max(1, Math.floor(capacity))) - 1) * 2;
+
 export const UPGRADE_DEFS: UpgradeDefinition[] = [
   {
     key: 'moveSpeed',
     name: 'Ловкие ноги',
-    description: 'Бармен быстрее ходит между столами.',
+    description: 'Скорость ходьбы бармена выше на 0,34 м/с за уровень.',
     icon: 'move-speed',
     currency: 'coins',
     baseCost: 38,
-    maxLevel: 10,
+    maxLevel: BAR_ACTION_MAX_LEVEL,
   },
   {
     key: 'orderSpeed',
     name: 'Быстрый заказ',
-    description: 'Меньше времени на разговор с гостем.',
+    description: 'Приём заказа короче на 17% за уровень.',
     icon: 'order-speed',
     currency: 'coins',
     baseCost: 44,
-    maxLevel: 10,
+    maxLevel: BAR_ACTION_MAX_LEVEL,
   },
   {
     key: 'prepSpeed',
     name: 'Шустрый кран',
-    description: 'Напитки готовятся заметно быстрее.',
+    description: 'Приготовление напитка короче на 18% за уровень.',
     icon: 'prep-speed',
     currency: 'coins',
     baseCost: 52,
-    maxLevel: 10,
+    maxLevel: BAR_ACTION_MAX_LEVEL,
   },
   {
     key: 'cleanSpeed',
     name: 'Чистая стойка',
-    description: 'Грязные кружки исчезают быстрее.',
+    description: 'Уборка стола короче на 20% за уровень.',
     icon: 'clean-speed',
     currency: 'coins',
     baseCost: 35,
-    maxLevel: 10,
+    maxLevel: BAR_ACTION_MAX_LEVEL,
   },
   {
     key: 'assortment',
     name: 'Новые напитки',
-    description: 'Гости выбирают дороже и платят больше.',
+    description: 'Открывает напиток и повышает среднюю цену заказа.',
     icon: 'assortment',
     currency: 'coins',
     baseCost: 92,
@@ -226,7 +263,7 @@ export const UPGRADE_DEFS: UpgradeDefinition[] = [
   {
     key: 'advertising',
     name: 'Реклама бара',
-    description: 'Новые гости приходят чаще.',
+    description: 'Средний интервал прихода гостя короче на 0,82 секунды.',
     icon: 'advertising',
     currency: 'reputation',
     baseCost: 4,
@@ -242,6 +279,22 @@ export const getUpgradeCost = (definition: UpgradeDefinition, currentLevel: numb
 
 export const getUnlockedDrinks = (assortmentLevel: number) =>
   DRINKS.filter((drink) => drink.level <= assortmentLevel);
+
+/**
+ * Expected base menu price under the same premium-biased random selection as
+ * GameEngine.pickDrink (tips are intentionally excluded).
+ */
+export const getAverageDrinkPrice = (assortmentLevel: number) => {
+  const unlocked = getUnlockedDrinks(normalizedLevel(assortmentLevel, DRINKS.length));
+  const count = unlocked.length;
+  if (count === 0) return DRINKS[0].price;
+  const inverseBias = 1 / 0.72;
+  return unlocked.reduce((average, drink, index) => {
+    const upper = ((index + 1) / count) ** inverseBias;
+    const lower = (index / count) ** inverseBias;
+    return average + drink.price * (upper - lower);
+  }, 0);
+};
 
 export const getArrivalInterval = (advertisingLevel: number) =>
   Math.max(3.4, 9.5 - (advertisingLevel - 1) * 0.82);

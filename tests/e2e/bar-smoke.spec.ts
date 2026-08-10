@@ -35,11 +35,13 @@ test('keeps hidden controls out of the welcome-screen tab order', async ({ page 
   await expect(startButton).toBeFocused();
 });
 
-test('keeps sound available and collapsed upgrades inert on mobile', async ({ page }) => {
+test('keeps sound inside settings and collapsed upgrades inert on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
-  await expect(page.getByRole('button', { name: /звук/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Выключить звук|Включить звук/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Настройки' }).click();
+  await expect(page.getByRole('button', { name: 'Выключить звук' })).toBeVisible();
   await expect(page.locator('.upgrade-panel')).toHaveAttribute('inert', '');
 });
 
@@ -63,8 +65,8 @@ test('uses a touch-friendly portrait dock and contained upgrade sheet', async ({
     expect(dockBounds!.height).toBeGreaterThanOrEqual(70);
 
     const buttons = dock.locator('.icon-button');
-    await expect(buttons).toHaveCount(4);
-    for (let index = 0; index < 4; index += 1) {
+    await expect(buttons).toHaveCount(1);
+    for (let index = 0; index < 1; index += 1) {
       const bounds = await buttons.nth(index).boundingBox();
       expect(bounds).not.toBeNull();
       expect(bounds!.width).toBeGreaterThanOrEqual(44);

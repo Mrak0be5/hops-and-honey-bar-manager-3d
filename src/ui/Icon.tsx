@@ -12,7 +12,6 @@ export const UI_ICON_NAMES = [
   'cash',
   'upgrades',
   'upgrade-arrow',
-  'pause',
   'play',
   'sound',
   'reset',

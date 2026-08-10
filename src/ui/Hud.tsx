@@ -1,10 +1,13 @@
-import { useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { getRoomDefinition, getRoomUpgradeCost, getUpgradeCost, ROOM_DEFINITIONS, ROOM_UPGRADE_DEFS, UPGRADE_DEFS } from '../game/config';
 import type { GameEngine } from '../game/GameEngine';
 import { gameAudio } from '../game/audio';
 import type { BartenderState, GameSnapshot, RoomId, RoomState, RoomUpgradeKey, UpgradeDefinition, VenueView } from '../game/types';
 import { Icon } from './Icon';
+import { getBarUpgradeRecommendation, getRoomUpgradeGuidance } from './recommendations';
+import { getBarUpgradeEffect, getRoomUpgradeEffect } from './upgradeEffects';
+import type { UpgradeEffect } from './upgradeEffects';
 
 type Props = {
   engine: GameEngine;
@@ -13,23 +16,25 @@ type Props = {
   onVenueView: (view: VenueView) => void;
   upgradesOpen: boolean;
   onUpgradesOpen: (open: boolean) => void;
+  settingsOpen: boolean;
+  onSettingsOpen: (open: boolean) => void;
 };
 
-const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; description: string; icon: string }>> = {
+const ROOM_UPGRADE_COPY: Record<RoomId, Record<RoomUpgradeKey, { name: string; icon: string }>> = {
   karaoke: {
-    staffSpeed: { name: 'Опытный ведущий', description: 'Быстрее заводит публику и меняет песни.', icon: '⚡' },
-    capacity: { name: 'Доп. микрофон', description: 'Ещё один гость поёт в каждом сеансе.', icon: '🎙️' },
-    quality: { name: 'Звук и каталог', description: 'Хиты и чистый звук повышают средний чек.', icon: '🎵' },
+    staffSpeed: { name: 'Опытный ведущий', icon: '⚡' },
+    capacity: { name: 'Доп. микрофон', icon: '🎙️' },
+    quality: { name: 'Звук и каталог', icon: '🎵' },
   },
   sauna: {
-    staffSpeed: { name: 'Умелый банщик', description: 'Быстрее готовит пар и обслуживает гостей.', icon: '🧖' },
-    capacity: { name: 'Новая лавка', description: 'Добавляет место в каждом сеансе.', icon: '🪵' },
-    quality: { name: 'Печь и кедр', description: 'Лучший жар и аромат повышают цену.', icon: '🔥' },
+    staffSpeed: { name: 'Умелый банщик', icon: '🧖' },
+    capacity: { name: 'Новая лавка', icon: '🪵' },
+    quality: { name: 'Печь и кедр', icon: '🔥' },
   },
   massage: {
-    staffSpeed: { name: 'Техника мастера', description: 'Сокращает длительность процедуры.', icon: '🙌' },
-    capacity: { name: 'Второй стол', description: 'Позволяет принять ещё одного клиента.', icon: '🛏️' },
-    quality: { name: 'Масла и ароматы', description: 'Премиальный уход увеличивает оплату.', icon: '🌿' },
+    staffSpeed: { name: 'Техника мастера', icon: '🙌' },
+    capacity: { name: 'Второй стол', icon: '🛏️' },
+    quality: { name: 'Масла и ароматы', icon: '🌿' },
   },
 };
 
@@ -93,47 +98,46 @@ function CurrencyChip({ icon, value, label }: { icon: 'coins' | 'reputation' | '
   );
 }
 
-function MilestoneCard({ snapshot }: { snapshot: GameSnapshot }) {
-  const milestone = snapshot.nextMilestone;
-  const achieved = snapshot.achievedMilestoneCount;
-  const total = snapshot.totalMilestoneCount;
-
-  if (!milestone) {
-    if (total === 0 || achieved < total) return null;
-    return (
-      <div className="milestone-card is-complete" aria-label={`Все цели выполнены: ${achieved} из ${total}`}>
-        <span className="milestone-icon" aria-hidden="true">🏆</span>
-        <span className="milestone-copy"><small>ЦЕЛИ · {achieved}/{total}</small><b>Все этапы развития пройдены</b></span>
-        <strong>ГОТОВО</strong>
-      </div>
-    );
-  }
-
-  const progress = milestone.target > 0 ? Math.max(0, Math.min(1, milestone.current / milestone.target)) : 1;
-  const ordinal = total > 0 ? `${Math.min(achieved + 1, total)}/${total}` : `${achieved + 1}`;
+function UpgradeEffectView({ effect }: { effect: UpgradeEffect }) {
   return (
-    <div
-      className="milestone-card"
-      aria-label={`Следующая цель: ${milestone.label}. ${milestone.current} из ${milestone.target}${milestone.rewardLabel ? `. Награда: ${milestone.rewardLabel}` : ''}`}
+    <span
+      className="upgrade-effect"
+      data-current-value={effect.currentValue}
+      data-next-value={effect.nextValue ?? undefined}
     >
-      <span className="milestone-icon" aria-hidden="true">🎯</span>
-      <span className="milestone-copy">
-        <small>СЛЕДУЮЩАЯ ЦЕЛЬ · {ordinal}</small>
-        <b>{milestone.label}</b>
-        <i aria-hidden="true"><span style={{ width: `${Math.round(progress * 100)}%` }} /></i>
+      <span className="upgrade-effect-row">
+        <small className="upgrade-effect-label">{effect.label}</small>
+        <span className="upgrade-effect-values">
+          <span className="upgrade-effect-current">{effect.current}</span>
+          {effect.next !== null && (
+            <>
+              <i aria-hidden="true">→</i>
+              <strong className="upgrade-effect-next">{effect.next}</strong>
+            </>
+          )}
+          <span className="upgrade-effect-unit">{effect.unit}</span>
+        </span>
       </span>
-      <strong>
-        <span>{formatCompactNumber(milestone.current)} / {formatCompactNumber(milestone.target)}</span>
-        {milestone.rewardLabel && <small>{milestone.rewardLabel}</small>}
-      </strong>
-    </div>
+      <span className="upgrade-effect-detail">{effect.detail}</span>
+    </span>
   );
 }
 
-function UpgradeCard({ definition, snapshot, engine }: { definition: UpgradeDefinition; snapshot: GameSnapshot; engine: GameEngine }) {
+function UpgradeCard({
+  definition,
+  snapshot,
+  engine,
+  recommendationReason,
+}: {
+  definition: UpgradeDefinition;
+  snapshot: GameSnapshot;
+  engine: GameEngine;
+  recommendationReason?: string;
+}) {
   const level = snapshot.upgrades[definition.key];
   const maxed = level >= definition.maxLevel;
   const cost = getUpgradeCost(definition, level);
+  const effect = getBarUpgradeEffect(definition, level, cost);
   const balance = definition.currency === 'coins' ? snapshot.coins : snapshot.reputation;
   const affordable = !maxed && balance >= cost;
 
@@ -144,10 +148,11 @@ function UpgradeCard({ definition, snapshot, engine }: { definition: UpgradeDefi
 
   return (
     <button
-      className={`upgrade-card ${affordable ? 'is-affordable' : ''}`}
+      className={`upgrade-card ${affordable ? 'is-affordable' : ''} ${recommendationReason && !maxed ? 'is-recommended' : ''}`}
+      data-upgrade-key={definition.key}
       onClick={purchase}
       disabled={!affordable}
-      aria-label={`${definition.name}, уровень ${level}${maxed ? ', максимум' : `, цена ${cost}`}`}
+      aria-label={`${definition.name}, уровень ${level}. ${effect.ariaLabel}. ${recommendationReason && !maxed ? `Рекомендуется: ${recommendationReason}. ` : ''}${maxed ? 'Максимум' : `Цена ${cost} ${definition.currency === 'coins' ? 'монет' : 'репутации'}`}`}
     >
       <Icon name={definition.icon} className="upgrade-icon" />
       <span className="upgrade-copy">
@@ -155,7 +160,8 @@ function UpgradeCard({ definition, snapshot, engine }: { definition: UpgradeDefi
           {definition.name}
           <em>ур. {level}</em>
         </span>
-        <span className="upgrade-description">{definition.description}</span>
+        {recommendationReason && !maxed && <span className="upgrade-guidance is-recommended">Рекомендуется · {recommendationReason}</span>}
+        <UpgradeEffectView effect={effect} />
         <span className="level-pips" aria-hidden="true">
           {Array.from({ length: definition.maxLevel }, (_, index) => (
             <i key={index} className={index < level ? 'is-filled' : ''} />
@@ -178,6 +184,8 @@ function UpgradeCard({ definition, snapshot, engine }: { definition: UpgradeDefi
 
 function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot: GameSnapshot; engine: GameEngine }) {
   const definition = getRoomDefinition(room.id);
+  const guidance = getRoomUpgradeGuidance(room);
+  const utilizationPercent = Math.round(room.recentUtilization * 100);
   const clickPurchase = () => {
     gameAudio.unlock();
     if (engine.purchaseRoom(room.id)) gameAudio.click();
@@ -201,7 +209,7 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
           <b>ТРЕБУЕТ РЕМОНТА</b>
         </div>
         <div className="room-economy-grid">
-          <span><small>Доход</small><b>до {definition.baseProfit} 🪙</b></span>
+          <span><small>С гостя</small><b>{definition.baseProfit} 🪙</b></span>
           <span><small>Сеанс</small><b>{definition.sessionDuration} сек.</b></span>
           <span><small>Персонал</small><b>{definition.staffRole}</b></span>
         </div>
@@ -234,11 +242,16 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
         </span>
         <strong>{room.guests}/{room.capacity}</strong>
       </div>
-      <div className="room-economy-grid is-live">
-        <span><small>За гостя</small><b>{room.perGuestProfit} 🪙</b></span>
-        <span><small>Макс. сеанс</small><b>{room.maxSessionProfit} 🪙</b></span>
-        <span><small>Выручка</small><b>{room.revenue} 🪙</b></span>
-        <span><small>Сеансов</small><b>{room.completedSessions}</b></span>
+      {room.awaitingFirstGuest && (
+        <div className="grand-opening-status" role="status">
+          <span aria-hidden="true">🎉</span>
+          <span><small>ПЕРВОЕ ПОСЕЩЕНИЕ</small><b>Следующий обслуженный гость уже приглашён</b></span>
+        </div>
+      )}
+      <div className="room-telemetry" aria-label={`Статистика последних ${room.recentSessions.length} сеансов`}>
+        <span><small>Загрузка</small><b>{room.recentSessions.length ? `${utilizationPercent}%` : '—'}</b></span>
+        <span><small>Средний сеанс</small><b>{room.recentSessions.length ? `${Math.round(room.recentAverageRevenuePerSession)} 🪙` : 'нет данных'}</b></span>
+        <span><small>Выборка</small><b>{room.recentSessions.length}/10</b></span>
       </div>
       <div className="room-upgrade-list">
         {ROOM_UPGRADE_DEFS.map((upgrade) => {
@@ -247,39 +260,66 @@ function RoomDevelopment({ room, snapshot, engine }: { room: RoomState; snapshot
           const maxLevel = upgrade.key === 'capacity' ? definition.maxCapacity : upgrade.maxLevel;
           const maxed = level >= maxLevel;
           const cost = getRoomUpgradeCost(room.id, upgrade.key, level);
+          const effect = getRoomUpgradeEffect(
+            room.id,
+            upgrade.key,
+            level,
+            maxLevel,
+            room.capacity,
+            room.upgrades.quality,
+            cost,
+          );
           const affordable = !maxed && snapshot.coins >= cost;
+          const recommendationReason = guidance.recommendation?.key === upgrade.key ? guidance.recommendation.reason : null;
+          const capacityWarning = upgrade.key === 'capacity' ? guidance.capacityWarning : null;
           return (
             <button
               key={upgrade.key}
-              className={`room-upgrade-card ${affordable ? 'is-affordable' : ''}`}
+              className={`room-upgrade-card ${affordable ? 'is-affordable' : ''} ${recommendationReason && !maxed ? 'is-recommended' : ''} ${capacityWarning && !maxed ? 'is-caution' : ''}`}
+              data-room-upgrade-key={upgrade.key}
               disabled={!affordable}
               onClick={() => {
                 gameAudio.unlock();
                 if (engine.purchaseRoomUpgrade(room.id, upgrade.key)) gameAudio.click();
               }}
-              aria-label={`${definition.shortName}: ${copy.name}, уровень ${level}${maxed ? ', максимум' : `, цена ${cost}`}`}
+              aria-label={`${definition.shortName}: ${copy.name}, уровень ${level}. ${effect.ariaLabel}. ${recommendationReason && !maxed ? `Рекомендуется: ${recommendationReason}. ` : ''}${capacityWarning && !maxed ? `Внимание: ${capacityWarning}. ` : ''}${maxed ? 'Максимум' : `Цена ${cost} монет`}`}
             >
               <span className="room-upgrade-glyph">{copy.icon}</span>
-              <span><b>{copy.name}<em>ур. {level}</em></b><small>{copy.description}</small></span>
+              <span className="room-upgrade-copy">
+                <b>{copy.name}<em>ур. {level}</em></b>
+                {recommendationReason && !maxed && <span className="upgrade-guidance is-recommended">Рекомендуется · {recommendationReason}</span>}
+                {capacityWarning && !maxed && <span className="upgrade-guidance is-caution">Не спешите · {capacityWarning}</span>}
+                <UpgradeEffectView effect={effect} />
+              </span>
               <strong>{maxed ? 'MAX' : <><Icon name="coins" />{cost}</>}</strong>
             </button>
           );
         })}
       </div>
+      <div className="room-economy-grid is-live room-history-grid">
+        <span><small>За гостя</small><b>{room.perGuestProfit} 🪙</b></span>
+        <span><small>Макс. сеанс</small><b>{room.maxSessionProfit} 🪙</b></span>
+        <span><small>Выручка</small><b>{room.revenue} 🪙</b></span>
+        <span><small>Сеансов</small><b>{room.completedSessions}</b></span>
+      </div>
     </div>
   );
 }
 
-export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, onUpgradesOpen }: Props) {
+export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, onUpgradesOpen, settingsOpen, onSettingsOpen }: Props) {
   const bartenderStatus = BARTENDER_STATUS[snapshot.bartender.state];
   const activeRoom = venueView === 'bar' ? null : snapshot.rooms.find((room) => room.id === venueView) ?? null;
   const activeRoomDefinition = activeRoom ? getRoomDefinition(activeRoom.id) : null;
+  const nextLockedRoom = ROOM_DEFINITIONS.find((definition) => !snapshot.rooms.find((room) => room.id === definition.id)?.unlocked) ?? null;
+  const barRecommendation = getBarUpgradeRecommendation(snapshot);
   const developmentVisible = snapshot.started && upgradesOpen;
-  const nextDrink = useMemo(() => {
-    const currentLevel = snapshot.upgrades.assortment;
-    return currentLevel < 5 ? `Следующий напиток на ${currentLevel + 1} уровне` : 'Вся карта открыта';
-  }, [snapshot.upgrades.assortment]);
-
+  const settingsVisible = snapshot.started && settingsOpen;
+  const [resetConfirming, setResetConfirming] = useState(false);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsCloseRef = useRef<HTMLButtonElement>(null);
+  const settingsDialogRef = useRef<HTMLElement>(null);
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
+  const resetCancelRef = useRef<HTMLButtonElement>(null);
   const click = (action: () => void) => {
     gameAudio.setEnabled(snapshot.soundEnabled);
     gameAudio.click();
@@ -288,20 +328,80 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
 
   const selectVenue = (view: VenueView) => click(() => onVenueView(view));
 
-  const reset = () => {
-    if (window.confirm('Сбросить прогресс бара и начать заново?')) {
-      engine.resetProgress();
-      onVenueView('bar');
-    }
+  const toggleSound = () => {
+    const enabled = !snapshot.soundEnabled;
+    engine.toggleSound();
+    gameAudio.setEnabled(enabled);
+    if (enabled) gameAudio.click();
+  };
+
+  const closeSettings = (restoreFocus = true) => {
+    setResetConfirming(false);
+    onSettingsOpen(false);
+    if (restoreFocus) window.requestAnimationFrame(() => settingsButtonRef.current?.focus());
+  };
+
+  const cancelReset = () => {
+    setResetConfirming(false);
+    window.requestAnimationFrame(() => resetButtonRef.current?.focus());
+  };
+
+  useEffect(() => {
+    if (!settingsVisible) return;
+    const focusFrame = window.requestAnimationFrame(() => settingsCloseRef.current?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        if (resetConfirming) {
+          cancelReset();
+        } else {
+          onSettingsOpen(false);
+          window.requestAnimationFrame(() => settingsButtonRef.current?.focus());
+        }
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(settingsDialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])') ?? []);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onSettingsOpen, resetConfirming, settingsVisible]);
+
+  useEffect(() => {
+    if (!settingsVisible || !resetConfirming) return;
+    const focusFrame = window.requestAnimationFrame(() => resetCancelRef.current?.focus());
+    return () => window.cancelAnimationFrame(focusFrame);
+  }, [resetConfirming, settingsVisible]);
+
+  const confirmReset = () => {
+    engine.resetProgress();
+    onVenueView('bar');
+    closeSettings(false);
   };
 
   return (
-    <div className={`hud ${snapshot.started ? 'is-running' : 'is-welcome'} ${developmentVisible ? 'is-development-open' : ''}`}>
+    <div className={`hud ${snapshot.started ? 'is-running' : 'is-welcome'} ${developmentVisible ? 'is-development-open' : ''} ${settingsVisible ? 'is-settings-open' : ''}`}>
       {snapshot.started && (
         <>
       <header className="top-hud">
         <div className="brand-card">
-          <span className="brand-mark">H&amp;H</span>
+          <button className="brand-speed-button speed-button" onClick={() => click(engine.toggleSpeed)} aria-label={`Скорость игры x${snapshot.speedMultiplier}`}>
+            <Icon name="time-speed" />
+            <b>×{snapshot.speedMultiplier}</b>
+          </button>
           <span className="brand-copy">
             <strong>ХМЕЛЬ &amp; МЁД</strong>
             <small>день {snapshot.day} · {activeRoomDefinition?.shortName ?? 'главный зал'}</small>
@@ -317,39 +417,52 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
           <CurrencyChip icon="customers" value={snapshot.served} label="Обслужено гостей" />
         </div>
 
-        <nav className="control-strip" aria-label="Управление игрой">
-          <button className="icon-button speed-button" onClick={() => click(engine.toggleSpeed)} aria-label={`Скорость игры x${snapshot.speedMultiplier}`}>
-            <Icon name="time-speed" />
-            <b>×{snapshot.speedMultiplier}</b>
-            <span className="control-label" aria-hidden="true">Скорость</span>
-          </button>
-          <button className="icon-button" onClick={() => click(engine.togglePause)} aria-label={snapshot.paused ? 'Продолжить' : 'Пауза'}>
-            <Icon name={snapshot.paused ? 'play' : 'pause'} />
-            <span className="control-label" aria-hidden="true">{snapshot.paused ? 'Играть' : 'Пауза'}</span>
-          </button>
+        <div className="top-actions">
+          <nav className="control-strip" aria-label="Управление игрой">
+            <button
+              className={`icon-button upgrades-toggle ${developmentVisible ? 'is-active' : ''}`}
+              onClick={() => click(() => onUpgradesOpen(!upgradesOpen))}
+              aria-label="Улучшения бара"
+              aria-expanded={developmentVisible}
+              aria-controls="upgrade-panel"
+            >
+              <Icon name="upgrade-arrow" />
+              <span className="control-label" aria-hidden="true">Развитие</span>
+            </button>
+          </nav>
           <button
-            className={`icon-button ${snapshot.soundEnabled ? '' : 'is-muted'}`}
-            onClick={() => {
-              engine.toggleSound();
-              gameAudio.setEnabled(!snapshot.soundEnabled);
-            }}
-            aria-label={snapshot.soundEnabled ? 'Выключить звук' : 'Включить звук'}
+            ref={settingsButtonRef}
+            type="button"
+            className={`icon-button settings-button ${settingsVisible ? 'is-active' : ''}`}
+            onClick={() => click(() => onSettingsOpen(!settingsOpen))}
+            aria-label="Настройки"
+            aria-expanded={settingsVisible}
+            aria-controls="settings-dialog"
           >
-            <Icon name="sound" />
-            <span className="control-label" aria-hidden="true">Звук</span>
+            <span className="settings-glyph" aria-hidden="true">⚙</span>
+            <span className="control-label" aria-hidden="true">Настройки</span>
           </button>
-          <button
-            className={`icon-button upgrades-toggle ${developmentVisible ? 'is-active' : ''}`}
-            onClick={() => click(() => onUpgradesOpen(!upgradesOpen))}
-            aria-label="Улучшения бара"
-            aria-expanded={developmentVisible}
-            aria-controls="upgrade-panel"
-          >
-            <Icon name="upgrade-arrow" />
-            <span className="control-label" aria-hidden="true">Развитие</span>
-          </button>
-        </nav>
+        </div>
       </header>
+
+      {nextLockedRoom && !developmentVisible && !settingsVisible && (
+        <button
+          type="button"
+          className={`expansion-progress ${snapshot.coins >= nextLockedRoom.unlockCost ? 'is-ready' : ''}`}
+          onClick={() => click(() => {
+            onVenueView(nextLockedRoom.id);
+            onUpgradesOpen(true);
+          })}
+          aria-label={`Следующее расширение: ${nextLockedRoom.name}. ${snapshot.coins} из ${nextLockedRoom.unlockCost} монет`}
+        >
+          <span className="expansion-progress-icon" aria-hidden="true">{nextLockedRoom.icon}</span>
+          <span className="expansion-progress-copy">
+            <small>СЛЕДУЮЩЕЕ РАСШИРЕНИЕ</small>
+            <b>{nextLockedRoom.shortName} · {formatCompactNumber(snapshot.coins)} / {formatCompactNumber(nextLockedRoom.unlockCost)}</b>
+            <i aria-hidden="true"><span style={{ width: `${Math.min(100, snapshot.coins / nextLockedRoom.unlockCost * 100)}%` }} /></i>
+          </span>
+        </button>
+      )}
 
       <button
         type="button"
@@ -393,28 +506,109 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
             })}
           </div>
         </div>
-        <MilestoneCard snapshot={snapshot} />
         {venueView === 'bar' ? (
           <>
-            <div className="drink-ribbon">
-              <Icon name="assortment" />
-              <span>
-                <b>{snapshot.unlockedDrinks.length} / 5 напитков</b>
-                <small>{nextDrink}</small>
+            <div className="bar-analytics" data-bottleneck={snapshot.barDiagnostics.primaryBottleneck}>
+              <span className="bar-analytics-icon" aria-hidden="true">📊</span>
+              <span className="bar-analytics-copy">
+                <small>{snapshot.barDiagnostics.primaryBottleneck === 'none' ? 'БАР РАБОТАЕТ РОВНО' : 'ТЕКУЩЕЕ УЗКОЕ МЕСТО'}</small>
+                <b>{barRecommendation?.reason ?? 'Все доступные улучшения куплены'}</b>
+                <em>Заказы {snapshot.barDiagnostics.waitingOrders} · напитки {snapshot.barDiagnostics.waitingDrinks} · грязные столы {snapshot.barDiagnostics.dirtyTables}</em>
               </span>
             </div>
+            {snapshot.lastShiftSummary && (
+              <div className="shift-summary" aria-label={`Итог ${snapshot.lastShiftSummary.dayNumber} дня`}>
+                <span><small>ПРОШЛАЯ СМЕНА</small><b>+{snapshot.lastShiftSummary.operatingRevenue + snapshot.lastShiftSummary.bonus} 🪙</b></span>
+                <span><small>Гостей</small><b>{snapshot.lastShiftSummary.servedThisShift}</b></span>
+                <span><small>Комнаты</small><b>+{snapshot.lastShiftSummary.roomRevenueThisShift} 🪙</b></span>
+                <span><small>Потеряно</small><b>{snapshot.lastShiftSummary.blockedArrivals}</b></span>
+              </div>
+            )}
             <div className="upgrade-list">
               {UPGRADE_DEFS.map((definition) => (
-                <UpgradeCard key={definition.key} definition={definition} snapshot={snapshot} engine={engine} />
+                <UpgradeCard
+                  key={definition.key}
+                  definition={definition}
+                  snapshot={snapshot}
+                  engine={engine}
+                  recommendationReason={barRecommendation?.key === definition.key ? barRecommendation.reason : undefined}
+                />
               ))}
             </div>
           </>
         ) : activeRoom ? <RoomDevelopment room={activeRoom} snapshot={snapshot} engine={engine} /> : null}
-        <button className="reset-button" onClick={() => click(reset)}>
-          <Icon name="reset" />
-          Сбросить прогресс
-        </button>
       </aside>
+
+      <div className={`settings-layer ${settingsVisible ? 'is-open' : ''}`} aria-hidden={!settingsVisible} inert={!settingsVisible}>
+        <button
+          type="button"
+          className="settings-backdrop"
+          onClick={() => click(closeSettings)}
+          aria-label="Закрыть настройки"
+          tabIndex={settingsVisible ? 0 : -1}
+        />
+        <section ref={settingsDialogRef} id="settings-dialog" className="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+          <header className="settings-heading">
+            <span className="settings-heading-icon" aria-hidden="true">⚙</span>
+            <span>
+              <small>ИГРА</small>
+              <h2 id="settings-title">Настройки</h2>
+            </span>
+            <button
+              ref={settingsCloseRef}
+              type="button"
+              className="panel-close settings-close"
+              onClick={() => click(closeSettings)}
+              aria-label="Закрыть настройки"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </header>
+          {resetConfirming ? (
+            <div className="reset-confirmation" role="alert" aria-labelledby="reset-confirm-title" aria-describedby="reset-confirm-description">
+              <span className="reset-confirmation-icon" aria-hidden="true"><Icon name="reset" /></span>
+              <h3 id="reset-confirm-title">Сбросить весь прогресс?</h3>
+              <p id="reset-confirm-description">Будут удалены монеты, комнаты и все прокачки. Отменить это действие после подтверждения нельзя.</p>
+              <div className="reset-confirmation-actions">
+                <button ref={resetCancelRef} type="button" className="reset-cancel-button" onClick={() => click(cancelReset)}>Отмена</button>
+                <button type="button" className="reset-confirm-button" onClick={() => click(confirmReset)}>
+                  <Icon name="reset" />
+                  Да, сбросить
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                className={`settings-sound-toggle ${snapshot.soundEnabled ? 'is-on' : ''}`}
+                onClick={toggleSound}
+                aria-label={snapshot.soundEnabled ? 'Выключить звук' : 'Включить звук'}
+                aria-pressed={snapshot.soundEnabled}
+              >
+                <span className="settings-sound-icon"><Icon name="sound" /></span>
+                <span className="settings-sound-copy">
+                  <b>Звук</b>
+                  <small>{snapshot.soundEnabled ? 'Звуки интерфейса и событий включены' : 'Звуки интерфейса и событий выключены'}</small>
+                </span>
+                <span className="settings-switch" aria-hidden="true"><i /></span>
+              </button>
+              <div className="settings-save-note">
+                <span aria-hidden="true">✓</span>
+                <span><b>Автосохранение включено</b><small>Прогресс хранится в этом браузере.</small></span>
+              </div>
+              <div className="settings-danger-zone">
+                <span className="eyebrow">ДАННЫЕ ИГРЫ</span>
+                <p>Сброс удалит все покупки, комнаты и улучшения. Это действие нельзя отменить.</p>
+                <button ref={resetButtonRef} className="reset-button" onClick={() => click(() => setResetConfirming(true))}>
+                  <Icon name="reset" />
+                  Сбросить прогресс
+                </button>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
 
       {snapshot.started && (
         <div className="bottom-status">
@@ -451,15 +645,6 @@ export function Hud({ engine, snapshot, venueView, onVenueView, upgradesOpen, on
         </div>
       )}
 
-      {snapshot.paused && (
-        <div className="pause-scrim">
-          <div className="pause-card">
-            <Icon name="pause" />
-            <b>Бар на паузе</b>
-            <span>Гости терпеливо подождут.</span>
-          </div>
-        </div>
-      )}
         </>
       )}
 

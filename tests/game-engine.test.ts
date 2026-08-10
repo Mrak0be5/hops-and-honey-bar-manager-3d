@@ -29,7 +29,7 @@ class MemoryStorage implements Storage {
 }
 
 const makeEngine = (storage: Storage | null = null) => new GameEngine({ rng: () => 0.5, storage });
-const makeFundedEngine = (coins = 5_000, upgrades = INITIAL_UPGRADES) => {
+const makeFundedEngine = (coins = 5_000, upgrades = INITIAL_UPGRADES, rng = () => 0.5) => {
   const storage = new MemoryStorage();
   storage.setItem('hops-and-honey-save-v1', JSON.stringify({
     coins,
@@ -39,7 +39,7 @@ const makeFundedEngine = (coins = 5_000, upgrades = INITIAL_UPGRADES) => {
     upgrades,
     soundEnabled: true,
   }));
-  return { engine: makeEngine(storage), storage };
+  return { engine: new GameEngine({ rng, storage }), storage };
 };
 
 describe('GameEngine', () => {
@@ -70,17 +70,17 @@ describe('GameEngine', () => {
     expect(restored.getSnapshot().bartender.state).toBe('idle');
   });
 
-  it('freezes simulation time and actors while paused', () => {
+  it('keeps the simulation running without a pause state', () => {
     const engine = makeEngine();
     engine.start();
     engine.advance(4);
-    engine.setPaused(true);
     const before = engine.getSnapshot();
 
-    engine.advance(20);
+    engine.advance(1);
     const after = engine.getSnapshot();
-    expect(after.shiftProgress).toBe(before.shiftProgress);
-    expect(after.patrons).toEqual(before.patrons);
+    expect(after.shiftProgress).toBeGreaterThan(before.shiftProgress);
+    expect(after).not.toHaveProperty('paused');
+    expect(engine).not.toHaveProperty('togglePause');
   });
 
   it('unlocks a new day and awards the shift bonus', () => {
@@ -92,6 +92,16 @@ describe('GameEngine', () => {
     expect(state.day).toBe(2);
     expect(state.lastEvent).not.toBeNull();
     expect(state.served).toBeGreaterThan(1);
+    expect(state.lastShiftSummary).toMatchObject({
+      dayNumber: 1,
+      operatingRevenue: expect.any(Number),
+      servedThisShift: expect.any(Number),
+      roomRevenueThisShift: 0,
+      blockedArrivals: expect.any(Number),
+      bonus: expect.any(Number),
+    });
+    expect(state.lastShiftSummary!.operatingRevenue).toBeGreaterThan(0);
+    expect(state.lastShiftSummary!.servedThisShift).toBeGreaterThan(0);
   });
 
   it('caps day bonuses and keeps them below a quarter of long-run income', () => {
@@ -235,7 +245,36 @@ describe('GameEngine', () => {
     expect(engine.getSnapshot().roomRevenue).toBe(room.revenue);
   });
 
-  it('waits for every reserved room guest before starting a larger session', () => {
+  it('guarantees a real bar-served first guest for every newly opened room at x2', () => {
+    for (const definition of ROOM_DEFINITIONS) {
+      // This roll would reject every normal optional room visit, proving that
+      // the one-time opening priority—not random luck—drives the first visit.
+      const { engine } = makeFundedEngine(5_000, INITIAL_UPGRADES, () => 0.999);
+      expect(engine.purchaseRoom(definition.id)).toBe(true);
+      expect(engine.getSnapshot().rooms.find((room) => room.id === definition.id)?.awaitingFirstGuest).toBe(true);
+      engine.toggleSpeed();
+      engine.start();
+
+      let realSeconds = 0;
+      while (realSeconds < 20) {
+        engine.advance(0.25);
+        realSeconds += 0.25;
+        if (engine.getSnapshot().rooms.find((room) => room.id === definition.id)?.staffState === 'serving') break;
+      }
+
+      const snapshot = engine.getSnapshot();
+      const room = snapshot.rooms.find((candidate) => candidate.id === definition.id)!;
+      const firstGuests = snapshot.patrons.filter((patron) => patron.roomId === definition.id && patron.state === 'in_room');
+      expect(room.staffState, `${definition.id} did not start within ${realSeconds}s`).toBe('serving');
+      expect(realSeconds, `${definition.id} first-session latency`).toBeGreaterThanOrEqual(10);
+      expect(realSeconds, `${definition.id} first-session latency`).toBeLessThanOrEqual(20);
+      expect(room.awaitingFirstGuest).toBe(false);
+      expect(firstGuests.length).toBeGreaterThan(0);
+      expect(firstGuests.every((patron) => patron.barServed && patron.order !== null)).toBe(true);
+    }
+  });
+
+  it('keeps reserved walkers queued and excludes them from the active session payout', () => {
     const fastUpgrades = {
       ...INITIAL_UPGRADES,
       moveSpeed: 10,
@@ -250,32 +289,40 @@ describe('GameEngine', () => {
     expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
     engine.start();
 
-    let sawApproachingReservation = false;
-    let verifiedServingBatch = false;
+    let sawQueuedGuest = false;
+    let targetSession = 0;
+    let revenueBefore = 0;
+    let expectedIncome = 0;
+    let verifiedPayout = false;
     for (let tick = 0; tick < 1_200; tick += 1) {
       engine.advance(0.25);
       const snapshot = engine.getSnapshot();
       const room = snapshot.rooms.find((item) => item.id === 'karaoke')!;
       const assigned = snapshot.patrons.filter((patron) => patron.roomId === 'karaoke'
         && (patron.state === 'walking_to_room' || patron.state === 'waiting_room' || patron.state === 'in_room'));
-      if (room.staffState === 'welcoming' && assigned.some((patron) => patron.state === 'walking_to_room')) {
-        sawApproachingReservation = true;
-      }
       if (room.staffState === 'serving') {
-        expect(assigned.some((patron) => patron.state === 'walking_to_room' || patron.state === 'waiting_room')).toBe(false);
         expect(assigned.every((patron) => patron.barServed)).toBe(true);
-        expect(assigned.filter((patron) => patron.state === 'in_room')).toHaveLength(room.guests);
-        if (sawApproachingReservation) {
-          verifiedServingBatch = true;
-          break;
+        const activeGuests = assigned.filter((patron) => patron.state === 'in_room');
+        const queuedGuests = assigned.filter((patron) => patron.state === 'walking_to_room' || patron.state === 'waiting_room');
+        expect(activeGuests).toHaveLength(room.guests);
+        if (targetSession === 0 && queuedGuests.length > 0) {
+          sawQueuedGuest = true;
+          targetSession = room.completedSessions + 1;
+          revenueBefore = room.revenue;
+          expectedIncome = room.perGuestProfit * activeGuests.length;
         }
       }
+      if (targetSession > 0 && room.completedSessions >= targetSession) {
+        expect(room.revenue - revenueBefore).toBe(expectedIncome);
+        verifiedPayout = true;
+        break;
+      }
     }
-    expect(sawApproachingReservation).toBe(true);
-    expect(verifiedServingBatch).toBe(true);
+    expect(sawQueuedGuest).toBe(true);
+    expect(verifiedPayout).toBe(true);
   });
 
-  it('naturally fills a two-seat room and pays for the actual full batch', () => {
+  it('pays only for the guests in the active batch, never for empty capacity', () => {
     const fastUpgrades = {
       ...INITIAL_UPGRADES,
       moveSpeed: 10,
@@ -297,10 +344,10 @@ describe('GameEngine', () => {
     for (let tick = 0; tick < 1_600; tick += 1) {
       engine.advance(0.25);
       const room = engine.getSnapshot().rooms.find((item) => item.id === 'karaoke')!;
-      if (targetSession === 0 && room.staffState === 'serving' && room.guests === 2) {
+      if (targetSession === 0 && room.staffState === 'serving' && room.guests > 0) {
         targetSession = room.completedSessions + 1;
         revenueBeforeFullSession = room.revenue;
-        expectedIncome = room.maxSessionProfit;
+        expectedIncome = room.perGuestProfit * room.guests;
         expect(room.perGuestProfit).toBe(definition.baseProfit);
         expect(room.maxSessionProfit).toBe(room.perGuestProfit * room.capacity);
       }
@@ -321,6 +368,7 @@ describe('GameEngine', () => {
     expect(engine.purchaseRoomUpgrade('karaoke', 'staffSpeed')).toBe(true);
     expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
     expect(engine.purchaseRoomUpgrade('karaoke', 'quality')).toBe(true);
+    expect(engine.getSnapshot().lastEvent?.roomId).toBe('karaoke');
 
     engine.start();
     for (let tick = 0; tick < 720 && engine.getSnapshot().rooms.find((room) => room.id === 'karaoke')!.completedSessions === 0; tick += 1) {
@@ -345,18 +393,26 @@ describe('GameEngine', () => {
     }
   });
 
+  it('uses the approved first-step room expansion prices', () => {
+    expect(ROOM_DEFINITIONS.find((room) => room.id === 'karaoke')?.unlockCost).toBe(230);
+    expect(getRoomUpgradeCost('karaoke', 'capacity', 1)).toBe(140);
+    expect(getRoomUpgradeCost('sauna', 'capacity', 1)).toBe(320);
+    expect(getRoomUpgradeCost('massage', 'capacity', 1)).toBe(650);
+    expect(getRoomUpgradeCost('massage', 'staffSpeed', 1)).toBe(110);
+  });
+
   it('uses the correct grammatical form when the sauna opens', () => {
     const { engine } = makeFundedEngine();
     expect(engine.purchaseRoom('sauna')).toBe(true);
     expect(engine.getSnapshot().lastEvent?.message).toContain('Финская сауна открыта!');
   });
 
-  it('prices the first speed and quality upgrades for a six-to-eight shift payoff', () => {
+  it('prices the first speed and quality upgrades from the room balance table', () => {
     expect(getRoomUpgradeCost('karaoke', 'staffSpeed', 1)).toBe(60);
     expect(getRoomUpgradeCost('karaoke', 'quality', 1)).toBe(70);
     expect(getRoomUpgradeCost('sauna', 'staffSpeed', 1)).toBe(110);
     expect(getRoomUpgradeCost('sauna', 'quality', 1)).toBe(130);
-    expect(getRoomUpgradeCost('massage', 'staffSpeed', 1)).toBe(180);
+    expect(getRoomUpgradeCost('massage', 'staffSpeed', 1)).toBe(110);
     expect(getRoomUpgradeCost('massage', 'quality', 1)).toBe(200);
   });
 
@@ -376,10 +432,67 @@ describe('GameEngine', () => {
     expect(state.served).toBe(120);
     expect(state.totalOperatingRevenue).toBe(0);
     expect(state.totalDayBonus).toBe(0);
+    expect(state.lastShiftSummary).toBeNull();
+    expect(state.barDiagnostics.blockedArrivals).toBe(0);
     expect(state.totalMilestoneCount).toBe(MILESTONE_DEFINITIONS.length);
     expect(state.achievedMilestoneCount).toBeGreaterThan(0);
     expect(state.nextMilestone).not.toBeNull();
     expect(state.nextMilestone!.current).toBeLessThan(state.nextMilestone!.target);
     expect(state.rooms.every((room) => !room.unlocked)).toBe(true);
+    expect(state.rooms.every((room) => room.recentSessions.length === 0)).toBe(true);
+  });
+
+  it('reports honest rolling room utilization and persists the last ten sessions', () => {
+    const fastUpgrades = {
+      ...INITIAL_UPGRADES,
+      moveSpeed: 6,
+      orderSpeed: 6,
+      prepSpeed: 6,
+      cleanSpeed: 6,
+      advertising: 5,
+    };
+    const { engine, storage } = makeFundedEngine(5_000, fastUpgrades);
+    expect(engine.purchaseRoom('karaoke')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('karaoke', 'staffSpeed')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('karaoke', 'staffSpeed')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('karaoke', 'staffSpeed')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('karaoke', 'staffSpeed')).toBe(true);
+    expect(engine.purchaseRoomUpgrade('karaoke', 'capacity')).toBe(true);
+    engine.start();
+
+    for (let tick = 0; tick < 3_000; tick += 1) {
+      engine.advance(0.25);
+      if (engine.getSnapshot().rooms.find((room) => room.id === 'karaoke')!.completedSessions >= 12) break;
+    }
+
+    const karaoke = engine.getSnapshot().rooms.find((room) => room.id === 'karaoke')!;
+    expect(karaoke.completedSessions).toBeGreaterThanOrEqual(12);
+    expect(karaoke.recentSessions).toHaveLength(10);
+    const recentGuests = karaoke.recentSessions.reduce((total, session) => total + session.guests, 0);
+    const recentCapacity = karaoke.recentSessions.reduce((total, session) => total + session.capacity, 0);
+    const recentRevenue = karaoke.recentSessions.reduce((total, session) => total + session.revenue, 0);
+    expect(karaoke.recentUtilization).toBeCloseTo(recentGuests / recentCapacity, 8);
+    expect(karaoke.recentAverageRevenuePerSession).toBeCloseTo(recentRevenue / 10, 8);
+    expect(karaoke.realizedRevenuePerSession).toBeCloseTo(karaoke.revenue / karaoke.completedSessions, 8);
+    expect(JSON.parse(JSON.stringify(engine.getSnapshot())).rooms[0].recentSessions).toEqual(karaoke.recentSessions);
+
+    const restored = makeEngine(storage).getSnapshot().rooms.find((room) => room.id === 'karaoke')!;
+    expect(restored.recentSessions).toEqual(karaoke.recentSessions);
+    expect(restored.recentUtilization).toBeCloseTo(karaoke.recentUtilization, 8);
+  });
+
+  it('exposes bar queue, table and blocked-arrival diagnostics', () => {
+    const { engine } = makeFundedEngine(5_000, { ...INITIAL_UPGRADES, advertising: 5 });
+    engine.start();
+    engine.advance(120);
+
+    const snapshot = engine.getSnapshot();
+    const diagnostics = snapshot.barDiagnostics;
+    expect(diagnostics.waitingOrders).toBe(snapshot.patrons.filter((patron) => patron.state === 'waiting_order').length);
+    expect(diagnostics.waitingDrinks).toBe(snapshot.patrons.filter((patron) => patron.state === 'waiting_drink').length);
+    expect(diagnostics.waitingPayments).toBe(snapshot.patrons.filter((patron) => patron.state === 'ready_to_pay').length);
+    expect(diagnostics.occupiedTables + diagnostics.dirtyTables + diagnostics.openTables).toBe(snapshot.tables.length);
+    expect(diagnostics.blockedArrivals).toBeGreaterThan(0);
+    expect(['none', 'orders', 'drinks', 'payments', 'cleaning', 'tables']).toContain(diagnostics.primaryBottleneck);
   });
 });

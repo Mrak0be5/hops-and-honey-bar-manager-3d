@@ -2,8 +2,8 @@ import { RoundedBox, Sparkles } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { GUEST_CHAIR_OFFSET, TABLE_RADIUS } from '../game/config';
-import type { TableState } from '../game/types';
+import { DRINKS, GUEST_CHAIR_OFFSET, TABLE_RADIUS } from '../game/config';
+import type { TableState, UpgradeLevels } from '../game/types';
 import { BeerMug } from './Character';
 
 const tileColors = ['#f7e1bb', '#ffd9b9', '#f2cda4'];
@@ -175,7 +175,56 @@ function Bottle({ x, color, height = 0.55 }: { x: number; color: string; height?
   );
 }
 
-function BarCounter() {
+function OrderTerminal({ level }: { level: number }) {
+  if (level <= 1) return null;
+  const rows = Math.min(5, level);
+  return (
+    <group position={[1.75, 1.55, -3.17]} rotation={[-0.18, 0, 0]}>
+      <RoundedBox args={[0.72, 0.08, 0.52]} radius={0.07} smoothness={3} castShadow>
+        <meshStandardMaterial color="#193f4b" metalness={0.24} roughness={0.38} />
+      </RoundedBox>
+      <RoundedBox args={[0.59, 0.018, 0.39]} radius={0.045} smoothness={2} position={[0, 0.052, 0]}>
+        <meshStandardMaterial color="#9af4dd" emissive="#23bea2" emissiveIntensity={0.55 + level * 0.08} roughness={0.32} />
+      </RoundedBox>
+      {Array.from({ length: rows }, (_, index) => (
+        <mesh key={index} position={[-0.18 + (index % 2) * 0.22, 0.068, -0.12 + Math.floor(index / 2) * 0.1]}>
+          <boxGeometry args={[0.13, 0.008, 0.025]} />
+          <meshBasicMaterial color={index % 2 ? '#ef7652' : '#fff0a8'} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function GlassWasher({ level }: { level: number }) {
+  if (level <= 1) return null;
+  const bubbles = Math.min(8, level + 2);
+  return (
+    <group position={[2.15, 1.15, -4.95]} scale={0.9}>
+      <RoundedBox args={[1.16, 0.72, 0.82]} radius={0.12} smoothness={3} position={[0, 0.38, 0]} castShadow>
+        <meshStandardMaterial color={level >= 4 ? '#cde8e2' : '#85b7b0'} metalness={0.38} roughness={0.36} />
+      </RoundedBox>
+      <RoundedBox args={[0.88, 0.08, 0.56]} radius={0.08} smoothness={2} position={[0, 0.77, 0]}>
+        <meshStandardMaterial color="#e8fbf5" metalness={0.25} roughness={0.3} />
+      </RoundedBox>
+      {Array.from({ length: bubbles }, (_, index) => (
+        <mesh key={index} position={[-0.34 + (index % 4) * 0.22, 0.83 + Math.floor(index / 4) * 0.08, -0.08 + (index % 2) * 0.16]}>
+          <sphereGeometry args={[0.035 + (index % 3) * 0.008, 7, 6]} />
+          <meshBasicMaterial color="#c7fff2" transparent opacity={0.58} depthWrite={false} />
+        </mesh>
+      ))}
+      {level >= 4 && <Sparkles count={8 + level} scale={[1.1, 0.55, 0.7]} position={[0, 0.84, 0]} size={1.7} speed={0.42} color="#a5ffe9" />}
+    </group>
+  );
+}
+
+function BarCounter({ upgrades }: { upgrades: UpgradeLevels }) {
+  const bottleCount = 3 + (upgrades.assortment - 1) * 2;
+  const bottles = Array.from({ length: bottleCount }, (_, index) => {
+    const unlocked = DRINKS.slice(0, upgrades.assortment);
+    return unlocked[index % unlocked.length] ?? DRINKS[0];
+  });
+  const tapCount = Math.min(3, 1 + Math.floor((upgrades.prepSpeed - 1) / 2));
   return (
     <group>
       <RoundedBox args={[6.2, 1.22, 0.86]} radius={0.17} smoothness={4} position={[-0.25, 0.61, -3.63]} castShadow receiveShadow>
@@ -199,16 +248,28 @@ function BarCounter() {
           <meshStandardMaterial color="#eab759" metalness={0.36} roughness={0.38} />
         </mesh>
       ))}
-      <group position={[-1.25, 1.35, -3.45]}>
-        <mesh castShadow position={[0, 0.28, 0]}>
-          <cylinderGeometry args={[0.08, 0.08, 0.52, 10]} />
-          <meshStandardMaterial color="#334d53" metalness={0.3} roughness={0.35} />
-        </mesh>
-        <mesh castShadow position={[0.18, 0.55, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.06, 0.06, 0.36, 10]} />
-          <meshStandardMaterial color="#efaa32" metalness={0.25} />
-        </mesh>
-      </group>
+      {Array.from({ length: tapCount }, (_, index) => {
+        const x = -1.25 + index * 0.48;
+        return (
+          <group key={index} position={[x, 1.35, -3.45]}>
+            <mesh castShadow position={[0, 0.28, 0]}>
+              <cylinderGeometry args={[0.08, 0.08, 0.52, 10]} />
+              <meshStandardMaterial color="#334d53" metalness={0.3} roughness={0.35} />
+            </mesh>
+            <mesh castShadow position={[0.18, 0.55, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.06, 0.06, 0.36, 10]} />
+              <meshStandardMaterial
+                color={DRINKS[Math.min(upgrades.assortment - 1, DRINKS.length - 1)]?.color ?? '#efaa32'}
+                emissive={upgrades.prepSpeed >= 4 ? '#ffcf64' : '#000000'}
+                emissiveIntensity={upgrades.prepSpeed >= 4 ? 0.38 : 0}
+                metalness={0.25}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+      <OrderTerminal level={upgrades.orderSpeed} />
+      <GlassWasher level={upgrades.cleanSpeed} />
 
       <group position={[-1.4, 0.95, -5.25]}>
         <RoundedBox args={[4.7, 2.2, 0.34]} radius={0.12} smoothness={3} position={[0, 0.25, 0]} castShadow>
@@ -220,18 +281,25 @@ function BarCounter() {
             <meshStandardMaterial color="#f1b65f" roughness={0.62} />
           </mesh>
         ))}
-        <group position={[-1.3, -0.37, 0.5]}>
-          <Bottle x={-0.62} color="#4fa558" />
-          <Bottle x={-0.22} color="#e96835" height={0.46} />
-          <Bottle x={0.18} color="#3678aa" height={0.6} />
-          <Bottle x={0.58} color="#d1436d" height={0.5} />
-        </group>
-        <group position={[1.05, 0.42, 0.5]}>
-          <Bottle x={-0.55} color="#eab338" height={0.45} />
-          <Bottle x={-0.15} color="#46a587" height={0.57} />
-          <Bottle x={0.25} color="#ce4d51" height={0.49} />
-          <Bottle x={0.65} color="#5d6fd1" height={0.61} />
-        </group>
+        {bottles.map((drink, index) => {
+          const row = index >= 6 ? 1 : 0;
+          const rowIndex = index % 6;
+          return (
+            <group key={`${drink.id}-${index}`} position={[-1.15 + rowIndex * 0.46, row ? 0.42 : -0.37, 0.5]}>
+              <Bottle x={0} color={drink.color} height={0.44 + (index % 3) * 0.07} />
+            </group>
+          );
+        })}
+        {upgrades.assortment > 1 && (
+          <Sparkles
+            count={6 + upgrades.assortment * 2}
+            scale={[4.2, 1.55, 0.32]}
+            position={[0, 0.2, 0.58]}
+            size={1.45}
+            speed={0.22}
+            color={DRINKS[Math.min(upgrades.assortment - 1, DRINKS.length - 1)]?.color ?? '#ffd66f'}
+          />
+        )}
       </group>
     </group>
   );
@@ -292,7 +360,8 @@ function Plant({ position, scale = 1 }: { position: [number, number, number]; sc
   );
 }
 
-function Entrance() {
+function Entrance({ advertisingLevel }: { advertisingLevel: number }) {
+  const promoted = advertisingLevel > 1;
   return (
     <group position={[7.2, 0, 4.6]} rotation={[0, -Math.PI / 2, 0]}>
       <RoundedBox args={[2.2, 3.2, 0.35]} radius={0.16} smoothness={3} position={[0, 1.58, 0]} castShadow>
@@ -305,11 +374,26 @@ function Entrance() {
         <sphereGeometry args={[0.08, 10, 8]} />
         <meshStandardMaterial color="#ffe27d" metalness={0.45} roughness={0.25} />
       </mesh>
+      {promoted && (
+        <group position={[0, 3.55, 0.08]}>
+          <RoundedBox args={[2.2, 0.58, 0.18]} radius={0.13} smoothness={3} castShadow>
+            <meshStandardMaterial color="#0d626a" roughness={0.48} metalness={0.12} />
+          </RoundedBox>
+          {Array.from({ length: Math.min(6, advertisingLevel) }, (_, index) => (
+            <mesh key={index} position={[-0.78 + index * 0.31, 0, 0.12]} rotation={[0, 0, Math.PI / 4]}>
+              <boxGeometry args={[0.17, 0.17, 0.035]} />
+              <meshStandardMaterial color={index % 2 ? '#ffcf62' : '#ff7664'} emissive={index % 2 ? '#f6a724' : '#ed4d58'} emissiveIntensity={1.1} />
+            </mesh>
+          ))}
+          <pointLight intensity={3 + advertisingLevel * 0.8} distance={4.5} color="#ffb04f" />
+          <Sparkles count={8 + advertisingLevel * 2} scale={[2.4, 1.1, 0.5]} size={1.7} speed={0.35} color="#ffe083" />
+        </group>
+      )}
     </group>
   );
 }
 
-export function BarEnvironment({ tables }: { tables: TableState[] }) {
+export function BarEnvironment({ tables, upgrades }: { tables: TableState[]; upgrades: UpgradeLevels }) {
   return (
     <group>
       <mesh receiveShadow position={[0, -0.22, 0]}>
@@ -364,9 +448,9 @@ export function BarEnvironment({ tables }: { tables: TableState[] }) {
       <PendantLamp position={[0.2, 3.52, 0.35]} color="#0b8587" />
       <PendantLamp position={[3.5, 3.34, 1.65]} color="#f3a43e" />
 
-      <BarCounter />
+      <BarCounter upgrades={upgrades} />
       {tables.map((table) => <Table key={table.id} table={table} />)}
-      <Entrance />
+      <Entrance advertisingLevel={upgrades.advertising} />
       <Plant position={[-6.9, 0, -4.9]} scale={1.15} />
       <Plant position={[6.7, 0, -4.9]} scale={0.95} />
       <Plant position={[-6.95, 0, 5.05]} scale={0.85} />

@@ -130,7 +130,8 @@ test('fresh desktop keeps onboarding isolated and opens development on demand', 
   await expect(panel).toHaveClass(/is-open/);
   await expect(panel).toBeVisible();
   await expect(page.getByRole('button', { name: 'Закрыть улучшения' })).toBeVisible();
-  await expect(panel.locator('.milestone-card')).toContainText('СЛЕДУЮЩАЯ ЦЕЛЬ');
+  await expect(panel.locator('.milestone-card, .drink-ribbon')).toHaveCount(0);
+  await expect(panel.locator('.upgrade-card')).toHaveCount(6);
   expect(audioWarnings).toEqual([]);
   await page.goto('about:blank', { waitUntil: 'commit', timeout: 5_000 });
 });
@@ -150,14 +151,17 @@ test('390px HUD uses compact values and development sheet removes redundant over
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Открыть бар' }).click();
+  await page.getByRole('button', { name: 'Настройки' }).click();
   await expect(page.getByRole('button', { name: 'Включить звук' })).toBeVisible();
+  await page.getByRole('button', { name: 'Закрыть настройки' }).last().click();
 
   const compactValues = page.locator('.currency-value-compact');
   await expect(compactValues).toHaveText(['268K', '1.6K', '1.4K']);
   for (const value of await compactValues.all()) await expect(value).toBeVisible();
   for (const value of await page.locator('.currency-value-full').all()) await expect(value).not.toBeVisible();
-  await expect(page.locator('.brand-copy strong')).toHaveText('ХМЕЛЬ & МЁД');
-  await expect(page.locator('.brand-copy strong')).toBeVisible();
+  await expect(page.locator('.brand-copy strong')).not.toBeVisible();
+  await expect(page.getByRole('button', { name: 'Скорость игры x1' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Настройки' })).toBeVisible();
 
   const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);

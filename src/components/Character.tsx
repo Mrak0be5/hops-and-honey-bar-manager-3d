@@ -2,7 +2,7 @@ import { RoundedBox, Sparkles } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import type { Bartender, Patron, PatronState, RoomId, Vec2 } from '../game/types';
+import type { Bartender, Patron, PatronState, RoomId, UpgradeLevels, Vec2 } from '../game/types';
 
 export const CUSTOMER_EMOJI: Record<PatronState, { emoji: string; label: string }> = {
   walking_in: { emoji: '🚪', label: 'Ищет столик' },
@@ -98,10 +98,11 @@ type HumanoidProps = {
   carryingDrink?: string | null;
   carryingDirty?: boolean;
   roomActivity?: RoomId | null;
+  bartenderUpgrades?: UpgradeLevels;
   activity: PatronState | Bartender['state'];
 };
 
-function Humanoid({ position, target, palette, moving, seated = false, drinking = false, bartender = false, carryingDrink, carryingDirty, roomActivity = null, activity }: HumanoidProps) {
+function Humanoid({ position, target, palette, moving, seated = false, drinking = false, bartender = false, carryingDrink, carryingDirty, roomActivity = null, bartenderUpgrades, activity }: HumanoidProps) {
   const root = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
   const chest = useRef<THREE.Group>(null);
@@ -439,12 +440,17 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
         {(activity === 'ordering' || activity === 'taking_order') && (
           <group position={[0.02, 1.02, 0.47]} rotation={[-0.12, 0, 0.05]}>
             <RoundedBox args={[0.29, 0.39, 0.035]} radius={0.035} smoothness={2}>
-              <meshStandardMaterial color="#f8e8bb" roughness={0.75} />
+              <meshStandardMaterial
+                color={bartender && (bartenderUpgrades?.orderSpeed ?? 1) > 1 ? '#183f4a' : '#f8e8bb'}
+                emissive={bartender && (bartenderUpgrades?.orderSpeed ?? 1) > 1 ? '#2fc5a8' : '#000000'}
+                emissiveIntensity={bartender ? Math.max(0, (bartenderUpgrades?.orderSpeed ?? 1) - 1) * 0.12 : 0}
+                roughness={bartender && (bartenderUpgrades?.orderSpeed ?? 1) > 1 ? 0.35 : 0.75}
+              />
             </RoundedBox>
             {[0.08, 0, -0.08].map((y) => (
               <mesh key={y} position={[-0.015, y, 0.021]}>
                 <boxGeometry args={[0.17, 0.018, 0.009]} />
-                <meshBasicMaterial color="#43a99a" />
+                <meshBasicMaterial color={bartender && (bartenderUpgrades?.orderSpeed ?? 1) > 1 ? '#9effdf' : '#43a99a'} />
               </mesh>
             ))}
             <mesh position={[0.17, 0.02, 0.04]} rotation={[0, 0, -0.18]}>
@@ -498,7 +504,14 @@ function Humanoid({ position, target, palette, moving, seated = false, drinking 
           <Sparkles count={7} scale={[1.05, 0.7, 0.7]} position={[0, 0.95, 0.3]} size={2.8} speed={0.7} color={activity === 'cleaning' ? '#8ff5df' : '#ffd46a'} />
         )}
         {moving && (
-          <Sparkles count={4} scale={[0.7, 0.18, 0.5]} position={[0, 0.13, -0.1]} size={1.8} speed={0.35} color="#f2d2a0" />
+          <Sparkles
+            count={bartender ? 4 + Math.max(0, (bartenderUpgrades?.moveSpeed ?? 1) - 1) * 2 : 4}
+            scale={bartender && (bartenderUpgrades?.moveSpeed ?? 1) > 1 ? [1.15, 0.22, 0.7] : [0.7, 0.18, 0.5]}
+            position={[0, 0.13, -0.1]}
+            size={bartender ? 1.8 + (bartenderUpgrades?.moveSpeed ?? 1) * 0.16 : 1.8}
+            speed={bartender ? 0.35 + (bartenderUpgrades?.moveSpeed ?? 1) * 0.05 : 0.35}
+            color={bartender && (bartenderUpgrades?.moveSpeed ?? 1) >= 4 ? '#72f2df' : '#f2d2a0'}
+          />
         )}
         {activity === 'leaving' && (
           <Sparkles count={5} scale={[0.72, 0.75, 0.48]} position={[0, 1.45, 0]} size={2.3} speed={0.42} color="#ffd66f" />
@@ -535,7 +548,7 @@ export function PatronCharacter({ patron }: { patron: Patron }) {
   );
 }
 
-export function BartenderCharacter({ bartender }: { bartender: Bartender }) {
+export function BartenderCharacter({ bartender, upgrades }: { bartender: Bartender; upgrades: UpgradeLevels }) {
   const moving = bartender.state.startsWith('to_') || bartender.state === 'returning_dirty';
   return (
     <Humanoid
@@ -544,6 +557,7 @@ export function BartenderCharacter({ bartender }: { bartender: Bartender }) {
       palette={0}
       moving={moving}
       bartender
+      bartenderUpgrades={upgrades}
       carryingDrink={bartender.carryingDrink?.color ?? null}
       carryingDirty={bartender.carryingDirty}
       activity={bartender.state}

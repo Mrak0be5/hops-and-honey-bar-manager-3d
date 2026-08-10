@@ -4,19 +4,25 @@ import {
   ENTRANCE,
   ENTRY_AISLE,
   getArrivalInterval,
+  getBartenderMoveSpeed,
+  getCleaningDuration,
   getDayBonus,
+  getOrderDuration,
+  getPreparationDuration,
   getUnlockedDrinks,
   getUpgradeCost,
   INITIAL_UPGRADES,
+  getRoomCooldownDuration,
   getRoomDefinition,
+  getRoomGroupWindow,
   getRoomProfit,
+  getRoomResetDuration,
+  getRoomSessionDuration,
   getRoomUpgradeCost,
   MILESTONE_DEFINITIONS,
   ROOM_DEFINITIONS,
-  ROOM_GROUP_WINDOW,
   ROOM_LAYOUTS,
   ROOM_MIN_WELCOME_DURATION,
-  ROOM_RESET_DURATION,
   ROOM_UPGRADE_DEFS,
   SERVICE_GATE,
   SHIFT_DURATION,
@@ -24,6 +30,7 @@ import {
   UPGRADE_DEFS,
 } from './config';
 import type {
+  BarDiagnostics,
   Bartender,
   BartenderState,
   Drink,
@@ -31,9 +38,11 @@ import type {
   GameSnapshot,
   Patron,
   RoomId,
+  RoomSessionSample,
   RoomState,
   RoomUpgradeKey,
   RoomUpgradeLevels,
+  ShiftSummary,
   TableState,
   UpgradeKey,
   UpgradeLevels,
@@ -48,7 +57,13 @@ type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 type MutablePatron = Patron & { route: Vec2[] };
 type MutableBartender = Bartender & { route: Vec2[]; timer: number };
-type MutableRoom = RoomState & { timer: number; phaseDuration: number; cooldown: number; guestIds: string[] };
+type MutableRoom = RoomState & {
+  timer: number;
+  phaseDuration: number;
+  cooldown: number;
+  guestIds: string[];
+  sessionCapacity: number;
+};
 
 type SavedProgress = {
   coins: number;
@@ -59,11 +74,26 @@ type SavedProgress = {
   soundEnabled: boolean;
   totalOperatingRevenue?: number;
   totalDayBonus?: number;
-  rooms?: Partial<Record<RoomId, { unlocked: boolean; completedSessions: number; revenue: number; upgrades: RoomUpgradeLevels }>>;
+  blockedArrivals?: number;
+  lastShiftSummary?: ShiftSummary | null;
+  rooms?: Partial<Record<RoomId, {
+    unlocked: boolean;
+    completedSessions: number;
+    revenue: number;
+    upgrades: RoomUpgradeLevels;
+    awaitingFirstGuest?: boolean;
+    recentSessions?: RoomSessionSample[];
+  }>>;
 };
 
 const SAVE_KEY = 'hops-and-honey-save-v1';
 const PUBLISH_INTERVAL = 1 / 12;
+const RECENT_ROOM_SESSION_LIMIT = 10;
+const FIRST_ROOM_GUEST_SPAWN_DELAY = 0.1;
+const OPENING_SERVICE_MOVE_FACTOR = 1.35;
+const OPENING_SERVICE_TIME_FACTOR = 0.78;
+const OPENING_DRINK_TIME_FACTOR = 0.75;
+const OPENING_ROOM_WALK_FACTOR = 1.5;
 
 const cloneVec = (value: Vec2): Vec2 => ({ x: value.x, z: value.z });
 const distance = (a: Vec2, b: Vec2) => Math.hypot(b.x - a.x, b.z - a.z);
@@ -86,7 +116,6 @@ export class GameEngine {
   private bartender: MutableBartender = this.makeBartender();
   private snapshot: GameSnapshot;
   private started = false;
-  private paused = false;
   private speedMultiplier: 1 | 2 = 1;
   private coins = 64;
   private reputation = 3;
@@ -104,6 +133,13 @@ export class GameEngine {
   private totalOperatingRevenue = 0;
   private totalDayBonus = 0;
   private shiftOperatingRevenue = 0;
+  private shiftServed = 0;
+  private shiftRoomRevenue = 0;
+  private shiftBlockedArrivals = 0;
+  private blockedArrivals = 0;
+  private lastShiftSummary: ShiftSummary | null = null;
+  private priorityRoomQueue: RoomId[] = [];
+  private openingPriorityPatronId: string | null = null;
 
   constructor(options: { rng?: RandomSource; storage?: StorageLike | null } = {}) {
     this.rng = options.rng ?? Math.random;
@@ -132,6 +168,7 @@ export class GameEngine {
       rooms[definition.id] = {
         id: definition.id,
         unlocked: false,
+        awaitingFirstGuest: false,
         staffState: 'locked',
         guests: 0,
         capacity: 1,
@@ -140,11 +177,16 @@ export class GameEngine {
         revenue: 0,
         perGuestProfit: definition.baseProfit,
         maxSessionProfit: definition.baseProfit,
+        recentSessions: [],
+        recentUtilization: 0,
+        realizedRevenuePerSession: 0,
+        recentAverageRevenuePerSession: 0,
         upgrades: { staffSpeed: 1, capacity: 1, quality: 1 },
         timer: 0,
         phaseDuration: 1,
         cooldown: 0,
         guestIds: [],
+        sessionCapacity: 1,
       };
     }
     return rooms;
@@ -159,20 +201,7 @@ export class GameEngine {
 
   start = () => {
     this.started = true;
-    this.paused = false;
     this.pushEvent('day', `День ${this.day}: бар открыт!`);
-    this.publish();
-  };
-
-  togglePause = () => {
-    if (!this.started) return;
-    this.paused = !this.paused;
-    this.publish();
-  };
-
-  setPaused = (paused: boolean) => {
-    if (!this.started || this.paused === paused) return;
-    this.paused = paused;
     this.publish();
   };
 
@@ -212,9 +241,15 @@ export class GameEngine {
     if (!room || room.unlocked || this.coins < definition.unlockCost) return false;
     this.coins -= definition.unlockCost;
     room.unlocked = true;
+    room.awaitingFirstGuest = true;
     room.staffState = 'waiting';
-    room.cooldown = 1.1;
+    room.cooldown = 0;
     room.progress = 0;
+    this.priorityRoomQueue = [roomId, ...this.priorityRoomQueue.filter((candidate) => candidate !== roomId)];
+    this.openingPriorityPatronId ??= this.findOpeningPriorityPatron()?.id ?? null;
+    // Make a free table useful immediately. The guest still walks into the bar,
+    // orders, drinks and pays before becoming eligible for the new room.
+    this.spawnTimer = Math.min(this.spawnTimer, FIRST_ROOM_GUEST_SPAWN_DELAY);
     const openedWord = definition.id === 'sauna' ? 'открыта' : 'открыт';
     this.pushEvent('room_unlock', `${definition.icon} ${definition.name} ${openedWord}!`, undefined, roomId);
     this.persist();
@@ -235,7 +270,7 @@ export class GameEngine {
     this.coins -= cost;
     room.upgrades = { ...room.upgrades, [key]: currentLevel + 1 };
     room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
-    this.pushEvent('upgrade', `${definition.icon} ${upgrade.name} · ур. ${currentLevel + 1}`);
+    this.pushEvent('upgrade', `${definition.icon} ${upgrade.name} · ур. ${currentLevel + 1}`, undefined, roomId);
     this.persist();
     this.publish();
     return true;
@@ -244,7 +279,6 @@ export class GameEngine {
   resetProgress = () => {
     this.storage?.removeItem(SAVE_KEY);
     this.started = false;
-    this.paused = false;
     this.speedMultiplier = 1;
     this.coins = 64;
     this.reputation = 3;
@@ -254,6 +288,13 @@ export class GameEngine {
     this.totalOperatingRevenue = 0;
     this.totalDayBonus = 0;
     this.shiftOperatingRevenue = 0;
+    this.shiftServed = 0;
+    this.shiftRoomRevenue = 0;
+    this.shiftBlockedArrivals = 0;
+    this.blockedArrivals = 0;
+    this.lastShiftSummary = null;
+    this.priorityRoomQueue = [];
+    this.openingPriorityPatronId = null;
     this.spawnTimer = 1.3;
     this.patrons = [];
     this.tables = TABLE_LAYOUT.map((table) => ({ ...table, position: cloneVec(table.position), seat: cloneVec(table.seat), service: cloneVec(table.service) }));
@@ -265,7 +306,7 @@ export class GameEngine {
   };
 
   update = (realDelta: number) => {
-    if (!this.started || this.paused || !Number.isFinite(realDelta) || realDelta <= 0) return;
+    if (!this.started || !Number.isFinite(realDelta) || realDelta <= 0) return;
     let remaining = Math.min(realDelta, 0.5) * this.speedMultiplier;
     while (remaining > 0) {
       const step = Math.min(remaining, 0.05);
@@ -279,7 +320,7 @@ export class GameEngine {
     let remaining = Math.max(0, seconds);
     while (remaining > 0) {
       const step = Math.min(remaining, 0.05);
-      if (this.started && !this.paused) this.step(step * this.speedMultiplier);
+      if (this.started) this.step(step * this.speedMultiplier);
       remaining -= step;
     }
     this.publish();
@@ -289,11 +330,23 @@ export class GameEngine {
     this.shiftElapsed += delta;
     if (this.shiftElapsed >= SHIFT_DURATION) {
       this.shiftElapsed -= SHIFT_DURATION;
+      const completedDay = this.day;
       this.day += 1;
       const bonus = getDayBonus(this.shiftOperatingRevenue);
       this.coins += bonus;
       this.totalDayBonus += bonus;
+      this.lastShiftSummary = {
+        dayNumber: completedDay,
+        operatingRevenue: this.shiftOperatingRevenue,
+        servedThisShift: this.shiftServed,
+        roomRevenueThisShift: this.shiftRoomRevenue,
+        blockedArrivals: this.shiftBlockedArrivals,
+        bonus,
+      };
       this.shiftOperatingRevenue = 0;
+      this.shiftServed = 0;
+      this.shiftRoomRevenue = 0;
+      this.shiftBlockedArrivals = 0;
       this.pushEvent('day', `День ${this.day} · бонус ${bonus}` , bonus);
       this.persist();
     }
@@ -332,7 +385,7 @@ export class GameEngine {
           room.staffState = 'welcoming';
           // A short gathering window lets several real bar guests form one
           // session instead of conjuring a full decorative batch.
-          room.phaseDuration = ROOM_GROUP_WINDOW;
+          room.phaseDuration = getRoomGroupWindow(room.capacity);
           room.timer = room.phaseDuration;
         }
         continue;
@@ -343,12 +396,12 @@ export class GameEngine {
 
       if (room.staffState === 'welcoming') {
         const arrived = this.patrons.filter((patron) => patron.roomId === definition.id && patron.state === 'waiting_room');
-        const approaching = this.patrons.some((patron) => patron.roomId === definition.id && patron.state === 'walking_to_room');
         const welcomeElapsed = room.phaseDuration - room.timer;
-        // Keep the greeting visible even when a one-seat room is already full;
-        // larger groups may start early after that minimum beat, but every
-        // already-reserved guest must arrive before the session begins.
-        if (approaching || (room.timer > 0 && (arrived.length < room.capacity || welcomeElapsed < ROOM_MIN_WELCOME_DURATION))) continue;
+        // Never idle for a hypothetical future guest: after the short greeting
+        // the room starts with everyone already present. Reserved guests still
+        // walking remain safely queued for the following session, so buying a
+        // larger waiting area can never delay the current payout.
+        if (welcomeElapsed < ROOM_MIN_WELCOME_DURATION) continue;
         const participants = arrived.slice(0, room.capacity);
         if (participants.length === 0) {
           room.staffState = 'waiting';
@@ -363,9 +416,15 @@ export class GameEngine {
           patron.target = cloneVec(patron.position);
         }
         room.staffState = 'serving';
-        room.phaseDuration = definition.sessionDuration * 0.88 ** (room.upgrades.staffSpeed - 1);
+        room.sessionCapacity = room.capacity;
+        room.phaseDuration = getRoomSessionDuration(definition.id, room.upgrades.staffSpeed);
         room.timer = room.phaseDuration;
         room.progress = 0;
+        if (room.awaitingFirstGuest) {
+          room.awaitingFirstGuest = false;
+          this.priorityRoomQueue = this.priorityRoomQueue.filter((roomId) => roomId !== definition.id);
+          this.persist();
+        }
       } else if (room.staffState === 'serving') {
         if (room.timer > 0) continue;
         const participants = room.guestIds
@@ -375,8 +434,17 @@ export class GameEngine {
         this.coins += income;
         this.totalOperatingRevenue += income;
         this.shiftOperatingRevenue += income;
+        this.shiftRoomRevenue += income;
         room.revenue += income;
         room.completedSessions += 1;
+        room.recentSessions = [
+          ...room.recentSessions,
+          {
+            guests: participants.length,
+            capacity: room.sessionCapacity,
+            revenue: income,
+          },
+        ].slice(-RECENT_ROOM_SESSION_LIMIT);
         if (room.completedSessions % 3 === 0) this.reputation += 1;
         this.pushEvent('room_income', `${definition.icon} ${definition.shortName} +${income}`, income, definition.id);
         for (const patron of participants) this.startPatronExit(patron);
@@ -384,14 +452,14 @@ export class GameEngine {
         room.guests = 0;
         this.persist();
         room.staffState = 'resetting';
-        room.phaseDuration = ROOM_RESET_DURATION;
+        room.phaseDuration = getRoomResetDuration(room.upgrades.staffSpeed);
         room.timer = room.phaseDuration;
         room.progress = 0;
       } else if (room.staffState === 'resetting') {
         if (room.timer > 0) continue;
         room.guests = 0;
         room.staffState = 'waiting';
-        room.cooldown = Math.max(1.2, 3.2 - this.upgrades.advertising * 0.22);
+        room.cooldown = getRoomCooldownDuration(room.upgrades.staffSpeed);
         room.progress = 0;
       }
     }
@@ -404,6 +472,40 @@ export class GameEngine {
     )).length;
   }
 
+  private findOpeningPriorityPatron() {
+    const currentTarget = this.patrons.find((patron) => (
+      patron.id === this.bartender.targetPatronId && !patron.barServed
+    ));
+    if (currentTarget) return currentTarget;
+
+    const statePriority: Patron['state'][] = [
+      'paying',
+      'ready_to_pay',
+      'drinking',
+      'waiting_drink',
+      'ordering',
+      'waiting_order',
+      'walking_in',
+    ];
+    for (const state of statePriority) {
+      const candidates = this.patrons.filter((patron) => patron.state === state && !patron.barServed);
+      if (state === 'drinking') candidates.sort((a, b) => a.timer - b.timer);
+      if (candidates[0]) return candidates[0];
+    }
+    return null;
+  }
+
+  private getOpeningPriorityPatron() {
+    let patron = this.patrons.find((candidate) => (
+      candidate.id === this.openingPriorityPatronId && !candidate.barServed
+    )) ?? null;
+    if (!patron && this.priorityRoomQueue.length > 0) {
+      patron = this.findOpeningPriorityPatron();
+      this.openingPriorityPatronId = patron?.id ?? null;
+    }
+    return patron;
+  }
+
   private trySendPatronToRoom(patron: MutablePatron) {
     if (!patron.barServed) return false;
     const available = ROOM_DEFINITIONS.map((definition) => {
@@ -411,11 +513,26 @@ export class GameEngine {
       return { definition, room, assignments: this.countRoomAssignments(definition.id) };
     }).filter(({ room, assignments }) => (
       room.unlocked
-        && (room.staffState === 'waiting' || room.staffState === 'welcoming')
+        // Extra capacity is a real waiting queue as well as a larger batch:
+        // served bar guests may reserve free room places while staff finishes
+        // the current session or resets the room.
+        && room.staffState !== 'locked'
         && assignments < room.capacity
     ));
     const visitChance = clamp(0.38 + patron.happiness * 0.42, 0.42, 0.8);
-    if (available.length === 0 || this.rng() > visitChance) return false;
+    // Consume a stable pair of decision rolls for every served patron. Room
+    // capacity must not perturb the global arrival/table RNG stream merely by
+    // making an extra reservation possible.
+    const visitRoll = this.rng();
+    const roomRoll = this.rng();
+    if (available.length === 0) return false;
+
+    const priorityCandidates = this.priorityRoomQueue
+      .map((roomId) => available.find(({ definition }) => definition.id === roomId))
+      .filter((candidate): candidate is (typeof available)[number] => Boolean(candidate));
+    // The first eligible, genuinely bar-served guest is guaranteed a route to
+    // a newly opened room. Later visits retain the happiness-based visit roll.
+    if (priorityCandidates.length === 0 && visitRoll > visitChance) return false;
 
     // Fill an already forming group before opening another room queue. This
     // makes upgraded capacity visible in normal play and avoids scattering
@@ -424,12 +541,18 @@ export class GameEngine {
     const preferred = highestFill > 0
       ? available.filter(({ assignments }) => assignments === highestFill)
       : available;
-    const firstIndex = Math.min(preferred.length - 1, Math.floor(this.rng() * preferred.length));
-    const ordered = [
+    const firstIndex = Math.min(preferred.length - 1, Math.floor(roomRoll * preferred.length));
+    const randomOrdered = [
       ...preferred.slice(firstIndex),
       ...preferred.slice(0, firstIndex),
       ...available.filter((candidate) => !preferred.includes(candidate)),
     ];
+    const ordered = priorityCandidates.length > 0
+      ? [
+        ...priorityCandidates,
+        ...randomOrdered.filter((candidate) => !priorityCandidates.includes(candidate)),
+      ]
+      : randomOrdered;
     for (const { definition } of ordered) {
       const layout = ROOM_LAYOUTS[definition.id];
       const reservedSlots = new Set(this.patrons
@@ -445,6 +568,9 @@ export class GameEngine {
       patron.state = 'walking_to_room';
       patron.route = route;
       patron.target = cloneVec(route[0] ?? destination);
+      // Keep awaitingFirstGuest set until this real guest reaches the room. If
+      // the page closes first, loading the save safely restores the priority.
+      this.priorityRoomQueue = this.priorityRoomQueue.filter((roomId) => roomId !== definition.id);
       return true;
     }
     return false;
@@ -466,7 +592,11 @@ export class GameEngine {
 
   private trySpawnPatron() {
     const openTables = this.tables.filter((table) => !table.occupantId && !table.dirty);
-    if (openTables.length === 0) return;
+    if (openTables.length === 0) {
+      this.blockedArrivals += 1;
+      this.shiftBlockedArrivals += 1;
+      return;
+    }
     const table = openTables[Math.floor(this.rng() * openTables.length)] ?? openTables[0];
     const id = `guest-${++this.patronSequence}`;
     const initialPatience = 34 + this.rng() * 10;
@@ -491,6 +621,9 @@ export class GameEngine {
     };
     table.occupantId = id;
     this.patrons.push(patron);
+    if (this.priorityRoomQueue.length > 0 && this.openingPriorityPatronId === null) {
+      this.openingPriorityPatronId = id;
+    }
   }
 
   private updatePatrons(delta: number) {
@@ -504,7 +637,10 @@ export class GameEngine {
           patron.target = cloneVec(this.tables[patron.tableId].position);
         }
       } else if (patron.state === 'walking_to_room') {
-        if (this.moveAlongRoute(patron, 1.68, delta)) {
+        const openingWalkFactor = patron.roomId && this.rooms[patron.roomId].awaitingFirstGuest
+          ? OPENING_ROOM_WALK_FACTOR
+          : 1;
+        if (this.moveAlongRoute(patron, 1.68 * openingWalkFactor, delta)) {
           patron.state = 'waiting_room';
           patron.target = cloneVec(patron.position);
         }
@@ -538,7 +674,10 @@ export class GameEngine {
   private updateBartender(delta: number) {
     const moving = this.bartender.state.startsWith('to_') || this.bartender.state === 'returning_dirty';
     if (moving) {
-      const speed = 2.15 * (1 + (this.upgrades.moveSpeed - 1) * 0.16);
+      const openingFactor = this.bartender.targetPatronId === this.openingPriorityPatronId
+        ? OPENING_SERVICE_MOVE_FACTOR
+        : 1;
+      const speed = getBartenderMoveSpeed(this.upgrades.moveSpeed) * openingFactor;
       if (this.moveAlongRoute(this.bartender, speed, delta)) this.finishBartenderMove();
       return;
     }
@@ -553,7 +692,10 @@ export class GameEngine {
   }
 
   private chooseBartenderJob() {
-    const payment = this.patrons.find((patron) => patron.state === 'ready_to_pay');
+    const openingPatron = this.getOpeningPriorityPatron();
+    const payment = openingPatron?.state === 'ready_to_pay'
+      ? openingPatron
+      : this.patrons.find((patron) => patron.state === 'ready_to_pay');
     if (payment) {
       this.bartender.targetPatronId = payment.id;
       this.bartender.targetTableId = payment.tableId;
@@ -561,7 +703,14 @@ export class GameEngine {
       return;
     }
 
-    const order = this.patrons.find((patron) => patron.state === 'waiting_order');
+    // Once the grand-opening guest has their drink, hold the bartender for
+    // checkout instead of starting another full order cycle. Other guests may
+    // still arrive and queue normally.
+    if (openingPatron?.state === 'drinking') return;
+
+    const order = openingPatron?.state === 'waiting_order'
+      ? openingPatron
+      : this.patrons.find((patron) => patron.state === 'waiting_order');
     if (order) {
       this.bartender.targetPatronId = order.id;
       this.bartender.targetTableId = order.tableId;
@@ -591,6 +740,9 @@ export class GameEngine {
   private finishBartenderMove() {
     const patron = this.patrons.find((item) => item.id === this.bartender.targetPatronId);
     const table = this.bartender.targetTableId === null ? null : this.tables[this.bartender.targetTableId];
+    const openingTimeFactor = patron?.id === this.openingPriorityPatronId
+      ? OPENING_SERVICE_TIME_FACTOR
+      : 1;
     if (patron) this.bartender.target = cloneVec(patron.position);
     else if (table) this.bartender.target = cloneVec(table.position);
     switch (this.bartender.state) {
@@ -598,28 +750,28 @@ export class GameEngine {
         if (!patron || patron.state !== 'waiting_order') return this.setBartenderIdle();
         patron.state = 'ordering';
         this.bartender.state = 'taking_order';
-        this.bartender.timer = 2.15 * 0.83 ** (this.upgrades.orderSpeed - 1);
+        this.bartender.timer = getOrderDuration(this.upgrades.orderSpeed) * openingTimeFactor;
         break;
       case 'to_bar':
         this.bartender.target = { x: BAR_STATION.x, z: -3.35 };
         this.bartender.state = 'preparing';
-        this.bartender.timer = 3.35 * 0.82 ** (this.upgrades.prepSpeed - 1);
+        this.bartender.timer = getPreparationDuration(this.upgrades.prepSpeed) * openingTimeFactor;
         break;
       case 'to_deliver':
         if (!patron || patron.state !== 'waiting_drink') return this.setBartenderIdle();
         this.bartender.state = 'delivering';
-        this.bartender.timer = 0.52;
+        this.bartender.timer = 0.52 * openingTimeFactor;
         break;
       case 'to_payment':
         if (!patron || patron.state !== 'ready_to_pay') return this.setBartenderIdle();
         patron.state = 'paying';
         this.bartender.state = 'taking_payment';
-        this.bartender.timer = 0.82;
+        this.bartender.timer = 0.82 * openingTimeFactor;
         break;
       case 'to_cleanup':
         if (!table || !table.dirty || table.occupantId) return this.setBartenderIdle();
         this.bartender.state = 'cleaning';
-        this.bartender.timer = 2.65 * 0.8 ** (this.upgrades.cleanSpeed - 1);
+        this.bartender.timer = getCleaningDuration(this.upgrades.cleanSpeed);
         break;
       case 'returning_dirty':
         this.bartender.carryingDirty = false;
@@ -649,7 +801,9 @@ export class GameEngine {
       case 'delivering':
         if (patron?.order) {
           patron.state = 'drinking';
-          patron.timer = patron.order.drinkTime;
+          patron.timer = patron.order.drinkTime * (
+            patron.id === this.openingPriorityPatronId ? OPENING_DRINK_TIME_FACTOR : 1
+          );
         }
         this.bartender.carryingDrink = null;
         this.setBartenderIdle();
@@ -662,10 +816,15 @@ export class GameEngine {
           this.totalOperatingRevenue += payment;
           this.shiftOperatingRevenue += payment;
           this.served += 1;
+          this.shiftServed += 1;
           patron.barServed = true;
           table.dirty = true;
           table.occupantId = null;
-          if (!this.trySendPatronToRoom(patron)) this.startPatronExit(patron);
+          const assignedToRoom = this.trySendPatronToRoom(patron);
+          if (!assignedToRoom) this.startPatronExit(patron);
+          if (assignedToRoom || patron.id === this.openingPriorityPatronId) {
+            this.openingPriorityPatronId = null;
+          }
           this.pushEvent('payment', `${patron.order.name} +${payment}`, payment);
           this.persist();
         }
@@ -734,6 +893,41 @@ export class GameEngine {
     this.lastEvent = { id: ++this.eventSequence, kind, message, amount, roomId };
   }
 
+  private buildBarDiagnostics(): BarDiagnostics {
+    const waitingOrders = this.patrons.filter((patron) => patron.state === 'waiting_order').length;
+    const waitingDrinks = this.patrons.filter((patron) => patron.state === 'waiting_drink').length;
+    const waitingPayments = this.patrons.filter((patron) => patron.state === 'ready_to_pay').length;
+    const occupiedTables = this.tables.filter((table) => table.occupantId !== null).length;
+    const dirtyTables = this.tables.filter((table) => table.dirty && table.occupantId === null).length;
+    const openTables = this.tables.length - occupiedTables - dirtyTables;
+    const serviceQueues = [
+      { bottleneck: 'payments' as const, count: waitingPayments },
+      { bottleneck: 'drinks' as const, count: waitingDrinks },
+      { bottleneck: 'orders' as const, count: waitingOrders },
+    ];
+    const largestQueue = serviceQueues.reduce((largest, candidate) => (
+      candidate.count > largest.count ? candidate : largest
+    ));
+    const primaryBottleneck = largestQueue.count > 0
+      ? largestQueue.bottleneck
+      : openTables === 0 && dirtyTables > 0
+        ? 'cleaning'
+        : openTables === 0
+          ? 'tables'
+          : 'none';
+
+    return {
+      waitingOrders,
+      waitingDrinks,
+      waitingPayments,
+      occupiedTables,
+      dirtyTables,
+      openTables,
+      blockedArrivals: this.blockedArrivals,
+      primaryBottleneck,
+    };
+  }
+
   private buildSnapshot(): GameSnapshot {
     const roomRevenue = ROOM_DEFINITIONS.reduce(
       (total, definition) => total + this.rooms[definition.id].revenue,
@@ -760,10 +954,10 @@ export class GameEngine {
       return { ...milestone, current };
     });
     const achievedMilestoneCount = milestones.filter((milestone) => milestone.current >= milestone.target).length;
+    const barDiagnostics = this.buildBarDiagnostics();
 
     return {
       started: this.started,
-      paused: this.paused,
       speedMultiplier: this.speedMultiplier,
       coins: this.coins,
       reputation: this.reputation,
@@ -792,18 +986,40 @@ export class GameEngine {
       },
       upgrades: { ...this.upgrades },
       rooms: ROOM_DEFINITIONS.map((definition) => {
-        const { timer: _timer, phaseDuration: _phaseDuration, cooldown: _cooldown, guestIds: _guestIds, ...room } = this.rooms[definition.id];
+        const {
+          timer: _timer,
+          phaseDuration: _phaseDuration,
+          cooldown: _cooldown,
+          guestIds: _guestIds,
+          sessionCapacity: _sessionCapacity,
+          ...room
+        } = this.rooms[definition.id];
         const perGuestProfit = getRoomProfit(definition.id, room.upgrades.quality, 1);
         const maxSessionProfit = getRoomProfit(definition.id, room.upgrades.quality, room.capacity);
-        return { ...room, perGuestProfit, maxSessionProfit, upgrades: { ...room.upgrades } };
+        const recentSessions = room.recentSessions.map((session) => ({ ...session }));
+        const recentCapacity = recentSessions.reduce((total, session) => total + session.capacity, 0);
+        const recentGuests = recentSessions.reduce((total, session) => total + session.guests, 0);
+        const recentRevenue = recentSessions.reduce((total, session) => total + session.revenue, 0);
+        return {
+          ...room,
+          perGuestProfit,
+          maxSessionProfit,
+          recentSessions,
+          recentUtilization: recentCapacity > 0 ? recentGuests / recentCapacity : 0,
+          realizedRevenuePerSession: room.completedSessions > 0 ? room.revenue / room.completedSessions : 0,
+          recentAverageRevenuePerSession: recentSessions.length > 0 ? recentRevenue / recentSessions.length : 0,
+          upgrades: { ...room.upgrades },
+        };
       }),
       roomRevenue,
       totalOperatingRevenue: this.totalOperatingRevenue,
       totalDayBonus: this.totalDayBonus,
+      lastShiftSummary: this.lastShiftSummary ? { ...this.lastShiftSummary } : null,
       nextMilestone: milestones.find((milestone) => milestone.current < milestone.target) ?? null,
       achievedMilestoneCount,
       totalMilestoneCount: milestones.length,
-      queueCount: this.patrons.filter((patron) => patron.state === 'waiting_order' || patron.state === 'waiting_drink' || patron.state === 'ready_to_pay').length,
+      queueCount: barDiagnostics.waitingOrders + barDiagnostics.waitingDrinks + barDiagnostics.waitingPayments,
+      barDiagnostics,
       unlockedDrinks: getUnlockedDrinks(this.upgrades.assortment),
       lastEvent: this.lastEvent ? { ...this.lastEvent } : null,
       soundEnabled: this.soundEnabled,
@@ -825,13 +1041,17 @@ export class GameEngine {
       soundEnabled: this.soundEnabled,
       totalOperatingRevenue: this.totalOperatingRevenue,
       totalDayBonus: this.totalDayBonus,
+      blockedArrivals: this.blockedArrivals,
+      lastShiftSummary: this.lastShiftSummary,
       rooms: Object.fromEntries(ROOM_DEFINITIONS.map((definition) => {
         const room = this.rooms[definition.id];
         return [definition.id, {
           unlocked: room.unlocked,
+          awaitingFirstGuest: room.awaitingFirstGuest,
           completedSessions: room.completedSessions,
           revenue: room.revenue,
           upgrades: room.upgrades,
+          recentSessions: room.recentSessions,
         }];
       })) as SavedProgress['rooms'],
     };
@@ -858,6 +1078,25 @@ export class GameEngine {
       if (typeof saved.totalDayBonus === 'number' && Number.isFinite(saved.totalDayBonus) && saved.totalDayBonus >= 0) {
         this.totalDayBonus = Math.floor(saved.totalDayBonus);
       }
+      if (typeof saved.blockedArrivals === 'number' && Number.isFinite(saved.blockedArrivals) && saved.blockedArrivals >= 0) {
+        this.blockedArrivals = Math.floor(saved.blockedArrivals);
+      }
+      if (saved.lastShiftSummary
+        && Number.isFinite(saved.lastShiftSummary.dayNumber)
+        && Number.isFinite(saved.lastShiftSummary.operatingRevenue)
+        && Number.isFinite(saved.lastShiftSummary.servedThisShift)
+        && Number.isFinite(saved.lastShiftSummary.roomRevenueThisShift)
+        && Number.isFinite(saved.lastShiftSummary.blockedArrivals)
+        && Number.isFinite(saved.lastShiftSummary.bonus)) {
+        this.lastShiftSummary = {
+          dayNumber: Math.max(1, Math.floor(saved.lastShiftSummary.dayNumber)),
+          operatingRevenue: Math.max(0, Math.floor(saved.lastShiftSummary.operatingRevenue)),
+          servedThisShift: Math.max(0, Math.floor(saved.lastShiftSummary.servedThisShift)),
+          roomRevenueThisShift: Math.max(0, Math.floor(saved.lastShiftSummary.roomRevenueThisShift)),
+          blockedArrivals: Math.max(0, Math.floor(saved.lastShiftSummary.blockedArrivals)),
+          bonus: Math.max(0, Math.floor(saved.lastShiftSummary.bonus)),
+        };
+      }
       if (saved.upgrades) {
         const levels = { ...INITIAL_UPGRADES };
         for (const definition of UPGRADE_DEFS) {
@@ -872,8 +1111,8 @@ export class GameEngine {
           if (!candidate) continue;
           const room = this.rooms[definition.id];
           room.unlocked = candidate.unlocked === true;
+          room.awaitingFirstGuest = room.unlocked && candidate.awaitingFirstGuest === true;
           room.staffState = room.unlocked ? 'waiting' : 'locked';
-          room.cooldown = room.unlocked ? 1.2 : 0;
           room.completedSessions = typeof candidate.completedSessions === 'number' ? Math.max(0, Math.floor(candidate.completedSessions)) : 0;
           room.revenue = typeof candidate.revenue === 'number' ? Math.max(0, Math.floor(candidate.revenue)) : 0;
           if (candidate.upgrades) {
@@ -884,7 +1123,27 @@ export class GameEngine {
             }
           }
           room.capacity = Math.min(definition.maxCapacity, room.upgrades.capacity);
+          room.cooldown = room.unlocked ? getRoomCooldownDuration(room.upgrades.staffSpeed) : 0;
+          if (Array.isArray(candidate.recentSessions)) {
+            room.recentSessions = candidate.recentSessions
+              .filter((session) => session
+                && Number.isFinite(session.guests)
+                && Number.isFinite(session.capacity)
+                && Number.isFinite(session.revenue))
+              .map((session) => {
+                const capacity = Math.max(1, Math.floor(session.capacity));
+                return {
+                  guests: clamp(Math.floor(session.guests), 0, capacity),
+                  capacity,
+                  revenue: Math.max(0, Math.floor(session.revenue)),
+                };
+              })
+              .slice(-RECENT_ROOM_SESSION_LIMIT);
+          }
         }
+        this.priorityRoomQueue = ROOM_DEFINITIONS
+          .filter((definition) => this.rooms[definition.id].awaitingFirstGuest)
+          .map((definition) => definition.id);
       }
     } catch {
       this.storage?.removeItem(SAVE_KEY);

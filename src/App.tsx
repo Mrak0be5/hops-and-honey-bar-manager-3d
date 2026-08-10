@@ -12,6 +12,7 @@ export default function App() {
   const [contextLost, setContextLost] = useState(false);
   const [venueView, setVenueView] = useState<VenueView>('bar');
   const [upgradesOpen, setUpgradesOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [portraitPreview, setPortraitPreview] = useState(false);
   const lastSoundEvent = useRef(0);
   const handleContextLost = useCallback(() => setContextLost(true), []);
@@ -27,6 +28,7 @@ export default function App() {
   useEffect(() => {
     if (snapshot.started) return;
     setUpgradesOpen(false);
+    setSettingsOpen(false);
     setVenueView('bar');
   }, [snapshot.started]);
 
@@ -36,36 +38,32 @@ export default function App() {
     if (snapshot.started) gameAudio.event(snapshot.lastEvent);
   }, [snapshot.lastEvent, snapshot.started]);
 
-  useEffect(() => {
-    let pauseTimer: number | null = null;
-    const clearPauseTimer = () => {
-      if (pauseTimer === null) return;
-      window.clearTimeout(pauseTimer);
-      pauseTimer = null;
-    };
-    const onVisibility = () => {
-      clearPauseTimer();
-      if (!document.hidden || !snapshot.started || snapshot.paused) return;
-      pauseTimer = window.setTimeout(() => {
-        pauseTimer = null;
-        if (document.hidden) gameEngine.setPaused(true);
-      }, 750);
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      clearPauseTimer();
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [snapshot.paused, snapshot.started]);
-
   const togglePortraitPreview = () => {
     gameAudio.setEnabled(snapshot.soundEnabled);
     gameAudio.click();
     setPortraitPreview((enabled) => !enabled);
   };
 
+  const handleUpgradesOpen = useCallback((open: boolean) => {
+    setUpgradesOpen(open);
+    if (!open && venueView !== 'bar' && !snapshot.rooms.find((room) => room.id === venueView)?.unlocked) {
+      setVenueView('bar');
+    }
+    if (open) setSettingsOpen(false);
+  }, [snapshot.rooms, venueView]);
+
+  const handleSettingsOpen = useCallback((open: boolean) => {
+    setSettingsOpen(open);
+    if (open) {
+      setUpgradesOpen(false);
+      if (venueView !== 'bar' && !snapshot.rooms.find((room) => room.id === venueView)?.unlocked) {
+        setVenueView('bar');
+      }
+    }
+  }, [snapshot.rooms, venueView]);
+
   return (
-    <div className={`app-stage ${portraitPreview ? 'is-portrait-preview' : ''} ${upgradesOpen ? 'is-development-open' : ''}`}>
+    <div className={`app-stage ${portraitPreview ? 'is-portrait-preview' : ''} ${upgradesOpen || settingsOpen ? 'is-menu-open' : ''}`}>
       <main className="game-shell" data-viewport-mode={portraitPreview ? 'portrait' : 'adaptive'}>
         {contextLost ? (
           <div className="webgl-fallback">
@@ -92,7 +90,9 @@ export default function App() {
           venueView={venueView}
           onVenueView={setVenueView}
           upgradesOpen={upgradesOpen}
-          onUpgradesOpen={setUpgradesOpen}
+          onUpgradesOpen={handleUpgradesOpen}
+          settingsOpen={settingsOpen}
+          onSettingsOpen={handleSettingsOpen}
         />
         <div className="scene-vignette" />
       </main>

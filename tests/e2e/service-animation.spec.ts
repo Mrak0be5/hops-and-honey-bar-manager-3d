@@ -32,6 +32,5 @@ test('plays a seated guest through drinking and payment', async ({ page }, testI
   );
 
   await expect(page.locator('[aria-label="Обслужено гостей: 1"]')).toBeVisible({ timeout: 55_000 });
-  await expect(page.locator('.pause-scrim')).toHaveCount(0);
   expect(runtimeErrors).toEqual([]);
 });

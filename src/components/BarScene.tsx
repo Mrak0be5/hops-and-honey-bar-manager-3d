@@ -502,7 +502,7 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
       />
       <pointLight position={[0, 4.2, -3]} intensity={24} distance={10} color="#ffbd62" />
       <pointLight position={[-5, 3.2, 3]} intensity={13} distance={7} color="#46d4c4" />
-      <BarEnvironment tables={snapshot.tables} />
+      <BarEnvironment tables={snapshot.tables} upgrades={snapshot.upgrades} />
       {ROOM_DEFINITIONS.map((definition) => (
         <RoomWing
           key={definition.id}
@@ -520,7 +520,7 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
           ? null
           : <PatronCharacter key={patron.id} patron={patron} />
       ))}
-      <BartenderCharacter bartender={snapshot.bartender} />
+      <BartenderCharacter bartender={snapshot.bartender} upgrades={snapshot.upgrades} />
       {serviceKind && serviceTable && <TableActionEffect position={serviceTable.position} kind={serviceKind} />}
       {snapshot.lastEvent && (() => {
         const roomPosition = snapshot.lastEvent.roomId ? ROOM_LAYOUTS[snapshot.lastEvent.roomId].center : null;
