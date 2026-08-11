@@ -278,6 +278,51 @@ button {
   background: linear-gradient(180deg, rgba(5, 51, 57, 0.09), transparent 18%, transparent 78%, rgba(5, 51, 57, 0.15));
 }
 
+.runtime-meta {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.runtime-badge {
+  position: absolute;
+  bottom: max(12px, calc(var(--safe-bottom) + 8px));
+  min-height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 9px;
+  color: rgba(255, 250, 231, 0.94);
+  background: rgba(5, 47, 57, 0.82);
+  border: 1px solid rgba(255, 246, 222, 0.54);
+  border-radius: 9px;
+  box-shadow: 0 4px 12px rgba(4, 32, 39, 0.18);
+  contain: layout paint style;
+  font-size: 10px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.fps-counter {
+  left: max(12px, calc(var(--safe-left) + 8px));
+}
+
+.fps-counter b {
+  min-width: 2ch;
+  margin-right: 3px;
+  color: #83f1cf;
+  text-align: right;
+}
+
+.game-version {
+  right: max(12px, calc(var(--safe-right) + 8px));
+  color: rgba(255, 245, 213, 0.82);
+}
+
 .hud {
   position: absolute;
   inset: 0;
@@ -450,7 +495,7 @@ button {
 .expansion-progress {
   position: absolute;
   right: max(18px, var(--safe-right));
-  bottom: max(18px, var(--safe-bottom));
+  bottom: max(50px, calc(var(--safe-bottom) + 46px));
   z-index: 12;
   display: grid;
   width: min(254px, calc(100cqw - 36px));
@@ -1739,7 +1784,7 @@ button {
 .bottom-status {
   position: absolute;
   z-index: 10;
-  bottom: max(18px, var(--safe-bottom));
+  bottom: max(50px, calc(var(--safe-bottom) + 46px));
   left: max(18px, var(--safe-left));
   display: flex;
   gap: 9px;
@@ -2595,7 +2640,7 @@ button {
   .currency-chip strong { font-size: 13px; }
 
   .bottom-status {
-    bottom: max(8px, var(--safe-bottom));
+    bottom: max(44px, calc(var(--safe-bottom) + 40px));
     gap: 5px;
   }
 
@@ -2652,6 +2697,17 @@ button {
   .scene-vignette {
     box-shadow: inset 0 0 54px rgba(7, 63, 70, 0.17);
   }
+
+  .runtime-badge {
+    bottom: calc(var(--safe-bottom) + 8px);
+    min-height: 23px;
+    padding: 3px 6px;
+    font-size: 9px;
+    border-radius: 8px;
+  }
+
+  .fps-counter { left: calc(var(--safe-left) + 7px); }
+  .game-version { right: calc(var(--safe-right) + 7px); }
 
   .world-decoration-marker { scale: 0.36; }
 
@@ -3275,19 +3331,19 @@ button {
   }
 
   .app-stage.is-portrait-preview .viewport-mode-toggle {
-    top: auto;
+    top: 50%;
     right: 8px;
-    bottom: 8px;
-    transform: none;
+    bottom: auto;
+    transform: translateY(-50%);
   }
 
   .app-stage.is-portrait-preview .viewport-mode-toggle:hover,
   .app-stage.is-portrait-preview .viewport-mode-toggle:focus-visible {
-    transform: translateY(-2px);
+    transform: translateY(calc(-50% - 2px));
   }
 
   .app-stage.is-portrait-preview .viewport-mode-toggle:active {
-    transform: translateY(1px) scale(0.98);
+    transform: translateY(calc(-50% + 1px)) scale(0.98);
   }
 }
 

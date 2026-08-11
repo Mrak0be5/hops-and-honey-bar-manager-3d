@@ -5,7 +5,9 @@ import { gameEngine } from './game/GameEngine';
 import { useGameSnapshot } from './game/useGameSnapshot';
 import { Hud } from './ui/Hud';
 import { Icon, preloadUiIcons } from './ui/Icon';
+import { RuntimeMeta } from './ui/RuntimeMeta';
 import type { VenueView } from './game/types';
+import { resetFrameRateMeasurement } from './performance/frameRateStore';
 
 export default function App() {
   const snapshot = useGameSnapshot(gameEngine);
@@ -15,7 +17,10 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [portraitPreview, setPortraitPreview] = useState(false);
   const lastSoundEvent = useRef(0);
-  const handleContextLost = useCallback(() => setContextLost(true), []);
+  const handleContextLost = useCallback(() => {
+    resetFrameRateMeasurement();
+    setContextLost(true);
+  }, []);
 
   useEffect(() => {
     preloadUiIcons();
@@ -87,6 +92,7 @@ export default function App() {
             onContextLost={handleContextLost}
           />
         )}
+        <RuntimeMeta />
         <Hud
           engine={gameEngine}
           snapshot={snapshot}

@@ -8,9 +8,28 @@ import { ROOM_DEFINITIONS, ROOM_LAYOUTS } from '../game/config';
 import { RoomWing } from './RoomWing';
 import { BARTENDER_EMOJI, BartenderCharacter, CUSTOMER_EMOJI, PatronCharacter } from './Character';
 import { BarEnvironment } from './Environment';
+import { recordPresentedFrame } from '../performance/frameRateStore';
+import { FramePresentationScheduler } from '../performance/framePresentationScheduler';
+import { isAndroidWebView } from '../performance/runtimeCapabilities';
 
 function SimulationLoop({ engine }: { engine: GameEngine }) {
   useFrame((_, delta) => engine.update(delta), -1);
+  return null;
+}
+
+function AdaptiveRendererQuality() {
+  const { gl, size, setDpr } = useThree();
+
+  useEffect(() => {
+    const compact = size.width <= 700;
+    setDpr(compact ? 0.85 : Math.min(window.devicePixelRatio || 1, 1.1));
+    const shadowType = compact ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    if (gl.shadowMap.type !== shadowType) {
+      gl.shadowMap.type = shadowType;
+      gl.shadowMap.needsUpdate = true;
+    }
+  }, [gl, setDpr, size.width]);
+
   return null;
 }
 
@@ -50,13 +69,14 @@ function CanvasPresenter({
 }) {
   const { gl, scene, camera } = useThree();
   const context = useRef<CanvasRenderingContext2D | null>(null);
-  const lastPresentedAt = useRef(-Infinity);
+  const presentationScheduler = useRef<FramePresentationScheduler | null>(null);
+  presentationScheduler.current ??= new FramePresentationScheduler(60);
   const failureReported = useRef(false);
 
   useFrame(({ clock }) => {
-    if (clock.elapsedTime - lastPresentedAt.current < 1 / 40) return;
-    lastPresentedAt.current = clock.elapsedTime;
+    if (!presentationScheduler.current!.shouldPresent(clock.elapsedTime)) return;
     gl.render(scene, camera);
+    recordPresentedFrame(clock.elapsedTime * 1_000);
     const source = gl.domElement;
     const destination = target.current;
     if (!destination) return;
@@ -75,6 +95,20 @@ function CanvasPresenter({
     context.current = drawingContext;
     drawingContext.imageSmoothingEnabled = true;
     drawingContext.drawImage(source, 0, 0, destination.width, destination.height);
+  }, 1);
+
+  return null;
+}
+
+function DirectCanvasPresenter() {
+  const { gl, scene, camera } = useThree();
+  const presentationScheduler = useRef<FramePresentationScheduler | null>(null);
+  presentationScheduler.current ??= new FramePresentationScheduler(60);
+
+  useFrame(({ clock }) => {
+    if (!presentationScheduler.current!.shouldPresent(clock.elapsedTime)) return;
+    gl.render(scene, camera);
+    recordPresentedFrame(clock.elapsedTime * 1_000);
   }, 1);
 
   return null;
@@ -466,7 +500,19 @@ function EventBurst({ event, position }: { event: GameEvent; position: Vec2 }) {
   );
 }
 
-function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; focus: VenueView; developmentOpen: boolean }) {
+function World({
+  snapshot,
+  focus,
+  developmentOpen,
+  reducedGpuEffects,
+}: {
+  snapshot: GameSnapshot;
+  focus: VenueView;
+  developmentOpen: boolean;
+  reducedGpuEffects: boolean;
+}) {
+  const { size } = useThree();
+  const shadowMapSize = size.width <= 700 ? 512 : 1024;
   const serviceKind = snapshot.bartender.state === 'delivering'
     ? 'delivering'
     : snapshot.bartender.state === 'cleaning'
@@ -475,7 +521,6 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
   const serviceTable = serviceKind && snapshot.bartender.targetTableId !== null
     ? snapshot.tables.find((table) => table.id === snapshot.bartender.targetTableId)
     : null;
-
   return (
     <>
       <color attach="background" args={['#bde8df']} />
@@ -486,12 +531,12 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
       </mesh>
       <hemisphereLight args={['#fff3d5', '#315861', 2.2]} />
       <directionalLight
-        castShadow
+        castShadow={!reducedGpuEffects}
         position={[7, 14, 8]}
         intensity={2.6}
         color="#fff0cf"
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={shadowMapSize}
+        shadow-mapSize-height={shadowMapSize}
         shadow-camera-near={0.5}
         shadow-camera-far={60}
         shadow-camera-left={-30}
@@ -500,8 +545,12 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
         shadow-camera-bottom={-30}
         shadow-bias={-0.0002}
       />
-      <pointLight position={[0, 4.2, -3]} intensity={24} distance={10} color="#ffbd62" />
-      <pointLight position={[-5, 3.2, 3]} intensity={13} distance={7} color="#46d4c4" />
+      {!reducedGpuEffects && (
+        <>
+          <pointLight position={[0, 4.2, -3]} intensity={24} distance={10} color="#ffbd62" />
+          <pointLight position={[-5, 3.2, 3]} intensity={13} distance={7} color="#46d4c4" />
+        </>
+      )}
       <BarEnvironment tables={snapshot.tables} upgrades={snapshot.upgrades} />
       {ROOM_DEFINITIONS.map((definition) => (
         <RoomWing
@@ -521,7 +570,9 @@ function World({ snapshot, focus, developmentOpen }: { snapshot: GameSnapshot; f
           : <PatronCharacter key={patron.id} patron={patron} />
       ))}
       <BartenderCharacter bartender={snapshot.bartender} upgrades={snapshot.upgrades} />
-      {serviceKind && serviceTable && <TableActionEffect position={serviceTable.position} kind={serviceKind} />}
+      {serviceKind && serviceTable && (
+        <TableActionEffect position={serviceTable.position} kind={serviceKind} />
+      )}
       {snapshot.lastEvent && (() => {
         const roomPosition = snapshot.lastEvent.roomId ? ROOM_LAYOUTS[snapshot.lastEvent.roomId].center : null;
         const position = roomPosition ? { ...roomPosition } : snapshot.bartender.position;
@@ -544,14 +595,16 @@ export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLo
   const presentationCanvas = useRef<HTMLCanvasElement>(null);
   const statusOverlay = useRef<HTMLDivElement>(null!);
   const [presentationUnavailable, setPresentationUnavailable] = useState(false);
+  const directPresentation = typeof navigator !== 'undefined'
+    && isAndroidWebView(navigator.userAgent);
 
   return (
     <>
       <Canvas
-        className={`game-canvas ${presentationUnavailable ? 'is-direct-visible' : ''}`}
+        className={`game-canvas ${directPresentation || presentationUnavailable ? 'is-direct-visible' : ''}`}
         orthographic
-        shadows
-        dpr={[1, 1.35]}
+        shadows={!directPresentation}
+        dpr={[0.85, 1.1]}
         camera={{
           position: [11.8, 14.2, 16.2],
           rotation: [-0.7070944888, 0.5159883889, 0.3989877261],
@@ -559,7 +612,7 @@ export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLo
           near: 0.1,
           far: 80,
         }}
-        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+        gl={{ antialias: !directPresentation, alpha: false, powerPreference: 'high-performance' }}
         onCreated={({ gl }) => {
           gl.outputColorSpace = THREE.SRGBColorSpace;
           gl.toneMapping = THREE.ACESFilmicToneMapping;
@@ -569,18 +622,28 @@ export function BarScene({ engine, snapshot, focus, developmentOpen, onContextLo
       >
         <Suspense fallback={null}>
           <ContextLossGuard onContextLost={onContextLost} />
+          <AdaptiveRendererQuality />
           <SimulationLoop engine={engine} />
-          <World snapshot={snapshot} focus={focus} developmentOpen={developmentOpen} />
-          <WorldStatusProjector target={statusOverlay} />
-          <CanvasPresenter
-            target={presentationCanvas}
-            onUnavailable={() => setPresentationUnavailable(true)}
+          <World
+            snapshot={snapshot}
+            focus={focus}
+            developmentOpen={developmentOpen}
+            reducedGpuEffects={directPresentation}
           />
+          <WorldStatusProjector target={statusOverlay} />
+          {directPresentation ? (
+            <DirectCanvasPresenter />
+          ) : (
+            <CanvasPresenter
+              target={presentationCanvas}
+              onUnavailable={() => setPresentationUnavailable(true)}
+            />
+          )}
         </Suspense>
       </Canvas>
       <canvas
         ref={presentationCanvas}
-        className={`presentation-canvas ${presentationUnavailable ? 'is-disabled' : ''}`}
+        className={`presentation-canvas ${directPresentation || presentationUnavailable ? 'is-disabled' : ''}`}
         aria-hidden="true"
       />
       <WorldStatusOverlay snapshot={snapshot} target={statusOverlay} focus={focus} />
