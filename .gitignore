@@ -8,3 +8,7 @@ playwright-report/
 debug.log
 *.local
 *.tar.gz
+.cursor/mcp.json.local
+tools/grok-image-mcp/
+tools/grok-imagine-mcp/
+tools/grok-imagine-skill/

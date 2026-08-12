@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "grok-imagine": {
+      "command": "npx",
+      "args": ["-y", "@runapi.ai/grok-imagine-mcp"]
+    },
+    "grok-image-mcp": {
+      "command": "go",
+      "args": ["run", "."],
+      "cwd": "tools/grok-image-mcp",
+      "env": {
+        "GROK_IMAGE_MODEL": "grok-imagine-image-quality"
+      }
+    }
+  }
+}
