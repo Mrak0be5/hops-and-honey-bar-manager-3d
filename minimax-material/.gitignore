@@ -1,0 +1,4 @@
+output/*
+!output/.gitkeep
+frames/crops/
+frames/tigra_sheet_with_dilator.png
