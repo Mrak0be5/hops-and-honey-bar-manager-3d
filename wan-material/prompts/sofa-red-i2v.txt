@@ -1,0 +1,17 @@
+[OUTPUT SPECIFICATION]
+Create a 5-second video from the first-frame image. One continuous shot, no cuts. Aspect ratio follows the first frame. Adult character animation allowed.
+
+[LOOK]
+Clean digital illustration / anime-furry style matching the first frame exactly. Soft indoor lighting. Plush deep-red sofa. Single anthropomorphic adult female tigress (18+).
+
+[IDENTITY LOCK]
+Preserve exactly from the first frame: orange fur with black tiger stripes, white muzzle/chest/belly/inner limbs, short platinum-white bob hair, rounded tiger ears, eyes, pink nose, nude athletic body, long striped tiger tail. No clothing. No extra characters. No text.
+
+[POSE LOCK]
+She remains lying on her back on the red sofa for the full clip. Head hangs off the sofa edge. Mouth stays widely open. Soft idle motion only.
+
+[MICRO-TIMELINE]
+0.0-5.0s: Hold the sofa pose. Subtle breathing of chest/belly. Soft blinks. Slight tongue/jaw micro-motion while mouth stays open. Tail tip twitches once. Camera mostly static with a very gentle push-in. Background and sofa stay stable.
+
+[NEGATIVE]
+No standing up, no leaving the sofa, no clothing, no morphing identity, no extra limbs, no cuts, no text, no watermarks, no multi-panel sheet.
