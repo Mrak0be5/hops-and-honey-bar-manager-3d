@@ -1,0 +1,1663 @@
+=== SEARCH Furry deepthroat items=49 ===
+
+NAME: Furry Deep Throat
+URL: https://civitai.red/models/1083611
+ID: 1083611 TYPE: LORA NSFW: True DL: 1132 UP: 240
+TAGS: anime, furry style, concept, oral, furry, furry male, cartoon, furry female
+  vID=1216753 | v1.0 | Pony | words=['furry_deepthroat'] | dl=1132
+
+NAME: Furry Equine Oral (Deep throat)
+URL: https://civitai.red/models/2625061
+ID: 2625061 TYPE: LORA NSFW: True DL: 203 UP: 27
+TAGS: concept
+  vID=2947256 | V1 | Illustrious | words=[] | dl=203
+
+NAME: All The Way To The Base Blowjob (Team Shuffle / Trump Version)
+URL: https://civitai.red/models/998658
+ID: 998658 TYPE: LORA NSFW: True DL: 900 UP: 194
+TAGS: concept, sex, furry, anthro, blowjob, fellatio, oral sex, oral
+  vID=1119123 | V1 | Pony | words=['TPDT', '1boy, 1girl, monochrome, furry, anthro, faceless male, female focus, blowjob, oral, fellatio, deepthroat, all the way to the base', 'side view', 'dutch angle', 'high-angle view', 'close-up', 'cum in mouth, excessive cum, cum through nose'] | dl=900
+
+NAME: Face Fucking Blowjob (Sindoll)
+URL: https://civitai.red/models/2638481
+ID: 2638481 TYPE: LORA NSFW: True DL: 544 UP: 128
+TAGS: concept, furry, face fucking, deepthroat, blowjob, anthro, sex, fellatio, oral
+  vID=2962449 | V1 | Illustrious | words=['SindollBJ', '1boy, 1girl, sex, furry female, anthro, blowjob, oral, irrumatio, face fucking, rough sex, dominant male, unseen male face, female focus, close-up, head grab', 'wide eyes, shocked expression', 'deepthroat, all the way to the base, balls deep'] | dl=544
+
+NAME: Indigo Void Furry Fused XL / Furry NoobAI
+URL: https://civitai.red/models/681901
+ID: 681901 TYPE: Checkpoint NSFW: False DL: 39152 UP: 5736
+TAGS: male, bara, base model, sexy, furry, kemono, gay, yiff, man, anime
+  vID=2869001 | NoobAI v3.3 | NoobAI | words=[] | dl=4265
+  vID=2823922 | NoobAI v3.2 | NoobAI | words=[] | dl=1360
+  vID=2773861 | NoobAI v3.1 | NoobAI | words=[] | dl=1498
+  vID=2725772 | NoobAI v3.0 | NoobAI | words=[] | dl=1513
+  vID=2645499 | NoobAI v2.9 variant | Illustrious | words=[] | dl=1696
+  vID=2640896 | NoobAI v2.9 | NoobAI | words=[] | dl=807
+  vID=2533720 | NoobAI v2.8 | Illustrious | words=[] | dl=2360
+  vID=2408681 | NoobAI v2.7 | NoobAI | words=[] | dl=2082
+
+NAME: Furry Anatomy Options [IL] (NSFW)
+URL: https://civitai.red/models/1173463
+ID: 1173463 TYPE: LORA NSFW: True DL: 76986 UP: 4729
+TAGS: vertical, genitals, horse, protogen, realism, raptor, dog, tail anus, vagina, gape, scalie, realistic, dragon, canine pussy, sheathe, horse pussy
+  vID=1320383 | Canine Sheathe V2 | Illustrious | words=[] | dl=12768
+  vID=1346688 | Knot in Sheath V2 | Illustrious | words=['kn0tsh3ath'] | dl=3848
+  vID=1322451 | Equine Chubs | Illustrious | words=['equine_chub'] | dl=3888
+  vID=2657540 | Equine Taur Equitaur | Illustrious | words=['equitaur', 'equine_taur'] | dl=1044
+  vID=1457585 | Detailed Equine Female | Illustrious | words=['horse pussy', 'equine pussy'] | dl=4858
+  vID=2677280 | Turtle Penis | Illustrious | words=['turt peen'] | dl=718
+  vID=1329472 | Cetacean Penis / Twin | Illustrious | words=[' cetacean_penis', ' cetacean_twin'] | dl=4006
+  vID=2340535 | Shark Fem - Pelvic Fins | Illustrious | words=['pelvic_fins,', 'pussy'] | dl=1228
+
+NAME: Furry Enhancer
+URL: https://civitai.red/models/310964
+ID: 310964 TYPE: LORA NSFW: True DL: 39373 UP: 3338
+TAGS: animals, animal, creature, art, anthro, furry, photorealism, anthromorphic
+  vID=3120301 | Krea2 V2.1 | Krea 2 | words=[] | dl=954
+  vID=3074367 | Krea2 V1 | Krea 2 | words=[] | dl=726
+  vID=2506507 | Qwen Image V3.9 | Qwen | words=[] | dl=1843
+  vID=2891002 | Ernie Image V1.3 | Ernie | words=[] | dl=518
+  vID=2888137 | Flux Klein 9B V1.5 | Flux.2 Klein 9B-base | words=[] | dl=445
+  vID=3030085 | Anima v1 | Anima | words=[] | dl=392
+  vID=2506032 | Z-Image V1.0 | ZImageTurbo | words=[] | dl=1114
+  vID=2328247 | Qwen Image V2.4 | Qwen | words=['Anthro', 'Furry'] | dl=855
+
+NAME: FURRY BABES [Pony & illustrious LoRAs]
+URL: https://civitai.red/models/1057628
+ID: 1057628 TYPE: LORA NSFW: False DL: 92105 UP: 2744
+TAGS: lora, game, furry, girls, game character, anime, cartoon, character, styles, anthro, woman, video game
+  vID=1505512 | Temmie | Illustrious | words=['temmie_undertale'] | dl=6623
+  vID=1410685 | Meowscarada | Illustrious | words=['meowscarada_illust'] | dl=1950
+  vID=1300201 | Maid Marian | Illustrious | words=['maid_marian, 1girl, furry female, furry'] | dl=1845
+  vID=1186941 | Toriel | Pony | words=['Toriel'] | dl=2009
+  vID=1505488 | Taokaka | Illustrious | words=['taokaka_illust'] | dl=779
+  vID=1505510 | Nala | Illustrious | words=['Nala_lion_king'] | dl=883
+  vID=1505505 | Ivy Pepper | Illustrious | words=['ivy_pepper_illust'] | dl=1110
+  vID=1505502 | Mewtwo | Illustrious | words=['mewtwo_illust'] | dl=859
+
+NAME: Furry Vixens
+URL: https://civitai.red/models/17333
+ID: 17333 TYPE: Checkpoint NSFW: True DL: 25367 UP: 2653
+TAGS: girl, anime, penis, furry, semi-realistic, anthro, base model
+  vID=24209 | v2.0 | Other | words=['furry', 'anthro', 'fluffy', 'snout', 'gynomorph', 'nsfw'] | dl=22229
+  vID=24387 | v2.0 Baked VAE | Other | words=['anthro', 'furry', 'fluffy', 'gynomorph', 'nsfw'] | dl=2235
+  vID=20492 | v1.0 | Other | words=['furry', 'anthro', 'nsfw', 'snout'] | dl=903
+
+NAME: Furry nsfw wan 2.1 14b img2vid (and nsfw motion in general)
+URL: https://civitai.red/models/1501763
+ID: 1501763 TYPE: LORA NSFW: True DL: 12536 UP: 1917
+TAGS: motion, anthro, furry, nsfw, concept
+  vID=1791128 | v1.1 e22 | Wan Video 14B i2v 480p | words=[] | dl=10783
+  vID=1698850 | v1.0 e17 | Wan Video 14B i2v 480p | words=[] | dl=1753
+
+NAME: Furry girl
+URL: https://civitai.red/models/20745
+ID: 20745 TYPE: LORA NSFW: False DL: 12702 UP: 1653
+TAGS: animatronic, body fur, furry, girl, anime
+  vID=24691 | v1 | SD 1.4 | words=['furry', 'furry female', 'body fur', 'animal ear fluff'] | dl=12702
+
+NAME: Furry Eeveelution LoRA
+URL: https://civitai.red/models/6976
+ID: 6976 TYPE: LORA NSFW: True DL: 12258 UP: 1269
+TAGS: furry, shaymin, absol, pokemon, eevee, character, flareon, umbreon, leafeon, sylveon, jolteon, glaceon, espeon, vaporeon, eeveelution
+  vID=132417 | v3-FluffyRock | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=6091
+  vID=132413 | v3-YiffyMix3 | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=1460
+  vID=42545 | v2 | SD 1.5 | words=['eevee', 'vaporeon', 'flareon', 'glaceon', 'sylveon', 'leafeon', 'jolteon', 'umbreon', 'absol', 'shaymin'] | dl=3205
+  vID=8198 | v1 | SD 1.4 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'absol'] | dl=1502
+
+NAME: furry art style by DAGASI
+URL: https://civitai.red/models/18472
+ID: 18472 TYPE: LORA NSFW: False DL: 11782 UP: 1227
+TAGS: furry, art style, cute, anime, kemono, style, girl
+  vID=21908 | v1.0 | SD 1.5 | words=['art by dagasi'] | dl=11782
+
+NAME: REED_FURRY_MiX_SDXL
+URL: https://civitai.red/models/1747234
+ID: 1747234 TYPE: Checkpoint NSFW: False DL: 8724 UP: 1101
+TAGS: anthro, male, base model, yiff, anime, furry, bara
+  vID=3195278 | v2.5NAi | NoobAI | words=['furry'] | dl=369
+  vID=2988776 | v2.4NAi | NoobAI | words=['furry'] | dl=1341
+  vID=2842500 | v2.3NAi | NoobAI | words=['furry'] | dl=1098
+  vID=2778052 | v2.2NAi | NoobAI | words=['furry'] | dl=606
+  vID=2735413 | v2.1NAil | NoobAI | words=['furry'] | dl=480
+  vID=2654094 | v2.0 NAi | NoobAI | words=['furry'] | dl=716
+  vID=2578527 | v1.9NAi | NoobAI | words=['Furry'] | dl=613
+  vID=2510926 | v1.8 NAi | NoobAI | words=['furry'] | dl=543
+
+NAME: Furry style for Pony XL
+URL: https://civitai.red/models/336784
+ID: 336784 TYPE: LORA NSFW: False DL: 4735 UP: 1077
+TAGS: furrym, anime, bara, style, furry bara, furry mix
+  vID=377141 | v1.0 | Pony | words=[] | dl=4735
+
+NAME: Furry Dreams - Illustrious
+URL: https://civitai.red/models/2143890
+ID: 2143890 TYPE: Checkpoint NSFW: True DL: 3363 UP: 934
+TAGS: style
+  vID=2805959 | v2.0 | Illustrious | words=[] | dl=1774
+  vID=2424939 | v1.0 | Illustrious | words=[] | dl=1589
+
+NAME: Furry Support Prefect Pony
+URL: https://civitai.red/models/1112632
+ID: 1112632 TYPE: LORA NSFW: False DL: 4647 UP: 919
+TAGS: pony, furry, anime, style, pefect pony
+  vID=1250256 | v1.0 | Pony | words=[] | dl=4647
+
+NAME: Furry Horse
+URL: https://civitai.red/models/9511
+ID: 9511 TYPE: LORA NSFW: True DL: 9093 UP: 865
+TAGS: trap, yiff, anime, equine, furry, female, equid, horse
+  vID=12759 | FurryHorse_v1.1 | Other | words=['anthro', 'furry', 'horse'] | dl=6661
+  vID=11290 | FurryHorse_v1 | Other | words=['anthro', 'furry'] | dl=824
+  vID=12760 | Horsedick_v1 | Other | words=['penis'] | dl=1037
+  vID=12761 | Horsedick_v1inpaint | Other | words=['penis'] | dl=571
+
+NAME: Furry Enhancer  Video
+URL: https://civitai.red/models/1782485
+ID: 1782485 TYPE: LORA NSFW: False DL: 17251 UP: 836
+TAGS: photorealistic, dog, creature, animal, man, animals, fantasy, wolf, rabbit, realistic, anthro, photo, art, furry, woman, cat
+  vID=3216750 | MiniMax-H3 V1.5 | MiniMax H3 | words=[] | dl=631
+  vID=2931454 | LTX 2.3 V4.094 (Omni) | LTXV 2.3 | words=[] | dl=1536
+  vID=2869488 | LTX 2.3 V2.4 (Omni) | LTXV 2.3 | words=[] | dl=740
+  vID=2841491 | LTX 2.3 V1.2x (Lora Pack) | LTXV 2.3 | words=[] | dl=603
+  vID=2771394 | LTX 2.3 Preview Version | LTXV 2.3 | words=['anthro'] | dl=362
+  vID=2235087 | WAN 2.2 I2V V3.0HighNoise | Wan Video 2.2 I2V-A14B | words=[] | dl=4431
+  vID=2235244 | WAN 2.2 I2V V3.0LowNoise | Wan Video 2.2 I2V-A14B | words=[] | dl=3523
+  vID=2192137 | WAN 2.2 I2V V2.0HighNoise | Wan Video 2.2 I2V-A14B | words=['anthro', 'furry'] | dl=569
+
+NAME: Furry Sketch Style XL
+URL: https://civitai.red/models/731516
+ID: 731516 TYPE: LORA NSFW: True DL: 2792 UP: 820
+TAGS: bara, furry, male, style, sketch
+  vID=818030 | v1.0 | Pony | words=['sketch', 'flat color'] | dl=2792
+
+NAME: Furry Femboys illustrious
+URL: https://civitai.red/models/1104409
+ID: 1104409 TYPE: LORA NSFW: False DL: 3440 UP: 764
+TAGS: boys, furry, lora, furry boy, male, anime, style, man, anime style, femboy
+  vID=1240654 | v1.0 | Illustrious | words=['Furry_femboy_style, furry'] | dl=3440
+
+NAME: Furry Canine Penis: SEELREAL
+URL: https://civitai.red/models/283482
+ID: 283482 TYPE: LORA NSFW: True DL: 7662 UP: 763
+TAGS: furry mix, canine, furry, concept, canine features, yiff
+  vID=489179 | v3.12 | SD 1.5 | words=['CPN', 'canine penis'] | dl=4593
+  vID=319041 | v1 | SD 1.5 | words=['canine penis'] | dl=3069
+
+NAME: Furry Equine Penis / Horse Cock [Illustrious]
+URL: https://civitai.red/models/1389827
+ID: 1389827 TYPE: LORA NSFW: True DL: 2986 UP: 740
+TAGS: concept
+  vID=1570728 | V1 | Illustrious | words=['equine_penis'] | dl=2986
+
+NAME: Furry Vore Bellies, Maws & Burps LoRA
+URL: https://civitai.red/models/28431
+ID: 28431 TYPE: LORA NSFW: False DL: 5764 UP: 633
+TAGS: concept, furry, mawshot, belly, scalie, vore, burping
+  vID=34106 | FluffyRock-768-lion_v1 | SD 1.5 | words=['burping', 'mouth shot', 'vore', 'big belly'] | dl=5764
+
+NAME: Furry Ring Gag
+URL: https://civitai.red/models/90504
+ID: 90504 TYPE: LORA NSFW: True DL: 5112 UP: 605
+TAGS: nsfw, gag, furry, clothing
+  vID=615841 | Ring_Yiffy37_V4 | SD 1.5 | words=['ring_gag'] | dl=1096
+  vID=196452 | ring_yiffy35_v2 | SD 1.5 | words=['ring_gag'] | dl=1604
+  vID=120860 | ring_yiffy3_v2 | Other | words=['ring_gag'] | dl=1278
+  vID=107694 | ring_yiffy3_v1 | Other | words=['ring_gag'] | dl=520
+  vID=96414 | ring_yiffy21_v1 | Other | words=['ring_gag'] | dl=614
+
+NAME: Furry Art Fantasy  XL Mix
+URL: https://civitai.red/models/185755
+ID: 185755 TYPE: Checkpoint NSFW: True DL: 5599 UP: 589
+TAGS: muscle, furry artist, animals, fantasy, person, characters, famel, sexy, male, anime, fur, base model, cute, sdxl
+  vID=218600 | v0.3 beta | SDXL 1.0 | words=[] | dl=4875
+  vID=209966 | v0.2 beta | SDXL 1.0 | words=[] | dl=575
+  vID=208573 | v0.1 beta | SDXL 1.0 | words=[] | dl=149
+
+NAME: Furry Ametrine {Style}
+URL: https://civitai.red/models/78295
+ID: 78295 TYPE: Checkpoint NSFW: False DL: 4898 UP: 588
+TAGS: anthro, nsfw, furry, furry female, style
+  vID=83098 | v1.0 | SD 1.5 | words=[] | dl=4898
+
+NAME: Furry Fox Girl Style #2 - Transform Characters into Fox Girls!
+URL: https://civitai.red/models/99423
+ID: 99423 TYPE: LoCon NSFW: True DL: 3109 UP: 587
+TAGS: style, fox girl, furry, furry female
+  vID=106394 | v1 | SD 1.5 | words=[] | dl=3109
+
+NAME: Furry Femboy
+URL: https://civitai.red/models/679128
+ID: 679128 TYPE: LORA NSFW: False DL: 3447 UP: 576
+TAGS: furry, style
+  vID=1630879 | v1.3 | Pony | words=['femboy'] | dl=1554
+  vID=1406345 | v1.2 | Pony | words=['femboy'] | dl=525
+  vID=1403230 | v1.1 | Pony | words=['femboy'] | dl=98
+  vID=940140 | v1.0 | Pony | words=['femboy'] | dl=863
+  vID=768381 | v0.5 | Pony | words=['femboy'] | dl=184
+  vID=763876 | v0.2 | Pony | words=['femboy'] | dl=111
+  vID=760180 | v0.1 | Pony | words=['femboy', 'collar', 'bell', 'stockings', ':3c', 'shy'] | dl=112
+
+NAME: Ricecake furry remix
+URL: https://civitai.red/models/93688
+ID: 93688 TYPE: Checkpoint NSFW: False DL: 4780 UP: 529
+TAGS: furry, style, animals
+  vID=183012 | later | SD 1.5 | words=['Furry girl'] | dl=1582
+  vID=292479 | Color | SD 1.5 | words=['furry girl'] | dl=440
+  vID=123374 | Oil | SD 1.5 | words=['furry girl'] | dl=501
+  vID=116717 | Roma | SD 1.5 | words=['Furry girl'] | dl=352
+  vID=113631 | West | SD 1.5 | words=['furry girl'] | dl=540
+  vID=112626 | v2.1 | SD 1.5 | words=['furry'] | dl=497
+  vID=100979 | v2.0 | SD 1.5 | words=['furry'] | dl=538
+  vID=99919 | v1.0 | SD 1.5 | words=['furry', 'fur'] | dl=330
+
+NAME: Furry Art Style - Mabit - [ILXL/NoobAi & Pony]
+URL: https://civitai.red/models/621105
+ID: 621105 TYPE: LoCon NSFW: False DL: 1562 UP: 520
+TAGS: yaoi, furry, anthro, style, male focus, pixel art
+  vID=1572645 | v2 [Illustrious/Noob] | Illustrious | words=['m_bit'] | dl=1041
+  vID=694347 | Mabit v1.0 | Pony | words=['m_bit'] | dl=521
+
+NAME: Furry Canine Penis / Knots [Illustrious]
+URL: https://civitai.red/models/1427226
+ID: 1427226 TYPE: LORA NSFW: True DL: 2211 UP: 503
+TAGS: canine, concept, furry, penis, knot, male
+  vID=1613226 | V1 | Illustrious | words=[] | dl=2211
+
+NAME: Furry Yiffy Personalami Style Lora
+URL: https://civitai.red/models/21982
+ID: 21982 TYPE: LORA NSFW: True DL: 3473 UP: 461
+TAGS: graphic female nudity, anime, artstyle, realistic, rule34, r34, explicit nudity, nudity, digital painting, rule 34, art style, furry, artist, digital art, cute, naked
+  vID=26250 | v1.0 | SD 1.5 | words=[] | dl=3473
+
+NAME: Furry Yiffy PersonalAmi
+URL: https://civitai.red/models/8114
+ID: 8114 TYPE: Hypernetwork NSFW: True DL: 3771 UP: 443
+TAGS: yiff, digital art, nudes, art, r34, artstyle, graphic female nudity, pokemon, furry, cute, sexy, breasts, rule34, original artist, digital painting, hentai
+  vID=26182 | v1.2 | SD 1.5 | words=[] | dl=2948
+  vID=9579 | v1.0 | SD 1.5 | words=[] | dl=823
+
+NAME: Furry Realism [Illus]
+URL: https://civitai.red/models/1500147
+ID: 1500147 TYPE: LORA NSFW: True DL: 3034 UP: 441
+TAGS: furry, realistic, realism, anthro, style
+  vID=1697013 | V1 | Illustrious | words=['Anthro, 1girl, furry, furry female,  COLOR fur, LENGTH hair, COLOR hair, SIZE breasts, lidded eyes, COLOR sclera, COLOR iris, TYPE tail, furry body,  detailed fur, ANIMAL , fluffy fur, detailed eyes,', 'Masterpiece, best quality, amazing quality, high quality, realistic proportions,   beautiful photo, realistic lighting, realistic hair, petite,'] | dl=3034
+
+NAME: Soft Furry
+URL: https://civitai.red/models/70533
+ID: 70533 TYPE: Checkpoint NSFW: False DL: 3619 UP: 433
+TAGS: anime, animal, sexy, hentai, female, furry, yiff
+  vID=177085 | Soft Furry v6.0 | SD 1.5 | words=['(furry:1.4)', '(anthro:1.4)', '(fluffy:1.4)', '(fluffy fuzzy furry fur covered skin:1.4)'] | dl=2244
+  vID=89866 | v3.0 | SD 1.5 | words=[] | dl=504
+  vID=86393 | v2.0 | SD 1.5 | words=[] | dl=462
+  vID=75201 | v1.0 | Other | words=[] | dl=409
+
+NAME: MerginMergesOfMerge (Furry model)
+URL: https://civitai.red/models/20136
+ID: 20136 TYPE: Checkpoint NSFW: True DL: 3252 UP: 432
+TAGS: fantasy, cute, artstyle, style, girl, furry, sexy, digital art
+  vID=62726 | v2.5 | SD 1.5 | words=['furry'] | dl=2607
+  vID=23919 | 1 | SD 1.5 | words=['furry', 'merge'] | dl=645
+
+NAME: Furry + nsfw wan 2.2 5b
+URL: https://civitai.red/models/1827161
+ID: 1827161 TYPE: LORA NSFW: True DL: 5774 UP: 431
+TAGS: concept, nsfw, furry, motion, sex, anthro
+  vID=2165401 | v2.0 e83 | Wan Video 2.2 TI2V-5B | words=[] | dl=4712
+  vID=2067711 | v1.0 e75 | Wan Video 2.2 TI2V-5B | words=[] | dl=1062
+
+NAME: FURRY REALISTIC STYLE
+URL: https://civitai.red/models/936672
+ID: 936672 TYPE: LORA NSFW: False DL: 2881 UP: 425
+TAGS: realistic, woman, photorealistic, girls, furry, style
+  vID=2623109 | Real Illustrious | Illustrious | words=['R1@lis,', 'furry, anthro,'] | dl=903
+  vID=1048939 | v1 | Pony | words=[' Realistic, highres, super high resolution, 8k, photo, anthro, furry, furry, anthro, fur, tail, detailed fur, detailed,'] | dl=1978
+
+NAME: Furry Art AI (DESC)
+URL: https://civitai.red/models/75405
+ID: 75405 TYPE: Checkpoint NSFW: False DL: 2317 UP: 415
+TAGS: furry female, furry, style
+  vID=80148 | v1.0 | SD 1.5 | words=[] | dl=2317
+
+NAME: Furry male horse penis
+URL: https://civitai.red/models/10032
+ID: 10032 TYPE: LORA NSFW: True DL: 3197 UP: 412
+TAGS: furry, plump, muscular male, male, concept
+  vID=11929 | Male_horse_penis | SD 1.5 | words=['horse penis', '1boy', 'muscular', 'furry', 'erection', 'veiny horse penis'] | dl=3197
+
+NAME: Furry Style Kenket  🦊🐺- Anima / Pony / Illustrious
+URL: https://civitai.red/models/1063424
+ID: 1063424 TYPE: LORA NSFW: False DL: 2383 UP: 404
+TAGS: yiff, style, kenket, furry, styles
+  vID=3025089 | Anima | Anima | words=['kenket style, furry, furry art, digital painting,  painting style is realistic with a touch of impressionism, characterized by visible brushstrokes and a slightly blurred background, textured details'] | dl=394
+  vID=1193449 | Illustrious / Pony | Illustrious | words=['kenket'] | dl=1411
+  vID=1242309 | Illustrious Only | Illustrious | words=[] | dl=578
+
+NAME: Furry Autofellatio (NSFW)
+URL: https://civitai.red/models/203129
+ID: 203129 TYPE: LORA NSFW: True DL: 2308 UP: 374
+TAGS: yiff, action, furry
+  vID=228690 | v1.0 | SD 1.5 | words=['autofellatio'] | dl=2308
+
+NAME: CONCEPT: FURRY DOUJINSHI [PONY XL]
+URL: https://civitai.red/models/487407
+ID: 487407 TYPE: LORA NSFW: True DL: 1448 UP: 372
+TAGS: manga, story, ink, concept, nsfw, doujin, comic, anime, doujinshi, comic panels, furry
+  vID=541999 | Furry Doujinshi (Experimental) [PONY XL] | Pony | words=[] | dl=1136
+  vID=1385053 | Illustrious | Illustrious | words=['furry_doujinshi', 'comic panels', 'speech bubble', 'monochrome,'] | dl=312
+
+NAME: Ratatoskr WAN 2.1 / WAN 2.2 Hybrid I2V (Animal, Creature and Furry)
+URL: https://civitai.red/models/1713721
+ID: 1713721 TYPE: Checkpoint NSFW: False DL: 3976 UP: 369
+TAGS: anime, anthropomorphic, cat, man, i2v, antro, animal, lion, wan, furry, art, cheetah, realistic, animals, male, dog
+  vID=2074025 | WAN  2.2 Hybrid v1.0 WIP | Wan Video 2.2 I2V-A14B | words=[] | dl=3180
+  vID=1939308 | Wan2.1 v1.0 | Wan Video 14B i2v 720p | words=['Furry', 'anthro'] | dl=796
+
+NAME: Furry - Zourik Style
+URL: https://civitai.red/models/412033
+ID: 412033 TYPE: LORA NSFW: True DL: 717 UP: 349
+TAGS: furry, male focus, style, gay, nsfw
+  vID=459233 | Zourik style for pony | Pony | words=['zourik'] | dl=717
+
+NAME: [Furry] Micropenis
+URL: https://civitai.red/models/52904
+ID: 52904 TYPE: LORA NSFW: True DL: 2734 UP: 348
+TAGS: concept, furry, penis, porn, nsfw
+  vID=57290 | v1.0 | SD 1.5 | words=['micropenis', 'small penis'] | dl=2734
+
+NAME: Furry MongiMix
+URL: https://civitai.red/models/205921
+ID: 205921 TYPE: Checkpoint NSFW: False DL: 3090 UP: 346
+TAGS: anthromorphic, yiff, furry, anthro, man, bara, kemono, femboy, base model
+  vID=259397 | v1.2 Kemono More Details | SD 1.5 | words=[] | dl=2794
+  vID=249982 | v1.1 Kemono | SD 1.5 | words=[] | dl=135
+  vID=231847 | v1.0 | SD 1.5 | words=[] | dl=161
+
+NAME: Furry Paws - helper
+URL: https://civitai.red/models/1051182
+ID: 1051182 TYPE: LORA NSFW: False DL: 1825 UP: 335
+TAGS: furry, concept
+  vID=1179504 | V1 | Pony | words=['Canine paws', 'Feline paws', 'digital pads, metacarpal pad, 4toes, claws, detailed paws, [color] paws'] | dl=1825
+
+=== QUERY furry_deepthroat type=LORA items=20 ===
+
+NAME: Furry Deep Throat
+URL: https://civitai.red/models/1083611
+ID: 1083611 TYPE: LORA NSFW: True DL: 1132 UP: 240
+TAGS: anime, furry style, concept, oral, furry, furry male, cartoon, furry female
+  vID=1216753 | v1.0 | Pony | words=['furry_deepthroat'] | dl=1132
+
+NAME: Furry Equine Oral (Deep throat)
+URL: https://civitai.red/models/2625061
+ID: 2625061 TYPE: LORA NSFW: True DL: 203 UP: 27
+TAGS: concept
+  vID=2947256 | V1 | Illustrious | words=[] | dl=203
+
+NAME: All The Way To The Base Blowjob (Team Shuffle / Trump Version)
+URL: https://civitai.red/models/998658
+ID: 998658 TYPE: LORA NSFW: True DL: 900 UP: 194
+TAGS: concept, sex, furry, anthro, blowjob, fellatio, oral sex, oral
+  vID=1119123 | V1 | Pony | words=['TPDT', '1boy, 1girl, monochrome, furry, anthro, faceless male, female focus, blowjob, oral, fellatio, deepthroat, all the way to the base', 'side view', 'dutch angle', 'high-angle view', 'close-up', 'cum in mouth, excessive cum, cum through nose'] | dl=900
+
+NAME: Face Fucking Blowjob (Sindoll)
+URL: https://civitai.red/models/2638481
+ID: 2638481 TYPE: LORA NSFW: True DL: 544 UP: 128
+TAGS: concept, furry, face fucking, deepthroat, blowjob, anthro, sex, fellatio, oral
+  vID=2962449 | V1 | Illustrious | words=['SindollBJ', '1boy, 1girl, sex, furry female, anthro, blowjob, oral, irrumatio, face fucking, rough sex, dominant male, unseen male face, female focus, close-up, head grab', 'wide eyes, shocked expression', 'deepthroat, all the way to the base, balls deep'] | dl=544
+
+NAME: Furry Anatomy Options [IL] (NSFW)
+URL: https://civitai.red/models/1173463
+ID: 1173463 TYPE: LORA NSFW: True DL: 76986 UP: 4729
+TAGS: vertical, genitals, horse, protogen, realism, raptor, dog, tail anus, vagina, gape, scalie, realistic, dragon, canine pussy, sheathe, horse pussy
+  vID=1320383 | Canine Sheathe V2 | Illustrious | words=[] | dl=12768
+  vID=1346688 | Knot in Sheath V2 | Illustrious | words=['kn0tsh3ath'] | dl=3848
+  vID=1322451 | Equine Chubs | Illustrious | words=['equine_chub'] | dl=3888
+  vID=2657540 | Equine Taur Equitaur | Illustrious | words=['equitaur', 'equine_taur'] | dl=1044
+  vID=1457585 | Detailed Equine Female | Illustrious | words=['horse pussy', 'equine pussy'] | dl=4858
+  vID=2677280 | Turtle Penis | Illustrious | words=['turt peen'] | dl=718
+  vID=1329472 | Cetacean Penis / Twin | Illustrious | words=[' cetacean_penis', ' cetacean_twin'] | dl=4006
+  vID=2340535 | Shark Fem - Pelvic Fins | Illustrious | words=['pelvic_fins,', 'pussy'] | dl=1228
+
+NAME: Furry Enhancer
+URL: https://civitai.red/models/310964
+ID: 310964 TYPE: LORA NSFW: True DL: 39373 UP: 3338
+TAGS: animals, animal, creature, art, anthro, furry, photorealism, anthromorphic
+  vID=3120301 | Krea2 V2.1 | Krea 2 | words=[] | dl=954
+  vID=3074367 | Krea2 V1 | Krea 2 | words=[] | dl=726
+  vID=2506507 | Qwen Image V3.9 | Qwen | words=[] | dl=1843
+  vID=2891002 | Ernie Image V1.3 | Ernie | words=[] | dl=518
+  vID=2888137 | Flux Klein 9B V1.5 | Flux.2 Klein 9B-base | words=[] | dl=445
+  vID=3030085 | Anima v1 | Anima | words=[] | dl=392
+  vID=2506032 | Z-Image V1.0 | ZImageTurbo | words=[] | dl=1114
+  vID=2328247 | Qwen Image V2.4 | Qwen | words=['Anthro', 'Furry'] | dl=855
+
+NAME: FURRY BABES [Pony & illustrious LoRAs]
+URL: https://civitai.red/models/1057628
+ID: 1057628 TYPE: LORA NSFW: False DL: 92105 UP: 2744
+TAGS: lora, game, furry, girls, game character, anime, cartoon, character, styles, anthro, woman, video game
+  vID=1505512 | Temmie | Illustrious | words=['temmie_undertale'] | dl=6623
+  vID=1410685 | Meowscarada | Illustrious | words=['meowscarada_illust'] | dl=1950
+  vID=1300201 | Maid Marian | Illustrious | words=['maid_marian, 1girl, furry female, furry'] | dl=1845
+  vID=1186941 | Toriel | Pony | words=['Toriel'] | dl=2009
+  vID=1505488 | Taokaka | Illustrious | words=['taokaka_illust'] | dl=779
+  vID=1505510 | Nala | Illustrious | words=['Nala_lion_king'] | dl=883
+  vID=1505505 | Ivy Pepper | Illustrious | words=['ivy_pepper_illust'] | dl=1110
+  vID=1505502 | Mewtwo | Illustrious | words=['mewtwo_illust'] | dl=859
+
+NAME: Furry nsfw wan 2.1 14b img2vid (and nsfw motion in general)
+URL: https://civitai.red/models/1501763
+ID: 1501763 TYPE: LORA NSFW: True DL: 12536 UP: 1917
+TAGS: motion, anthro, furry, nsfw, concept
+  vID=1791128 | v1.1 e22 | Wan Video 14B i2v 480p | words=[] | dl=10783
+  vID=1698850 | v1.0 e17 | Wan Video 14B i2v 480p | words=[] | dl=1753
+
+NAME: Furry girl
+URL: https://civitai.red/models/20745
+ID: 20745 TYPE: LORA NSFW: False DL: 12702 UP: 1653
+TAGS: animatronic, body fur, furry, girl, anime
+  vID=24691 | v1 | SD 1.4 | words=['furry', 'furry female', 'body fur', 'animal ear fluff'] | dl=12702
+
+NAME: Furry Eeveelution LoRA
+URL: https://civitai.red/models/6976
+ID: 6976 TYPE: LORA NSFW: True DL: 12258 UP: 1269
+TAGS: furry, shaymin, absol, pokemon, eevee, character, flareon, umbreon, leafeon, sylveon, jolteon, glaceon, espeon, vaporeon, eeveelution
+  vID=132417 | v3-FluffyRock | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=6091
+  vID=132413 | v3-YiffyMix3 | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=1460
+  vID=42545 | v2 | SD 1.5 | words=['eevee', 'vaporeon', 'flareon', 'glaceon', 'sylveon', 'leafeon', 'jolteon', 'umbreon', 'absol', 'shaymin'] | dl=3205
+  vID=8198 | v1 | SD 1.4 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'absol'] | dl=1502
+
+NAME: furry art style by DAGASI
+URL: https://civitai.red/models/18472
+ID: 18472 TYPE: LORA NSFW: False DL: 11782 UP: 1227
+TAGS: furry, art style, cute, anime, kemono, style, girl
+  vID=21908 | v1.0 | SD 1.5 | words=['art by dagasi'] | dl=11782
+
+NAME: Furry style for Pony XL
+URL: https://civitai.red/models/336784
+ID: 336784 TYPE: LORA NSFW: False DL: 4735 UP: 1077
+TAGS: furrym, anime, bara, style, furry bara, furry mix
+  vID=377141 | v1.0 | Pony | words=[] | dl=4735
+
+NAME: Furry Support Prefect Pony
+URL: https://civitai.red/models/1112632
+ID: 1112632 TYPE: LORA NSFW: False DL: 4647 UP: 919
+TAGS: pony, furry, anime, style, pefect pony
+  vID=1250256 | v1.0 | Pony | words=[] | dl=4647
+
+NAME: Furry Horse
+URL: https://civitai.red/models/9511
+ID: 9511 TYPE: LORA NSFW: True DL: 9093 UP: 865
+TAGS: trap, yiff, anime, equine, furry, female, equid, horse
+  vID=12759 | FurryHorse_v1.1 | Other | words=['anthro', 'furry', 'horse'] | dl=6661
+  vID=11290 | FurryHorse_v1 | Other | words=['anthro', 'furry'] | dl=824
+  vID=12760 | Horsedick_v1 | Other | words=['penis'] | dl=1037
+  vID=12761 | Horsedick_v1inpaint | Other | words=['penis'] | dl=571
+
+NAME: Furry Enhancer  Video
+URL: https://civitai.red/models/1782485
+ID: 1782485 TYPE: LORA NSFW: False DL: 17252 UP: 836
+TAGS: photorealistic, dog, creature, animal, man, animals, fantasy, wolf, rabbit, realistic, anthro, photo, art, furry, woman, cat
+  vID=3216750 | MiniMax-H3 V1.5 | MiniMax H3 | words=[] | dl=631
+  vID=2931454 | LTX 2.3 V4.094 (Omni) | LTXV 2.3 | words=[] | dl=1536
+  vID=2869488 | LTX 2.3 V2.4 (Omni) | LTXV 2.3 | words=[] | dl=740
+  vID=2841491 | LTX 2.3 V1.2x (Lora Pack) | LTXV 2.3 | words=[] | dl=603
+  vID=2771394 | LTX 2.3 Preview Version | LTXV 2.3 | words=['anthro'] | dl=362
+  vID=2235087 | WAN 2.2 I2V V3.0HighNoise | Wan Video 2.2 I2V-A14B | words=[] | dl=4431
+  vID=2235244 | WAN 2.2 I2V V3.0LowNoise | Wan Video 2.2 I2V-A14B | words=[] | dl=3523
+  vID=2192137 | WAN 2.2 I2V V2.0HighNoise | Wan Video 2.2 I2V-A14B | words=['anthro', 'furry'] | dl=569
+
+NAME: Furry Sketch Style XL
+URL: https://civitai.red/models/731516
+ID: 731516 TYPE: LORA NSFW: True DL: 2792 UP: 820
+TAGS: bara, furry, male, style, sketch
+  vID=818030 | v1.0 | Pony | words=['sketch', 'flat color'] | dl=2792
+
+NAME: Furry Femboys illustrious
+URL: https://civitai.red/models/1104409
+ID: 1104409 TYPE: LORA NSFW: False DL: 3440 UP: 764
+TAGS: boys, furry, lora, furry boy, male, anime, style, man, anime style, femboy
+  vID=1240654 | v1.0 | Illustrious | words=['Furry_femboy_style, furry'] | dl=3440
+
+NAME: Furry Canine Penis: SEELREAL
+URL: https://civitai.red/models/283482
+ID: 283482 TYPE: LORA NSFW: True DL: 7662 UP: 763
+TAGS: furry mix, canine, furry, concept, canine features, yiff
+  vID=489179 | v3.12 | SD 1.5 | words=['CPN', 'canine penis'] | dl=4593
+  vID=319041 | v1 | SD 1.5 | words=['canine penis'] | dl=3069
+
+NAME: Furry Equine Penis / Horse Cock [Illustrious]
+URL: https://civitai.red/models/1389827
+ID: 1389827 TYPE: LORA NSFW: True DL: 2986 UP: 740
+TAGS: concept
+  vID=1570728 | V1 | Illustrious | words=['equine_penis'] | dl=2986
+
+NAME: Furry Vore Bellies, Maws & Burps LoRA
+URL: https://civitai.red/models/28431
+ID: 28431 TYPE: LORA NSFW: False DL: 5764 UP: 633
+TAGS: concept, furry, mawshot, belly, scalie, vore, burping
+  vID=34106 | FluffyRock-768-lion_v1 | SD 1.5 | words=['burping', 'mouth shot', 'vore', 'big belly'] | dl=5764
+
+=== QUERY furry fellatio type=LORA items=20 ===
+
+NAME: Close-Up Foreskin Play (ZonkPunch)
+URL: https://civitai.red/models/817107
+ID: 817107 TYPE: LORA NSFW: True DL: 1233 UP: 368
+TAGS: anthro, fellatio, oral, concept, furry, blowjob, kiss, close-up, kissing, hentai
+  vID=913712 | V1 | Pony | words=['ZonkFS', 'close-up, furry, anthro, faceless male, penis, foreskin, fellatio, oral, foreskin kiss, foreskin play, side view, steam', 'tongue out, tongue swirl, tongue in foreskin', 'male/ambiguous'] | dl=1233
+
+NAME: All The Way To The Base Blowjob (Team Shuffle / Trump Version)
+URL: https://civitai.red/models/998658
+ID: 998658 TYPE: LORA NSFW: True DL: 900 UP: 194
+TAGS: concept, sex, furry, anthro, blowjob, fellatio, oral sex, oral
+  vID=1119123 | V1 | Pony | words=['TPDT', '1boy, 1girl, monochrome, furry, anthro, faceless male, female focus, blowjob, oral, fellatio, deepthroat, all the way to the base', 'side view', 'dutch angle', 'high-angle view', 'close-up', 'cum in mouth, excessive cum, cum through nose'] | dl=900
+
+NAME: Succ Smaller Male
+URL: https://civitai.red/models/2843509
+ID: 2843509 TYPE: LORA NSFW: True DL: 92 UP: 26
+TAGS: couple, oral, nsfw, duo, concept, fat, size difference
+  vID=3210203 | IL | Illustrious | words=['screencap, concept', 'couple, oral, fellatio, smalldom, short male, toned male, skinny, fat, furry, shortstack, full body, erection'] | dl=92
+
+NAME: Evil tentacle mechanization sequence
+URL: https://civitai.red/models/2617942
+ID: 2617942 TYPE: LORA NSFW: True DL: 213 UP: 44
+TAGS: concept, transformation, doujin, mind control, corruption, tentacle, robot girl, mechanization
+  vID=2939339 | V1 | Illustrious | words=['Nanomechan_MST', 'Nanomechan_MST,spoken question mark,!?,scared face,tears,crying,mechanical tentacles,tentacle restrain,tentacle around body,arms back,tentacle in mouth,sliver cum,sliver colored cum', 'Nanomechan_MST,rolling eyes,uneven eyes,!?,scared face,tears,nanomachine,mid transformation,crying,mechanical tentacles,tentacle restrain,tentacle around body,arms back,tentacle in mouth,hive tattoo,glowing tattoo,multicolored skin,gradient skin,blue tattoo,corruption,medium breast,tentacle sex,heterochromia,black sclera,white sclera,pink eye,empty eyes,heavy breathing,multicolored legs,multicolored breasts,nude,erosion,sliver colored breasts,purple nipples,sliver colored cum,pale arms,pale legs', 'Nanomechan_MST,claws,black sclera,black colored sclera,pink eyes,glowing eyes,corruption,sliver skin,shiny skin,robot girl,dark persona,large breast,covered nipples,robot joints,cameltoe,clitoris,fat mons,headphones,teal tongue,colored tongue,tongue out,saliva,white skin,mechanical body,happy face,cleavage,pubic tattoo,glowing tattoo,flaming eyes,tentacle tail,', 'squatting,from below,cowboy shot,dutch angle,breast grab,nipple pull,smug,looking at viewer,oral invitation,fellatio gesture,smug,dark aura,loving aura,spoken heart,head tilt,uneven eyes,projectile lactation,female orgasm,sliver cum,sliver colored pussy juice,center cutout,leotard,toeless thighhighs,purple nipples,very long nipples,', '!negative:duo,extra girl,monster,furry'] | dl=213
+
+NAME: Giant Dom IL | Fantasy Sex concept
+URL: https://civitai.red/models/831683
+ID: 831683 TYPE: LORA NSFW: True DL: 37027 UP: 2487
+TAGS: furry, porn, woman, girls, lora, hentai, concept, anime, cartoon, man, game character, sexy, video game
+  vID=3216154 | Dragon-AnimaV3 | Anima | words=['GD-DRAGONV3, Dragon, size difference,'] | dl=4
+  vID=2973014 | ExtremeSizeDiff-V3ANIMA | Anima | words=['ESDV3A, size difference, giant,'] | dl=876
+  vID=2992858 | Dragon-AnimaV2 | Anima | words=['GD-DRAGONV2, Dragon, size difference,'] | dl=758
+  vID=2987349 | LargeInsertionAnimaV1 | Anima | words=['LISBV1, large insertion, stomach bulge'] | dl=496
+  vID=2756588 | ALLBoruDataV1IL | Illustrious | words=['GDDBV1, size difference, giant, giant male,'] | dl=2424
+  vID=2646194 | ExtremeSizeDiff-V3IL | Illustrious | words=['ESDV3, size difference, giant,'] | dl=3103
+  vID=2607078 | LargeInsertionConceptV1IL | Illustrious | words=['LISBV1, large insertion, stomach bulge'] | dl=1570
+  vID=2612380 | Impossible_fitBlowjobV1IL | Illustrious | words=['IFBJV1IL, giant penis, huge penis, fellatio, blowjob, oral,'] | dl=1072
+
+NAME: Furry Anatomy Options [IL] (NSFW)
+URL: https://civitai.red/models/1173463
+ID: 1173463 TYPE: LORA NSFW: True DL: 76986 UP: 4729
+TAGS: vertical, genitals, horse, protogen, realism, raptor, dog, tail anus, vagina, gape, scalie, realistic, dragon, canine pussy, sheathe, horse pussy
+  vID=1320383 | Canine Sheathe V2 | Illustrious | words=[] | dl=12768
+  vID=1346688 | Knot in Sheath V2 | Illustrious | words=['kn0tsh3ath'] | dl=3848
+  vID=1322451 | Equine Chubs | Illustrious | words=['equine_chub'] | dl=3888
+  vID=2657540 | Equine Taur Equitaur | Illustrious | words=['equitaur', 'equine_taur'] | dl=1044
+  vID=1457585 | Detailed Equine Female | Illustrious | words=['horse pussy', 'equine pussy'] | dl=4858
+  vID=2677280 | Turtle Penis | Illustrious | words=['turt peen'] | dl=718
+  vID=1329472 | Cetacean Penis / Twin | Illustrious | words=[' cetacean_penis', ' cetacean_twin'] | dl=4006
+  vID=2340535 | Shark Fem - Pelvic Fins | Illustrious | words=['pelvic_fins,', 'pussy'] | dl=1228
+
+NAME: Furry Enhancer
+URL: https://civitai.red/models/310964
+ID: 310964 TYPE: LORA NSFW: True DL: 39373 UP: 3338
+TAGS: animals, animal, creature, art, anthro, furry, photorealism, anthromorphic
+  vID=3120301 | Krea2 V2.1 | Krea 2 | words=[] | dl=954
+  vID=3074367 | Krea2 V1 | Krea 2 | words=[] | dl=726
+  vID=2506507 | Qwen Image V3.9 | Qwen | words=[] | dl=1843
+  vID=2891002 | Ernie Image V1.3 | Ernie | words=[] | dl=518
+  vID=2888137 | Flux Klein 9B V1.5 | Flux.2 Klein 9B-base | words=[] | dl=445
+  vID=3030085 | Anima v1 | Anima | words=[] | dl=392
+  vID=2506032 | Z-Image V1.0 | ZImageTurbo | words=[] | dl=1114
+  vID=2328247 | Qwen Image V2.4 | Qwen | words=['Anthro', 'Furry'] | dl=855
+
+NAME: FURRY BABES [Pony & illustrious LoRAs]
+URL: https://civitai.red/models/1057628
+ID: 1057628 TYPE: LORA NSFW: False DL: 92105 UP: 2744
+TAGS: lora, game, furry, girls, game character, anime, cartoon, character, styles, anthro, woman, video game
+  vID=1505512 | Temmie | Illustrious | words=['temmie_undertale'] | dl=6623
+  vID=1410685 | Meowscarada | Illustrious | words=['meowscarada_illust'] | dl=1950
+  vID=1300201 | Maid Marian | Illustrious | words=['maid_marian, 1girl, furry female, furry'] | dl=1845
+  vID=1186941 | Toriel | Pony | words=['Toriel'] | dl=2009
+  vID=1505488 | Taokaka | Illustrious | words=['taokaka_illust'] | dl=779
+  vID=1505510 | Nala | Illustrious | words=['Nala_lion_king'] | dl=883
+  vID=1505505 | Ivy Pepper | Illustrious | words=['ivy_pepper_illust'] | dl=1110
+  vID=1505502 | Mewtwo | Illustrious | words=['mewtwo_illust'] | dl=859
+
+NAME: Furry nsfw wan 2.1 14b img2vid (and nsfw motion in general)
+URL: https://civitai.red/models/1501763
+ID: 1501763 TYPE: LORA NSFW: True DL: 12536 UP: 1917
+TAGS: motion, anthro, furry, nsfw, concept
+  vID=1791128 | v1.1 e22 | Wan Video 14B i2v 480p | words=[] | dl=10783
+  vID=1698850 | v1.0 e17 | Wan Video 14B i2v 480p | words=[] | dl=1753
+
+NAME: Furry girl
+URL: https://civitai.red/models/20745
+ID: 20745 TYPE: LORA NSFW: False DL: 12702 UP: 1653
+TAGS: animatronic, body fur, furry, girl, anime
+  vID=24691 | v1 | SD 1.4 | words=['furry', 'furry female', 'body fur', 'animal ear fluff'] | dl=12702
+
+NAME: Furry Eeveelution LoRA
+URL: https://civitai.red/models/6976
+ID: 6976 TYPE: LORA NSFW: True DL: 12258 UP: 1269
+TAGS: furry, shaymin, absol, pokemon, eevee, character, flareon, umbreon, leafeon, sylveon, jolteon, glaceon, espeon, vaporeon, eeveelution
+  vID=132417 | v3-FluffyRock | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=6091
+  vID=132413 | v3-YiffyMix3 | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=1460
+  vID=42545 | v2 | SD 1.5 | words=['eevee', 'vaporeon', 'flareon', 'glaceon', 'sylveon', 'leafeon', 'jolteon', 'umbreon', 'absol', 'shaymin'] | dl=3205
+  vID=8198 | v1 | SD 1.4 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'absol'] | dl=1502
+
+NAME: furry art style by DAGASI
+URL: https://civitai.red/models/18472
+ID: 18472 TYPE: LORA NSFW: False DL: 11782 UP: 1227
+TAGS: furry, art style, cute, anime, kemono, style, girl
+  vID=21908 | v1.0 | SD 1.5 | words=['art by dagasi'] | dl=11782
+
+NAME: Furry style for Pony XL
+URL: https://civitai.red/models/336784
+ID: 336784 TYPE: LORA NSFW: False DL: 4735 UP: 1077
+TAGS: furrym, anime, bara, style, furry bara, furry mix
+  vID=377141 | v1.0 | Pony | words=[] | dl=4735
+
+NAME: Furry Support Prefect Pony
+URL: https://civitai.red/models/1112632
+ID: 1112632 TYPE: LORA NSFW: False DL: 4647 UP: 919
+TAGS: pony, furry, anime, style, pefect pony
+  vID=1250256 | v1.0 | Pony | words=[] | dl=4647
+
+NAME: Furry Horse
+URL: https://civitai.red/models/9511
+ID: 9511 TYPE: LORA NSFW: True DL: 9093 UP: 865
+TAGS: trap, yiff, anime, equine, furry, female, equid, horse
+  vID=12759 | FurryHorse_v1.1 | Other | words=['anthro', 'furry', 'horse'] | dl=6661
+  vID=11290 | FurryHorse_v1 | Other | words=['anthro', 'furry'] | dl=824
+  vID=12760 | Horsedick_v1 | Other | words=['penis'] | dl=1037
+  vID=12761 | Horsedick_v1inpaint | Other | words=['penis'] | dl=571
+
+NAME: Furry Enhancer  Video
+URL: https://civitai.red/models/1782485
+ID: 1782485 TYPE: LORA NSFW: False DL: 17252 UP: 836
+TAGS: photorealistic, dog, creature, animal, man, animals, fantasy, wolf, rabbit, realistic, anthro, photo, art, furry, woman, cat
+  vID=3216750 | MiniMax-H3 V1.5 | MiniMax H3 | words=[] | dl=631
+  vID=2931454 | LTX 2.3 V4.094 (Omni) | LTXV 2.3 | words=[] | dl=1536
+  vID=2869488 | LTX 2.3 V2.4 (Omni) | LTXV 2.3 | words=[] | dl=740
+  vID=2841491 | LTX 2.3 V1.2x (Lora Pack) | LTXV 2.3 | words=[] | dl=603
+  vID=2771394 | LTX 2.3 Preview Version | LTXV 2.3 | words=['anthro'] | dl=362
+  vID=2235087 | WAN 2.2 I2V V3.0HighNoise | Wan Video 2.2 I2V-A14B | words=[] | dl=4431
+  vID=2235244 | WAN 2.2 I2V V3.0LowNoise | Wan Video 2.2 I2V-A14B | words=[] | dl=3523
+  vID=2192137 | WAN 2.2 I2V V2.0HighNoise | Wan Video 2.2 I2V-A14B | words=['anthro', 'furry'] | dl=569
+
+NAME: Furry Sketch Style XL
+URL: https://civitai.red/models/731516
+ID: 731516 TYPE: LORA NSFW: True DL: 2792 UP: 820
+TAGS: bara, furry, male, style, sketch
+  vID=818030 | v1.0 | Pony | words=['sketch', 'flat color'] | dl=2792
+
+NAME: Furry Femboys illustrious
+URL: https://civitai.red/models/1104409
+ID: 1104409 TYPE: LORA NSFW: False DL: 3440 UP: 764
+TAGS: boys, furry, lora, furry boy, male, anime, style, man, anime style, femboy
+  vID=1240654 | v1.0 | Illustrious | words=['Furry_femboy_style, furry'] | dl=3440
+
+NAME: Furry Canine Penis: SEELREAL
+URL: https://civitai.red/models/283482
+ID: 283482 TYPE: LORA NSFW: True DL: 7662 UP: 763
+TAGS: furry mix, canine, furry, concept, canine features, yiff
+  vID=489179 | v3.12 | SD 1.5 | words=['CPN', 'canine penis'] | dl=4593
+  vID=319041 | v1 | SD 1.5 | words=['canine penis'] | dl=3069
+
+NAME: Furry Equine Penis / Horse Cock [Illustrious]
+URL: https://civitai.red/models/1389827
+ID: 1389827 TYPE: LORA NSFW: True DL: 2986 UP: 740
+TAGS: concept
+  vID=1570728 | V1 | Illustrious | words=['equine_penis'] | dl=2986
+
+=== QUERY anthro deepthroat type=LORA items=20 ===
+
+NAME: All The Way To The Base Blowjob (Team Shuffle / Trump Version)
+URL: https://civitai.red/models/998658
+ID: 998658 TYPE: LORA NSFW: True DL: 900 UP: 194
+TAGS: concept, sex, furry, anthro, blowjob, fellatio, oral sex, oral
+  vID=1119123 | V1 | Pony | words=['TPDT', '1boy, 1girl, monochrome, furry, anthro, faceless male, female focus, blowjob, oral, fellatio, deepthroat, all the way to the base', 'side view', 'dutch angle', 'high-angle view', 'close-up', 'cum in mouth, excessive cum, cum through nose'] | dl=900
+
+NAME: Face Fucking Blowjob (Sindoll)
+URL: https://civitai.red/models/2638481
+ID: 2638481 TYPE: LORA NSFW: True DL: 544 UP: 128
+TAGS: concept, furry, face fucking, deepthroat, blowjob, anthro, sex, fellatio, oral
+  vID=2962449 | V1 | Illustrious | words=['SindollBJ', '1boy, 1girl, sex, furry female, anthro, blowjob, oral, irrumatio, face fucking, rough sex, dominant male, unseen male face, female focus, close-up, head grab', 'wide eyes, shocked expression', 'deepthroat, all the way to the base, balls deep'] | dl=544
+
+NAME: Anthro Birds LoRA
+URL: https://civitai.red/models/9620
+ID: 9620 TYPE: LORA NSFW: False DL: 8385 UP: 918
+TAGS: bird_anthro, anthro, furry, character, female, bird, male
+  vID=113419 | v3.5 | SD 1.5 | words=['anthro', 'bird', 'winged-arms', 'wing-hands', 'wings', 'beak', 'bill'] | dl=4096
+  vID=91421 | v3 | SD 1.5 | words=['Anthro', 'Bird', 'winged-arms', 'wing-hands', 'wings', 'beak'] | dl=1100
+  vID=91430 | v3 no_offset | SD 1.5 | words=['Anthro', 'Bird', 'winged-arms', 'wing-hands', 'wings', 'beak'] | dl=424
+  vID=32214 | v2.5 | SD 1.5 | words=['anthro', 'avian', 'bird', 'winged-arms', 'owl'] | dl=1150
+  vID=26317 | v2 | SD 1.5 | words=['anthro', 'avian', 'bird', 'winged-arms'] | dl=536
+  vID=26318 | v1.5 | SD 1.5 | words=['anthro', 'avian', 'bird', 'winged-arms'] | dl=189
+  vID=11425 | v1.3.2 | SD 1.5 | words=['anthro', 'bird', 'avian', 'winged-arms'] | dl=643
+  vID=11427 | v1 Winged-Arms | SD 1.5 | words=['anthro', 'bird', 'avian', 'winged-arms'] | dl=247
+
+NAME: Anthro/Feral Slider
+URL: https://civitai.red/models/341045
+ID: 341045 TYPE: LORA NSFW: False DL: 5157 UP: 636
+TAGS: feral, furry, concept
+  vID=449805 | v2.0_1.5 | SD 1.5 | words=[] | dl=2415
+  vID=398789 | v1.0 Pony XL | Pony | words=[] | dl=2047
+  vID=381952 | v1.3_eps | SD 1.5 | words=[] | dl=523
+  vID=381847 | v1.3_vpred | SD 1.5 | words=[] | dl=172
+
+NAME: Anthro Corvids (Crows, Ravens, ect) LoRA
+URL: https://civitai.red/models/60003
+ID: 60003 TYPE: LORA NSFW: False DL: 2459 UP: 406
+TAGS: non human, anthro, bird, character, avian, furry
+  vID=64462 | v1 | SD 1.5 | words=['corvid', 'raven', 'crow', 'magpie', 'blue jay', 'winged-arms'] | dl=2459
+
+NAME: Anthro Shark Girl
+URL: https://civitai.red/models/111432
+ID: 111432 TYPE: LORA NSFW: False DL: 2771 UP: 362
+TAGS: shark, style, anthro, shark girl
+  vID=150144 | v2.2 (v2.1bis) | SD 1.5 | words=[] | dl=1346
+  vID=120211 | v2.0 | SD 1.5 | words=[] | dl=1100
+  vID=143777 | v2.1 (tailless) | SD 1.5 | words=[] | dl=174
+  vID=120209 | v1.0 | SD 1.5 | words=[] | dl=151
+
+NAME: Anthro birds (for pony)
+URL: https://civitai.red/models/385443
+ID: 385443 TYPE: LORA NSFW: False DL: 1294 UP: 255
+TAGS: avian, bird, characters, concepts, furry, ponyxl, concept
+  vID=655020 | enhanced and reimagined | Pony | words=['eagle', 'falcon', 'peafowl', 'stork', 'heron', 'macaw', 'cockatoo', 'parakeet', 'a_grey parrot', 'swan'] | dl=769
+  vID=430144 | eagles, storks, peacocks | Pony | words=['anthro', 'eagle', 'stork', 'peafowl'] | dl=525
+
+NAME: Anthro Snake Pony/iLLus
+URL: https://civitai.red/models/1385867
+ID: 1385867 TYPE: LORA NSFW: False DL: 919 UP: 219
+TAGS: concept, furry, anthro, snake
+  vID=1838148 | V1.0 (iLLustrious) | Illustrious | words=['Snake', 'Viper', 'Slit Eyes', 'Adder', 'Python', 'Cobra,cobra snake hood'] | dl=743
+  vID=1566098 | V1.0 (Pony) | Pony | words=['Snake', 'Viper', 'Slit Eyes', 'Adder', 'Python', 'Cobra,cobra snake hood'] | dl=176
+
+NAME: Anthro Horse - Illustrious/Pony
+URL: https://civitai.red/models/706912
+ID: 706912 TYPE: LORA NSFW: False DL: 986 UP: 206
+TAGS: anthro horse, concept, furry
+  vID=1357928 | Illustrious - v1.0 | Illustrious | words=[] | dl=546
+  vID=790711 | Pony - v1.0 | Pony | words=['anthrohorse'] | dl=440
+
+NAME: Anthro Rarity MLP
+URL: https://civitai.red/models/229248
+ID: 229248 TYPE: LORA NSFW: False DL: 765 UP: 183
+TAGS: character, my little pony, rarity, mlp, furry
+  vID=2642284 | Illustrious | Illustrious | words=['1girl, rarity, my little pony, white fur, furry female, unicorn, single horn, blue eyes, long hair, purple hair, body fur, horse girl, horse ears, furry, furry female,'] | dl=114
+  vID=258727 | v1.0 | SD 1.5 | words=['rarity', 'my little pony', 'horse girl', 'unicorn'] | dl=651
+
+NAME: Anthro Chickens LoRA
+URL: https://civitai.red/models/86166
+ID: 86166 TYPE: LORA NSFW: False DL: 867 UP: 158
+TAGS: hen, character, rooster, anthro, chicken, furry
+  vID=91593 | v1 | SD 1.5 | words=['anthro', 'hen', 'rooster', 'beak', 'wattle', 'wings', 'winged-arms'] | dl=867
+
+NAME: Anthro Shark Girl IllustriousXL
+URL: https://civitai.red/models/1594977
+ID: 1594977 TYPE: LORA NSFW: False DL: 565 UP: 147
+TAGS: furry, shark_girl, illustrious, character, anthromorph, anthro, shark
+  vID=2611097 | v2.0 | Illustrious | words=['tailless', 'shark girl', 'anthromorph', 'anthro'] | dl=192
+  vID=1804935 | v1.0 | Illustrious | words=['SHARK_GIRL', 'ANTHROMORPH', 'SHARK', 'ANTHRO'] | dl=373
+
+NAME: anthro alligator crocodile [PONY XL]
+URL: https://civitai.red/models/953933
+ID: 953933 TYPE: LORA NSFW: True DL: 423 UP: 143
+TAGS: crocodile, lora, lizard, alligator, furry, male, nsfw, style, anthro, girls
+  vID=1068012 | V1 | Pony | words=[] | dl=423
+
+NAME: Anthro Frog
+URL: https://civitai.red/models/1055833
+ID: 1055833 TYPE: LORA NSFW: False DL: 466 UP: 142
+TAGS: furry, frog, anthro, concept, animals
+  vID=1549992 | Illustrious | Illustrious | words=['Anthro, Frog,'] | dl=240
+  vID=1184723 | Pony | Pony | words=['Anthro, frog, tailless,'] | dl=226
+
+NAME: Anthro Owl Pony/iLLus
+URL: https://civitai.red/models/1289640
+ID: 1289640 TYPE: LORA NSFW: False DL: 490 UP: 135
+TAGS: owl, anthro, concept, furry
+  vID=1887554 | V1.0 (iLLustrious) | Illustrious | words=['Owl'] | dl=353
+  vID=1455199 | V1.0 (Pony) | Pony | words=['Owl'] | dl=137
+
+NAME: Anthro Bee
+URL: https://civitai.red/models/827865
+ID: 827865 TYPE: LORA NSFW: True DL: 473 UP: 129
+TAGS: character, anthro, anime, furry, woman, bee
+  vID=925838 | V1 | Pony | words=[] | dl=473
+
+NAME: Anthro boar daddy
+URL: https://civitai.red/models/993837
+ID: 993837 TYPE: LORA NSFW: False DL: 394 UP: 119
+TAGS: anthro, man, daddy, boar, animal
+  vID=1390138 | test Illustrious | Illustrious | words=['boar'] | dl=233
+  vID=1113549 | test Pony | Pony | words=[] | dl=161
+
+NAME: Anthro Spiders
+URL: https://civitai.red/models/1411505
+ID: 1411505 TYPE: LORA NSFW: False DL: 423 UP: 116
+TAGS: spider, bug, furry, concept, anthro
+  vID=2616971 | V2 | Illustrious | words=['Anthro, spider, 4arms, 4eyes, fur, Arthropod, No humans'] | dl=160
+  vID=1595661 | V1 | Illustrious | words=['Anthro, spider, 4arms, 4eyes, fur, Arthropod', 'No humans '] | dl=263
+
+NAME: Anthro Crow / Raven
+URL: https://civitai.red/models/1529710
+ID: 1529710 TYPE: LORA NSFW: False DL: 312 UP: 103
+TAGS: anthro, furry, bird, raven, crow, concept
+  vID=2793046 | v2 | Illustrious | words=['ravenbirdil, anthro raven, black feathers, talons', 'wings', 'winged arms'] | dl=122
+  vID=1730755 | v1.0 | Illustrious | words=['crowbirdil, anthro, crow, black feathers, talons,', 'winged arms', 'wings on back'] | dl=190
+
+NAME: Anthro Sharks (but earless!!) | PonyXL
+URL: https://civitai.red/models/718733
+ID: 718733 TYPE: LORA NSFW: True DL: 304 UP: 99
+TAGS: anthro, concept, furry
+  vID=803686 | v1.0 | Pony | words=['anthropomorphic shark, shark tail, long tail'] | dl=304
+
+=== QUERY furry oral pony type=LORA items=20 ===
+
+NAME: Furry Equine Oral (Deep throat)
+URL: https://civitai.red/models/2625061
+ID: 2625061 TYPE: LORA NSFW: True DL: 203 UP: 27
+TAGS: concept
+  vID=2947256 | V1 | Illustrious | words=[] | dl=203
+
+NAME: Face in sheath concept (furry) PDXL
+URL: https://civitai.red/models/879139
+ID: 879139 TYPE: LORA NSFW: True DL: 1114 UP: 333
+TAGS: furry, concept
+  vID=984158 | v1.0 | Pony | words=['faceinsheath, oral, sheath play, sheath, fully sheathed, animal genitalia', 'close-up', 'faceless character'] | dl=1114
+
+NAME: 🐅Tiger Latex Furry TF sequence
+URL: https://civitai.red/models/2689654
+ID: 2689654 TYPE: LORA NSFW: True DL: 134 UP: 31
+TAGS: clothing, corruption, doujin, possession, slime, monster girl, tiger, transform, furry
+  vID=3019978 | V1 | Illustrious | words=['TigerGooTF_MST', 'TigerGooTF_MST,yellow goo,yellow slime,tiger shaped slime,1 girl,spoken question mark,all fours,head tilt,:o,?,look down', 'TigerGooTF_MST,yellow goo,yellow slime,tiger shaped slime,1 girl,!?,scared face,tears,look down,!,all fours,head tilt,:o,melting clothes,torn clothes,nipples,soles,slime tentacles,tiger_print tentacles,tentacle around arms,tentacle around legs,', 'TigerGooTF_MST,yellow goo,yellow slime,tiger shaped slime,1 girl,!?,scared face,tears,!,all fours,melting clothes,nude,transform,corruption,torn clothes,yellow nipples,soles,slime tentacles,tiger_print tentacles,tentacle around arms,tentacle around legs,claws,sharp nails,tentacle oral sex,tentacle in mouth,tentacle sex,tentacle double penetration,gradient arms,gradient legs,gradient skin,tiger_print skin,pussy,yellow cum,yellow colored cum,yellow slime cum,empty eyes,no pupils,heavy breathing,rolling eyes,medium breast,', 'TigerGooTF_MST,1 girl,spoken ellipsis,...,all fours,melting,nude,transform,corruption,large breast,yellow nipples,tiger_print skinsuit,claws,sharp nails,tiger_print skin,colored skin,monster girl,tiger girl,fur,gradient hair,golden fur,fat mons,clitoris,wet,golden pussy,excessive pussy juice,empty eyes,no pupils,heavy breathing,tongue out,saliva,uneven eyes,torogao,female orgasm,pubic tattoo,', 'TigerGooTF_MST,1 girl,loving aura,spoken heart,smug,fang,dark persona,corruption,nude,transform,corruption,large breast,yellow nipples,tiger_print skinsuit,claws,tiger girl,Tiger headgear,tiger hood,tiger costume,sharp nails,tiger_print skin,colored skin,monster girl,tiger girl,fur,fur trim,gradient hair,golden fur,fat mons,clitoris,wet,golden pussy,excessive pussy juice,empty eyes,no pupils,heavy breathing,tongue out,saliva,female orgasm,pubic tattoo,glowing tattoo,covered eyes,no eyes,projectile lactation,glowing skin,shiny skin,animal ears,animal tail,long tail,', 'squatting,knees together,looking at viewer,from above,cowboy shot,dutch angle,head tilt,tongue out,fang,clenched hands,paw_pose,paws,yellow tongue,fertilization,impregnation'] | dl=134
+
+NAME: pul
+URL: https://civitai.red/models/518159
+ID: 518159 TYPE: LORA NSFW: True DL: 182 UP: 38
+TAGS: anthro, vore, hyper, furry, style
+  vID=575758 | pul | Pony | words=['vore', 'oral vore', 'hyper', 'hyper penis', 'hyper balls', 'furry', 'anthro', 'humanoid', 'humanoid feet', '5toes'] | dl=182
+
+NAME: Close-Up Foreskin Play (ZonkPunch)
+URL: https://civitai.red/models/817107
+ID: 817107 TYPE: LORA NSFW: True DL: 1233 UP: 368
+TAGS: anthro, fellatio, oral, concept, furry, blowjob, kiss, close-up, kissing, hentai
+  vID=913712 | V1 | Pony | words=['ZonkFS', 'close-up, furry, anthro, faceless male, penis, foreskin, fellatio, oral, foreskin kiss, foreskin play, side view, steam', 'tongue out, tongue swirl, tongue in foreskin', 'male/ambiguous'] | dl=1233
+
+NAME: Face Fucking Blowjob (Sindoll)
+URL: https://civitai.red/models/2638481
+ID: 2638481 TYPE: LORA NSFW: True DL: 544 UP: 128
+TAGS: concept, furry, face fucking, deepthroat, blowjob, anthro, sex, fellatio, oral
+  vID=2962449 | V1 | Illustrious | words=['SindollBJ', '1boy, 1girl, sex, furry female, anthro, blowjob, oral, irrumatio, face fucking, rough sex, dominant male, unseen male face, female focus, close-up, head grab', 'wide eyes, shocked expression', 'deepthroat, all the way to the base, balls deep'] | dl=544
+
+NAME: All The Way To The Base Blowjob (Team Shuffle / Trump Version)
+URL: https://civitai.red/models/998658
+ID: 998658 TYPE: LORA NSFW: True DL: 900 UP: 194
+TAGS: concept, sex, furry, anthro, blowjob, fellatio, oral sex, oral
+  vID=1119123 | V1 | Pony | words=['TPDT', '1boy, 1girl, monochrome, furry, anthro, faceless male, female focus, blowjob, oral, fellatio, deepthroat, all the way to the base', 'side view', 'dutch angle', 'high-angle view', 'close-up', 'cum in mouth, excessive cum, cum through nose'] | dl=900
+
+NAME: Succ Smaller Male
+URL: https://civitai.red/models/2843509
+ID: 2843509 TYPE: LORA NSFW: True DL: 92 UP: 26
+TAGS: couple, oral, nsfw, duo, concept, fat, size difference
+  vID=3210203 | IL | Illustrious | words=['screencap, concept', 'couple, oral, fellatio, smalldom, short male, toned male, skinny, fat, furry, shortstack, full body, erection'] | dl=92
+
+NAME: Evil tentacle mechanization sequence
+URL: https://civitai.red/models/2617942
+ID: 2617942 TYPE: LORA NSFW: True DL: 213 UP: 44
+TAGS: concept, transformation, doujin, mind control, corruption, tentacle, robot girl, mechanization
+  vID=2939339 | V1 | Illustrious | words=['Nanomechan_MST', 'Nanomechan_MST,spoken question mark,!?,scared face,tears,crying,mechanical tentacles,tentacle restrain,tentacle around body,arms back,tentacle in mouth,sliver cum,sliver colored cum', 'Nanomechan_MST,rolling eyes,uneven eyes,!?,scared face,tears,nanomachine,mid transformation,crying,mechanical tentacles,tentacle restrain,tentacle around body,arms back,tentacle in mouth,hive tattoo,glowing tattoo,multicolored skin,gradient skin,blue tattoo,corruption,medium breast,tentacle sex,heterochromia,black sclera,white sclera,pink eye,empty eyes,heavy breathing,multicolored legs,multicolored breasts,nude,erosion,sliver colored breasts,purple nipples,sliver colored cum,pale arms,pale legs', 'Nanomechan_MST,claws,black sclera,black colored sclera,pink eyes,glowing eyes,corruption,sliver skin,shiny skin,robot girl,dark persona,large breast,covered nipples,robot joints,cameltoe,clitoris,fat mons,headphones,teal tongue,colored tongue,tongue out,saliva,white skin,mechanical body,happy face,cleavage,pubic tattoo,glowing tattoo,flaming eyes,tentacle tail,', 'squatting,from below,cowboy shot,dutch angle,breast grab,nipple pull,smug,looking at viewer,oral invitation,fellatio gesture,smug,dark aura,loving aura,spoken heart,head tilt,uneven eyes,projectile lactation,female orgasm,sliver cum,sliver colored pussy juice,center cutout,leotard,toeless thighhighs,purple nipples,very long nipples,', '!negative:duo,extra girl,monster,furry'] | dl=213
+
+NAME: Giant Dom IL | Fantasy Sex concept
+URL: https://civitai.red/models/831683
+ID: 831683 TYPE: LORA NSFW: True DL: 37027 UP: 2487
+TAGS: furry, porn, woman, girls, lora, hentai, concept, anime, cartoon, man, game character, sexy, video game
+  vID=3216154 | Dragon-AnimaV3 | Anima | words=['GD-DRAGONV3, Dragon, size difference,'] | dl=4
+  vID=2973014 | ExtremeSizeDiff-V3ANIMA | Anima | words=['ESDV3A, size difference, giant,'] | dl=876
+  vID=2992858 | Dragon-AnimaV2 | Anima | words=['GD-DRAGONV2, Dragon, size difference,'] | dl=758
+  vID=2987349 | LargeInsertionAnimaV1 | Anima | words=['LISBV1, large insertion, stomach bulge'] | dl=496
+  vID=2756588 | ALLBoruDataV1IL | Illustrious | words=['GDDBV1, size difference, giant, giant male,'] | dl=2424
+  vID=2646194 | ExtremeSizeDiff-V3IL | Illustrious | words=['ESDV3, size difference, giant,'] | dl=3103
+  vID=2607078 | LargeInsertionConceptV1IL | Illustrious | words=['LISBV1, large insertion, stomach bulge'] | dl=1570
+  vID=2612380 | Impossible_fitBlowjobV1IL | Illustrious | words=['IFBJV1IL, giant penis, huge penis, fellatio, blowjob, oral,'] | dl=1072
+
+NAME: Sea Salt - Redrusker / Illustrious
+URL: https://civitai.red/models/1726926
+ID: 1726926 TYPE: LORA NSFW: True DL: 298 UP: 80
+TAGS: male, sea salt, redrusker, character, anthro, furry
+  vID=1954394 | V1 | Illustrious | words=['Sea_Salt, bedroom eyes, detailed eyes, perfect eyes, beautiful eyes,  detailed fur, tail, realistic fur, 1boy, young, (((handsome, detailed face and eyes))), solo, anthro, boy, furry, anthro, animal ears, furry male,   saliva, saliva trail, saliva pool, mind break, smile, smirk, grin, mouth shot, mawshot, open mouth, vore, imminent vore, oral invitation, saliva, tongue, throat, bedroom setting, naughty, sexy,  face focus, realistic eyes,  eye shine, Sea_Salt, (Seasalt, furry, white fur, detailed fur, blue spots, blue body markings, blue ears, floppy ears, dalmatian, anthro, dalmatian tail, dog tail, lots of blue spots on body, male seasalt, green eyes), blue hoodie,  twink, cotton clothes, athletic build, tight blue shorts,  blue dolphin shorts, '] | dl=298
+
+NAME: Saya Mizoguchi - Tennis Ace / Illustrious
+URL: https://civitai.red/models/1585092
+ID: 1585092 TYPE: LORA NSFW: True DL: 126 UP: 39
+TAGS: furry, vn, anthro, visual novel, rabbit, woman, tennis ace, character
+  vID=1793707 | V1 | Illustrious | words=['Saya_Mizoguchi, Saya_Tennis_Ace, ', 'bedroom eyes, detailed eyes, perfect eyes, beautiful eyes, , detailed fur, tail, eyes, realistic fur, , solo, 1 girl, young, (((handsome, detailed face and eyes))), medium breasts, 1girl, solo, anthro, eyes, girl, furry, ,female, furry, solo, anthro rabbit , hazel eyes, athletic, perfect body, light brown fur, big rabbit ears, rabbit ears, Saya_Mizoguchi, Saya, Saya Mizoguchi, white t-shirt,  tennis , buck teeth, indoors, tennis court, school sports hall, sports hall, , school, Saya_Mizoguchi, Saya_Tennis_Ace,  rabbit teeth, eye shine , ', 'bedroom eyes, detailed eyes, perfect eyes, beautiful eyes, smile, smirk, grin, mouth shot, mawshot, open mouth, vore, imminent vore, oral invitation, saliva, tongue, throat, detailed fur, tail, realistic fur, 1girl, young,  solo, 1 girl, young, (((handsome, detailed face and eyes))), medium breasts, 1girl, solo, anthro, eyes, girl, furry, ,female, furry, solo, anthro rabbit , hazel eyes, athletic, perfect body, light brown fur, big rabbit ears, rabbit ears, Saya_Mizoguchi, Saya, Saya Mizoguchi, , buck teeth, indoors, rabbit teeth, eye shine, medium breasts,  (maid outfit, maid uniform:1.3), cafe, maid cafe, Japanese cafe,'] | dl=126
+
+NAME: Furry Anatomy Options [IL] (NSFW)
+URL: https://civitai.red/models/1173463
+ID: 1173463 TYPE: LORA NSFW: True DL: 76986 UP: 4729
+TAGS: vertical, genitals, horse, protogen, realism, raptor, dog, tail anus, vagina, gape, scalie, realistic, dragon, canine pussy, sheathe, horse pussy
+  vID=1320383 | Canine Sheathe V2 | Illustrious | words=[] | dl=12768
+  vID=1346688 | Knot in Sheath V2 | Illustrious | words=['kn0tsh3ath'] | dl=3848
+  vID=1322451 | Equine Chubs | Illustrious | words=['equine_chub'] | dl=3888
+  vID=2657540 | Equine Taur Equitaur | Illustrious | words=['equitaur', 'equine_taur'] | dl=1044
+  vID=1457585 | Detailed Equine Female | Illustrious | words=['horse pussy', 'equine pussy'] | dl=4858
+  vID=2677280 | Turtle Penis | Illustrious | words=['turt peen'] | dl=718
+  vID=1329472 | Cetacean Penis / Twin | Illustrious | words=[' cetacean_penis', ' cetacean_twin'] | dl=4006
+  vID=2340535 | Shark Fem - Pelvic Fins | Illustrious | words=['pelvic_fins,', 'pussy'] | dl=1228
+
+NAME: Furry Enhancer
+URL: https://civitai.red/models/310964
+ID: 310964 TYPE: LORA NSFW: True DL: 39373 UP: 3338
+TAGS: animals, animal, creature, art, anthro, furry, photorealism, anthromorphic
+  vID=3120301 | Krea2 V2.1 | Krea 2 | words=[] | dl=954
+  vID=3074367 | Krea2 V1 | Krea 2 | words=[] | dl=726
+  vID=2506507 | Qwen Image V3.9 | Qwen | words=[] | dl=1843
+  vID=2891002 | Ernie Image V1.3 | Ernie | words=[] | dl=518
+  vID=2888137 | Flux Klein 9B V1.5 | Flux.2 Klein 9B-base | words=[] | dl=445
+  vID=3030085 | Anima v1 | Anima | words=[] | dl=392
+  vID=2506032 | Z-Image V1.0 | ZImageTurbo | words=[] | dl=1114
+  vID=2328247 | Qwen Image V2.4 | Qwen | words=['Anthro', 'Furry'] | dl=855
+
+NAME: FURRY BABES [Pony & illustrious LoRAs]
+URL: https://civitai.red/models/1057628
+ID: 1057628 TYPE: LORA NSFW: False DL: 92105 UP: 2744
+TAGS: lora, game, furry, girls, game character, anime, cartoon, character, styles, anthro, woman, video game
+  vID=1505512 | Temmie | Illustrious | words=['temmie_undertale'] | dl=6623
+  vID=1410685 | Meowscarada | Illustrious | words=['meowscarada_illust'] | dl=1950
+  vID=1300201 | Maid Marian | Illustrious | words=['maid_marian, 1girl, furry female, furry'] | dl=1845
+  vID=1186941 | Toriel | Pony | words=['Toriel'] | dl=2009
+  vID=1505488 | Taokaka | Illustrious | words=['taokaka_illust'] | dl=779
+  vID=1505510 | Nala | Illustrious | words=['Nala_lion_king'] | dl=883
+  vID=1505505 | Ivy Pepper | Illustrious | words=['ivy_pepper_illust'] | dl=1110
+  vID=1505502 | Mewtwo | Illustrious | words=['mewtwo_illust'] | dl=859
+
+NAME: Furry nsfw wan 2.1 14b img2vid (and nsfw motion in general)
+URL: https://civitai.red/models/1501763
+ID: 1501763 TYPE: LORA NSFW: True DL: 12536 UP: 1917
+TAGS: motion, anthro, furry, nsfw, concept
+  vID=1791128 | v1.1 e22 | Wan Video 14B i2v 480p | words=[] | dl=10783
+  vID=1698850 | v1.0 e17 | Wan Video 14B i2v 480p | words=[] | dl=1753
+
+NAME: Furry girl
+URL: https://civitai.red/models/20745
+ID: 20745 TYPE: LORA NSFW: False DL: 12702 UP: 1653
+TAGS: animatronic, body fur, furry, girl, anime
+  vID=24691 | v1 | SD 1.4 | words=['furry', 'furry female', 'body fur', 'animal ear fluff'] | dl=12702
+
+NAME: Furry Eeveelution LoRA
+URL: https://civitai.red/models/6976
+ID: 6976 TYPE: LORA NSFW: True DL: 12258 UP: 1269
+TAGS: furry, shaymin, absol, pokemon, eevee, character, flareon, umbreon, leafeon, sylveon, jolteon, glaceon, espeon, vaporeon, eeveelution
+  vID=132417 | v3-FluffyRock | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=6091
+  vID=132413 | v3-YiffyMix3 | SD 1.5 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'sky forme shaymin'] | dl=1460
+  vID=42545 | v2 | SD 1.5 | words=['eevee', 'vaporeon', 'flareon', 'glaceon', 'sylveon', 'leafeon', 'jolteon', 'umbreon', 'absol', 'shaymin'] | dl=3205
+  vID=8198 | v1 | SD 1.4 | words=['eevee', 'espeon', 'flareon', 'glaceon', 'jolteon', 'leafeon', 'sylveon', 'umbreon', 'vaporeon', 'absol'] | dl=1502
+
+NAME: furry art style by DAGASI
+URL: https://civitai.red/models/18472
+ID: 18472 TYPE: LORA NSFW: False DL: 11782 UP: 1227
+TAGS: furry, art style, cute, anime, kemono, style, girl
+  vID=21908 | v1.0 | SD 1.5 | words=['art by dagasi'] | dl=11782
+
+NAME: Furry style for Pony XL
+URL: https://civitai.red/models/336784
+ID: 336784 TYPE: LORA NSFW: False DL: 4735 UP: 1077
+TAGS: furrym, anime, bara, style, furry bara, furry mix
+  vID=377141 | v1.0 | Pony | words=[] | dl=4735
+
+=== QUERY yiffpony type=Checkpoint items=1 ===
+
+NAME: YiffPony
+URL: https://civitai.red/models/535982
+ID: 535982 TYPE: Checkpoint NSFW: False DL: 209 UP: 16
+TAGS: fluffy, rich, furry, assets, model, pony, yiffy, merge
+  vID=595838 | v1.0 | SDXL Lightning | words=[] | dl=209
+
+=== QUERY furry pony type=Checkpoint items=19 ===
+
+NAME: Transformix Pony
+URL: https://civitai.red/models/683104
+ID: 683104 TYPE: Checkpoint NSFW: True DL: 2587 UP: 357
+TAGS: woman, fantasy, furry, concept, flexible, transformation
+  vID=764583 | v1.0 | Pony | words=['anthro', 'transformation', 'furry', 'scalie', '_animal_', '_animal_ feet', '_animal hands_', 'figurine', 'doll joints', 'multibreast'] | dl=2587
+
+NAME: Indigo Void Furry Fused XL / Furry NoobAI
+URL: https://civitai.red/models/681901
+ID: 681901 TYPE: Checkpoint NSFW: False DL: 39152 UP: 5736
+TAGS: male, bara, base model, sexy, furry, kemono, gay, yiff, man, anime
+  vID=2869001 | NoobAI v3.3 | NoobAI | words=[] | dl=4265
+  vID=2823922 | NoobAI v3.2 | NoobAI | words=[] | dl=1360
+  vID=2773861 | NoobAI v3.1 | NoobAI | words=[] | dl=1498
+  vID=2725772 | NoobAI v3.0 | NoobAI | words=[] | dl=1513
+  vID=2645499 | NoobAI v2.9 variant | Illustrious | words=[] | dl=1696
+  vID=2640896 | NoobAI v2.9 | NoobAI | words=[] | dl=807
+  vID=2533720 | NoobAI v2.8 | Illustrious | words=[] | dl=2360
+  vID=2408681 | NoobAI v2.7 | NoobAI | words=[] | dl=2082
+
+NAME: Furry Vixens
+URL: https://civitai.red/models/17333
+ID: 17333 TYPE: Checkpoint NSFW: True DL: 25367 UP: 2653
+TAGS: girl, anime, penis, furry, semi-realistic, anthro, base model
+  vID=24209 | v2.0 | Other | words=['furry', 'anthro', 'fluffy', 'snout', 'gynomorph', 'nsfw'] | dl=22229
+  vID=24387 | v2.0 Baked VAE | Other | words=['anthro', 'furry', 'fluffy', 'gynomorph', 'nsfw'] | dl=2235
+  vID=20492 | v1.0 | Other | words=['furry', 'anthro', 'nsfw', 'snout'] | dl=903
+
+NAME: REED_FURRY_MiX_SDXL
+URL: https://civitai.red/models/1747234
+ID: 1747234 TYPE: Checkpoint NSFW: False DL: 8724 UP: 1101
+TAGS: anthro, male, base model, yiff, anime, furry, bara
+  vID=3195278 | v2.5NAi | NoobAI | words=['furry'] | dl=369
+  vID=2988776 | v2.4NAi | NoobAI | words=['furry'] | dl=1341
+  vID=2842500 | v2.3NAi | NoobAI | words=['furry'] | dl=1098
+  vID=2778052 | v2.2NAi | NoobAI | words=['furry'] | dl=606
+  vID=2735413 | v2.1NAil | NoobAI | words=['furry'] | dl=480
+  vID=2654094 | v2.0 NAi | NoobAI | words=['furry'] | dl=716
+  vID=2578527 | v1.9NAi | NoobAI | words=['Furry'] | dl=613
+  vID=2510926 | v1.8 NAi | NoobAI | words=['furry'] | dl=543
+
+NAME: Furry Dreams - Illustrious
+URL: https://civitai.red/models/2143890
+ID: 2143890 TYPE: Checkpoint NSFW: True DL: 3363 UP: 934
+TAGS: style
+  vID=2805959 | v2.0 | Illustrious | words=[] | dl=1774
+  vID=2424939 | v1.0 | Illustrious | words=[] | dl=1589
+
+NAME: Furry Art Fantasy  XL Mix
+URL: https://civitai.red/models/185755
+ID: 185755 TYPE: Checkpoint NSFW: True DL: 5599 UP: 589
+TAGS: muscle, furry artist, animals, fantasy, person, characters, famel, sexy, male, anime, fur, base model, cute, sdxl
+  vID=218600 | v0.3 beta | SDXL 1.0 | words=[] | dl=4875
+  vID=209966 | v0.2 beta | SDXL 1.0 | words=[] | dl=575
+  vID=208573 | v0.1 beta | SDXL 1.0 | words=[] | dl=149
+
+NAME: Furry Ametrine {Style}
+URL: https://civitai.red/models/78295
+ID: 78295 TYPE: Checkpoint NSFW: False DL: 4898 UP: 588
+TAGS: anthro, nsfw, furry, furry female, style
+  vID=83098 | v1.0 | SD 1.5 | words=[] | dl=4898
+
+NAME: Ricecake furry remix
+URL: https://civitai.red/models/93688
+ID: 93688 TYPE: Checkpoint NSFW: False DL: 4780 UP: 529
+TAGS: furry, style, animals
+  vID=183012 | later | SD 1.5 | words=['Furry girl'] | dl=1582
+  vID=292479 | Color | SD 1.5 | words=['furry girl'] | dl=440
+  vID=123374 | Oil | SD 1.5 | words=['furry girl'] | dl=501
+  vID=116717 | Roma | SD 1.5 | words=['Furry girl'] | dl=352
+  vID=113631 | West | SD 1.5 | words=['furry girl'] | dl=540
+  vID=112626 | v2.1 | SD 1.5 | words=['furry'] | dl=497
+  vID=100979 | v2.0 | SD 1.5 | words=['furry'] | dl=538
+  vID=99919 | v1.0 | SD 1.5 | words=['furry', 'fur'] | dl=330
+
+NAME: Soft Furry
+URL: https://civitai.red/models/70533
+ID: 70533 TYPE: Checkpoint NSFW: False DL: 3619 UP: 433
+TAGS: anime, animal, sexy, hentai, female, furry, yiff
+  vID=177085 | Soft Furry v6.0 | SD 1.5 | words=['(furry:1.4)', '(anthro:1.4)', '(fluffy:1.4)', '(fluffy fuzzy furry fur covered skin:1.4)'] | dl=2244
+  vID=89866 | v3.0 | SD 1.5 | words=[] | dl=504
+  vID=86393 | v2.0 | SD 1.5 | words=[] | dl=462
+  vID=75201 | v1.0 | Other | words=[] | dl=409
+
+NAME: MerginMergesOfMerge (Furry model)
+URL: https://civitai.red/models/20136
+ID: 20136 TYPE: Checkpoint NSFW: True DL: 3252 UP: 432
+TAGS: fantasy, cute, artstyle, style, girl, furry, sexy, digital art
+  vID=62726 | v2.5 | SD 1.5 | words=['furry'] | dl=2607
+  vID=23919 | 1 | SD 1.5 | words=['furry', 'merge'] | dl=645
+
+NAME: Furry Art AI (DESC)
+URL: https://civitai.red/models/75405
+ID: 75405 TYPE: Checkpoint NSFW: False DL: 2317 UP: 415
+TAGS: furry female, furry, style
+  vID=80148 | v1.0 | SD 1.5 | words=[] | dl=2317
+
+NAME: Ratatoskr WAN 2.1 / WAN 2.2 Hybrid I2V (Animal, Creature and Furry)
+URL: https://civitai.red/models/1713721
+ID: 1713721 TYPE: Checkpoint NSFW: False DL: 3976 UP: 369
+TAGS: anime, anthropomorphic, cat, man, i2v, antro, animal, lion, wan, furry, art, cheetah, realistic, animals, male, dog
+  vID=2074025 | WAN  2.2 Hybrid v1.0 WIP | Wan Video 2.2 I2V-A14B | words=[] | dl=3180
+  vID=1939308 | Wan2.1 v1.0 | Wan Video 14B i2v 720p | words=['Furry', 'anthro'] | dl=796
+
+NAME: Furry MongiMix
+URL: https://civitai.red/models/205921
+ID: 205921 TYPE: Checkpoint NSFW: False DL: 3090 UP: 346
+TAGS: anthromorphic, yiff, furry, anthro, man, bara, kemono, femboy, base model
+  vID=259397 | v1.2 Kemono More Details | SD 1.5 | words=[] | dl=2794
+  vID=249982 | v1.1 Kemono | SD 1.5 | words=[] | dl=135
+  vID=231847 | v1.0 | SD 1.5 | words=[] | dl=161
+
+NAME: F-R95 Style (furry model)
+URL: https://civitai.red/models/17295
+ID: 17295 TYPE: Checkpoint NSFW: True DL: 2414 UP: 311
+TAGS: beautiful, illustration, sexy, digital art, furry, digital illustration, concept
+  vID=20569 | mergeF95 | SD 1.5 | words=['furry', 'nsfw', 'digital art'] | dl=2132
+  vID=20438 | F-R95 | SD 1.5 | words=['furry', 'nsfw'] | dl=282
+
+NAME: Purrfection (Furry Realistic) [ILXL / Illustrious XL] - Animal Focused Checkpoint
+URL: https://civitai.red/models/1509216
+ID: 1509216 TYPE: Checkpoint NSFW: False DL: 2412 UP: 253
+TAGS: photo, epic, creatures, photorealistic, animals, nsfw, cinematic, realistic, woman, base model, sfw, furry, perfection
+  vID=1707179 | v1.0 | Illustrious | words=['furry', 'anthro'] | dl=2412
+
+NAME: Furry and More v5.0
+URL: https://civitai.red/models/1590959
+ID: 1590959 TYPE: Checkpoint NSFW: True DL: 2045 UP: 233
+TAGS: sfw, anthro, human, furry, nsfw, base model
+  vID=1926782 | Furry and More v6.0 | Illustrious | words=[] | dl=1317
+  vID=1800354 | Furry and More v5.0 | Illustrious | words=[] | dl=728
+
+NAME: Furry and More v4.0
+URL: https://civitai.red/models/1338028
+ID: 1338028 TYPE: Checkpoint NSFW: False DL: 1430 UP: 203
+TAGS: nsfw, furry, human, sfw, base model
+  vID=1510976 | Furry and More v4.0 | Illustrious | words=[] | dl=1430
+
+NAME: Furry Byte
+URL: https://civitai.red/models/730862
+ID: 730862 TYPE: Checkpoint NSFW: False DL: 1558 UP: 161
+TAGS: animal, furry, girls
+  vID=942025 | v1.5 | Pony | words=[] | dl=1233
+  vID=817280 | v1.0 | Pony | words=[] | dl=325
+
+NAME: Furry Infinity V1
+URL: https://civitai.red/models/78178
+ID: 78178 TYPE: Checkpoint NSFW: False DL: 1819 UP: 157
+TAGS: beast, art style, furry, fur, femboy, photorealistic, masculine, nudes, femdom, male, yiff, animal ears, sex, animated, futa, hentai
+  vID=82959 | 2D ZOO | Other | words=['Furry', 'Hentai', 'Nude', 'Yiff', 'Breasts', 'Naked', 'Fur', 'NSFW', 'porn', 'sex'] | dl=1819
+
+=== QUERY boleromix type=Checkpoint items=8 ===
+
+NAME: boleromix(Pony)
+URL: https://civitai.red/models/448716
+ID: 448716 TYPE: Checkpoint NSFW: False DL: 48272 UP: 3677
+TAGS: base model
+  vID=2259232 | v2.33 | Pony | words=[] | dl=2958
+  vID=2106327 | v2.20 | Pony | words=[] | dl=1357
+  vID=1458666 | v2.10 | Pony | words=[] | dl=5060
+  vID=1161495 | v1.70 | Pony | words=[] | dl=5492
+  vID=1156233 | v1.51 | Pony | words=[] | dl=767
+  vID=920368 | v1.50(VAE) | Pony | words=[] | dl=8990
+  vID=629179 | v1.41 VAE | Pony | words=[] | dl=9555
+  vID=513252 | v1.4 | Pony | words=[] | dl=12245
+
+NAME: boleromix(illustrious)
+URL: https://civitai.red/models/869634
+ID: 869634 TYPE: Checkpoint NSFW: True DL: 44685 UP: 3374
+TAGS: base model
+  vID=2627802 | v9.00 | Illustrious | words=[] | dl=6481
+  vID=2276973 | v6.01 | Illustrious | words=[] | dl=1778
+  vID=2233795 | v5.01 | Illustrious | words=[] | dl=1942
+  vID=2096616 | v4.02(mature) | Illustrious | words=[] | dl=3357
+  vID=1850829 | v3.01 | Illustrious | words=[] | dl=5075
+  vID=1412789 | v2.90 | Illustrious | words=[] | dl=7193
+  vID=1145414 | v2.81 | Illustrious | words=[] | dl=6860
+  vID=1137858 | v2.80 | Illustrious | words=[] | dl=1275
+
+NAME: boleromix(noobai)
+URL: https://civitai.red/models/1142524
+ID: 1142524 TYPE: Checkpoint NSFW: False DL: 11397 UP: 890
+TAGS: base model
+  vID=2386496 | v1.86 ep | NoobAI | words=[] | dl=1727
+  vID=2207856 | v1.74 ep | NoobAI | words=[] | dl=1449
+  vID=2039996 | v1.6 ep | NoobAI | words=[] | dl=1806
+  vID=1626193 | v1.5 ep | NoobAI | words=[] | dl=2737
+  vID=1415864 | v1.3 vPre10 | NoobAI | words=[] | dl=1780
+  vID=1284890 | v1.2 vPred10 | NoobAI | words=[] | dl=1177
+  vID=1286125 | v1.1 ep | NoobAI | words=[] | dl=721
+
+NAME: boleromix(SDXL)
+URL: https://civitai.red/models/448770
+ID: 448770 TYPE: Checkpoint NSFW: False DL: 5803 UP: 478
+TAGS: base model
+  vID=1412801 | v2.0(animagine4) | SDXL 1.0 | words=[] | dl=1502
+  vID=543689 | v1.3 | SDXL 1.0 | words=[] | dl=2888
+  vID=527535 | v1.22 | SDXL 1.0 | words=[] | dl=674
+  vID=499726 | v1.10 | SDXL 1.0 | words=[] | dl=739
+
+NAME: boleromix(anima)
+URL: https://civitai.red/models/2575161
+ID: 2575161 TYPE: Checkpoint NSFW: False DL: 5460 UP: 367
+TAGS: base model
+  vID=3209891 | v0.50 | Anima | words=[] | dl=328
+  vID=3130650 | v0.43 | Anima | words=[] | dl=1296
+  vID=3008391 | v0.30 | Anima | words=[] | dl=1682
+  vID=2960574 | v0.21 | Anima | words=[] | dl=1140
+  vID=2893213 | v0.1 | Anima | words=[] | dl=1014
+
+NAME: boleromix(SD)
+URL: https://civitai.red/models/348620
+ID: 348620 TYPE: Checkpoint NSFW: False DL: 3231 UP: 322
+TAGS: base model
+  vID=390021 | v1.0 | SD 1.5 | words=[] | dl=3231
+
+NAME: boleromix+WAI-NSFW-illustrious-SDXL
+URL: https://civitai.red/models/1479829
+ID: 1479829 TYPE: Checkpoint NSFW: False DL: 6060 UP: 218
+TAGS: base model
+  vID=1673840 | v1.0 | Illustrious | words=[] | dl=6060
+
+NAME: boleromix(illustrious) _mature
+URL: https://civitai.red/models/2170393
+ID: 2170393 TYPE: Checkpoint NSFW: False DL: 933 UP: 122
+TAGS: base model
+  vID=2444100 | v1.01 | Illustrious | words=[] | dl=933
+
+=== QUERY fluffy fur mix pony type=Checkpoint items=14 ===
+
+NAME: NeatNess Fluffy Fur Mix
+URL: https://civitai.red/models/29819
+ID: 29819 TYPE: Checkpoint NSFW: False DL: 19158 UP: 2374
+TAGS: anime, character, female, woman, furry
+  vID=2030380 | Eclipse (Pony XL) | Pony | words=[] | dl=1334
+  vID=920872 | Terra | SD 1.5 | words=['furry'] | dl=1129
+  vID=429527 | Alioth | SD 1.5 | words=[] | dl=1737
+  vID=207802 | Zephyr | SD 1.5 | words=[] | dl=2604
+  vID=134172 | Summer peaches | SD 1.5 | words=[] | dl=1920
+  vID=75878 | Nebula | SD 1.5 | words=[] | dl=3672
+  vID=68547 | Infinity | SD 1.5 | words=[] | dl=1670
+  vID=60649 | Unicorn edition  | SD 1.5 | words=[] | dl=1934
+
+NAME: Fur_3D // MERGED MODEL
+URL: https://civitai.red/models/151552
+ID: 151552 TYPE: Checkpoint NSFW: False DL: 1340 UP: 151
+TAGS: 3d, furry, base model, furry female, furry male, fur
+  vID=2161571 | vFINAL | SD 1.5 | words=[] | dl=115
+  vID=382883 | v3.0 | SD 1.5 | words=['fluffy', '3D'] | dl=333
+  vID=317321 | v2.5 | SD 1.5 | words=['3D'] | dl=300
+  vID=286219 | v2.0 | SD 1.5 | words=['3d', 'fluffy'] | dl=216
+  vID=169470 | v1.0 | SD 1.5 | words=['3D'] | dl=376
+
+NAME: Soft Furry
+URL: https://civitai.red/models/70533
+ID: 70533 TYPE: Checkpoint NSFW: False DL: 3619 UP: 433
+TAGS: anime, animal, sexy, hentai, female, furry, yiff
+  vID=177085 | Soft Furry v6.0 | SD 1.5 | words=['(furry:1.4)', '(anthro:1.4)', '(fluffy:1.4)', '(fluffy fuzzy furry fur covered skin:1.4)'] | dl=2244
+  vID=89866 | v3.0 | SD 1.5 | words=[] | dl=504
+  vID=86393 | v2.0 | SD 1.5 | words=[] | dl=462
+  vID=75201 | v1.0 | Other | words=[] | dl=409
+
+NAME: Fluffy
+URL: https://civitai.red/models/67960
+ID: 67960 TYPE: Checkpoint NSFW: False DL: 4781 UP: 549
+TAGS: anthro, fluffy v1, fluffy v2, furry, fluffy, fluffy v2.5
+  vID=281298 | Fluffy V3 | SD 1.5 | words=[] | dl=590
+  vID=117848 | Fluffy V2.5 | SD 1.5 | words=[] | dl=2346
+  vID=72677 | Fluffy V2 | SD 1.5 | words=[] | dl=1435
+  vID=72625 | Fluffy V1 | SD 1.5 | words=[] | dl=410
+
+NAME: Fluffy Tart
+URL: https://civitai.red/models/175336
+ID: 175336 TYPE: Checkpoint NSFW: False DL: 2991 UP: 469
+TAGS: character, kemono, furry
+  vID=323921 | v7.0 | SD 1.5 | words=['Kemono'] | dl=1142
+  vID=302248 | v6.0 | SD 1.5 | words=['kemono', 'furry'] | dl=304
+  vID=228685 | v5.0 | SD 1.5 | words=['furry', 'kemono'] | dl=528
+  vID=214747 | v4.0 | SD 1.5 | words=['furry', 'kemono'] | dl=381
+  vID=211848 | v3.0 | SD 1.5 | words=['kemono', 'furry', '(gouache, oil, impressionism)'] | dl=183
+  vID=196869 | v2.0 | SD 1.5 | words=['kemono', 'furry'] | dl=453
+
+NAME: Fluffy Tart XL
+URL: https://civitai.red/models/537240
+ID: 537240 TYPE: Checkpoint NSFW: False DL: 3137 UP: 366
+TAGS: chibi, kemono, furry, anime, character
+  vID=823251 | v1.7 | Pony | words=[] | dl=1256
+  vID=801800 | v1.6 | Pony | words=[] | dl=399
+  vID=639006 | v1.5 | Pony | words=[] | dl=938
+  vID=597239 | v1.4 | Pony | words=[] | dl=544
+
+NAME: Fluffy Universe (Furry)
+URL: https://civitai.red/models/166485
+ID: 166485 TYPE: Checkpoint NSFW: False DL: 4164 UP: 339
+TAGS: nsfw model, base model, furry, anything, nsfw, vpred
+  vID=232767 | Fluffy Universe 1.0 Vpred | SD 1.5 | words=[] | dl=1580
+  vID=198146 | v2.1 Vpred | SD 1.5 | words=[] | dl=952
+  vID=189669 | v2.0 (Pruned) Vpred | SD 1.5 | words=[] | dl=912
+  vID=188720 | v2.0 Vrped | SD 1.5 | words=[] | dl=316
+  vID=187302 | v1.0 (Non Vrped) | SD 1.5 | words=[] | dl=404
+
+NAME: Fluffy Cake
+URL: https://civitai.red/models/236562
+ID: 236562 TYPE: Checkpoint NSFW: False DL: 783 UP: 112
+TAGS: kemono, furry, character
+  vID=334099 | v2.0 | SD 1.5 | words=['kemono', 'furry'] | dl=531
+  vID=266723 | v1.0 | SD 1.5 | words=['kemono', 'furry'] | dl=252
+
+NAME: Fluffy Tart ILXL [NoobAI vpred]
+URL: https://civitai.red/models/1396600
+ID: 1396600 TYPE: Checkpoint NSFW: False DL: 617 UP: 86
+TAGS: style
+  vID=1578590 | Apple | NoobAI | words=['furry', 'kemono'] | dl=617
+
+NAME: Fluffy Pop
+URL: https://civitai.red/models/298862
+ID: 298862 TYPE: Checkpoint NSFW: False DL: 176 UP: 38
+TAGS: furry, anime, character, anthro
+  vID=335669 | v1.0 | SD 1.5 | words=[] | dl=176
+
+NAME: Bunnies Revenge
+URL: https://civitai.red/models/1385375
+ID: 1385375 TYPE: Checkpoint NSFW: False DL: 238 UP: 34
+TAGS: subject, male, bimbo, midjourney, sexy, cartoon, cars, portrait, graphic design, fantasy, cartoonish, base model, woman, portraits, babes, girls
+  vID=1636706 | 1.1 Illustrious | Illustrious | words=['woman in a bunny costume with big fluffy ears'] | dl=138
+  vID=1565497 | 1.0 Pony | Pony | words=['woman in a bunny costume with big fluffy ears'] | dl=100
+
+NAME: Furry Vixens
+URL: https://civitai.red/models/17333
+ID: 17333 TYPE: Checkpoint NSFW: True DL: 25367 UP: 2653
+TAGS: girl, anime, penis, furry, semi-realistic, anthro, base model
+  vID=24209 | v2.0 | Other | words=['furry', 'anthro', 'fluffy', 'snout', 'gynomorph', 'nsfw'] | dl=22229
+  vID=24387 | v2.0 Baked VAE | Other | words=['anthro', 'furry', 'fluffy', 'gynomorph', 'nsfw'] | dl=2235
+  vID=20492 | v1.0 | Other | words=['furry', 'anthro', 'nsfw', 'snout'] | dl=903
+
+NAME: TailMixV1
+URL: https://civitai.red/models/316707
+ID: 316707 TYPE: Checkpoint NSFW: False DL: 413 UP: 55
+TAGS: animals, tail, transformation, digital art, anthro, realistic, furry, concept
+  vID=355211 | v1.0 | SD 1.5 | words=['tail ', 'scaly tail', 'tufted tail', 'furry tail', 'horse tail', 'fluffy tail'] | dl=413
+
+NAME: Neko++
+URL: https://civitai.red/models/1193320
+ID: 1193320 TYPE: Checkpoint NSFW: True DL: 259 UP: 31
+TAGS: deergirl, pony, mousegirl, merge, base model, kitsune, catgirl, cinematic, doggirl, bunnygirl, nekomimi, realistic, photographic, neko, ponyxl, monstergirl
+  vID=1343568 | v1.0 - Pony | Pony | words=['cat ears, tail, (paws), claws', 'dog ears, tail, fangs, (paws), claws', 'fox ears, tail, paws', 'deer ears, spotted skin, hooves', 'mouse ears, tail, paws, claws', 'bunny ears, (paws), fluffy tail', 'collar', 'fangs'] | dl=259
+
+=== QUERY nova furry pony type=Checkpoint items=20 ===
+
+NAME: Nova Furry XL
+URL: https://civitai.red/models/503815
+ID: 503815 TYPE: Checkpoint NSFW: False DL: 278487 UP: 15746
+TAGS: furry, anthro, 3d, sexy, yiff, base model, feral, 2d, sdxl, animals, xl, 2.5, woman, furry style
+  vID=2943166 | IL v18.0 A | Illustrious | words=[] | dl=15815
+  vID=2943191 | IL v18.0 B | Illustrious | words=[] | dl=4435
+  vID=2792241 | IL v17.0 | Illustrious | words=[] | dl=28888
+  vID=2690353 | IL v16.0 | Illustrious | words=[] | dl=19134
+  vID=2642038 | IL v15.5 | Illustrious | words=[] | dl=11221
+  vID=2575904 | IL v15.0 | Illustrious | words=[] | dl=13946
+  vID=2484701 | IL v14.0 | Illustrious | words=[] | dl=16702
+  vID=2395247 | IL v13.5 | Illustrious | words=[] | dl=10485
+
+NAME: Nova Furry AM
+URL: https://civitai.red/models/2619104
+ID: 2619104 TYPE: Checkpoint NSFW: False DL: 8314 UP: 627
+TAGS: feral, animals, yiff, sexy, 3d, woman, anthro, furry, 2d, anima, 2.5, furry style, base model
+  vID=3105448 | v3.0 | Anima | words=[] | dl=3506
+  vID=3034024 | v2.0 | Anima | words=[] | dl=2477
+  vID=2940604 | v1.0 | Anima | words=[] | dl=2331
+
+NAME: Nova Furry Semi-Realistic | KindaRealMix
+URL: https://civitai.red/models/2683862
+ID: 2683862 TYPE: Checkpoint NSFW: True DL: 374 UP: 90
+TAGS: furry, new, anthro, mudtardmix, merge, realistic, perfection realistic, nova furry, base model
+  vID=3013568 | KindaRealmix v1.0 | Illustrious | words=[] | dl=374
+
+NAME: Indigo Furry NOVA
+URL: https://civitai.red/models/2387551
+ID: 2387551 TYPE: Checkpoint NSFW: True DL: 1111 UP: 269
+TAGS: indigo furry, furry, xl, merge, nsfw, nova furry, mustardmix, sfw, base model
+  vID=3135419 | Nova Base v2.0 | Illustrious | words=[] | dl=335
+  vID=2684686 | Nova Base v1.0 | Illustrious | words=[] | dl=776
+
+NAME: Illustrious SNAFU - Super Nova Anime-Furry Unified
+URL: https://civitai.red/models/1194136
+ID: 1194136 TYPE: Checkpoint NSFW: True DL: 1265 UP: 187
+TAGS: nsfw, furry, detailed, sfw, style, anime
+  vID=1344501 | ILXL SNAFU v1.0 | Illustrious | words=[] | dl=1265
+
+NAME: WAI-ANI-Illustrious X NOVA FURRY 50 : 50 blend
+URL: https://civitai.red/models/1346844
+ID: 1346844 TYPE: Checkpoint NSFW: True DL: 998 UP: 108
+TAGS: concept
+  vID=1521154 | v1.0 | Illustrious | words=[] | dl=998
+
+NAME: Nova Anime XL
+URL: https://civitai.red/models/376130
+ID: 376130 TYPE: Checkpoint NSFW: False DL: 460036 UP: 18844
+TAGS: anime, colorful, illustration, 2d, digital art, xl, landscape, base model, sdxl, model, fantasy, 2.5d
+  vID=2940478 | IL v19.0 | Illustrious | words=[] | dl=64019
+  vID=2837020 | IL v18.0 | Illustrious | words=[] | dl=32036
+  vID=2741698 | IL V17.0 | Illustrious | words=[] | dl=33104
+  vID=2648201 | IL v16.0 | Illustrious | words=[] | dl=24837
+  vID=2553832 | IL v15.0 | Illustrious | words=[] | dl=25032
+  vID=2456367 | IL v14.0 | Illustrious | words=[] | dl=21527
+  vID=2392184 | IL v13.0 | Illustrious | words=[] | dl=13974
+  vID=2314354 | IL v12.5 | Illustrious | words=[] | dl=18248
+
+NAME: Nova 3DCG XL
+URL: https://civitai.red/models/715287
+ID: 715287 TYPE: Checkpoint NSFW: False DL: 105743 UP: 8531
+TAGS: doll, hentai, digital art, model, 3d, xl, sdxl, colorful, illustration, base model, 2.5d, 3dcg, cg, fantasy, landscape
+  vID=2744564 | IL v9.0 | Illustrious | words=[] | dl=24849
+  vID=2487967 | IL v8.0 | Illustrious | words=[] | dl=16157
+  vID=2295031 | IL v7.0 | Illustrious | words=[] | dl=11430
+  vID=2193476 | Illustrious v6.0 | Illustrious | words=[] | dl=10935
+  vID=2108220 | Illlustrious v5.0 | Illustrious | words=[] | dl=9012
+  vID=1989580 | Illustrious v4.0 | Illustrious | words=[] | dl=10317
+  vID=1818153 | Illustrious v3.0 | Illustrious | words=[] | dl=7976
+  vID=1696417 | Illustrious v2.0 | Illustrious | words=[] | dl=4568
+
+NAME: Nova Orange XL
+URL: https://civitai.red/models/967405
+ID: 967405 TYPE: Checkpoint NSFW: False DL: 108246 UP: 7105
+TAGS: digital art, model, sdxl, base model, anime, fantasy, 2.5d, landscape, xl, colorful, illustration, 2d
+  vID=2945776 | REX v1.0 | Illustrious | words=[] | dl=5993
+  vID=2784048 | EX v2.0 | Illustrious | words=[] | dl=8650
+  vID=2672639 | EX v1.0 | Illustrious | words=[] | dl=6095
+  vID=2644912 | EX v0.8 | Illustrious | words=[] | dl=2587
+  vID=2559632 | v14.0 | Illustrious | words=[] | dl=6407
+  vID=2521788 | RE v4.0 | Illustrious | words=[] | dl=3234
+  vID=2424898 | v13.0 | Illustrious | words=[] | dl=4175
+  vID=2350462 | RE v3.0 | Illustrious | words=[] | dl=4053
+
+NAME: Nova Cartoon XL
+URL: https://civitai.red/models/1570391
+ID: 1570391 TYPE: Checkpoint NSFW: False DL: 40421 UP: 4346
+TAGS: colorful, digital art, illustration, base model, model, fantasy, xl, sdxl, landscape, toon, cartoon
+  vID=2329740 | v6.0 | Illustrious | words=[] | dl=14203
+  vID=2203125 | v5.0 | Illustrious | words=[] | dl=5884
+  vID=2111266 | v4.0 | Illustrious | words=[] | dl=6009
+  vID=2031260 | v3.0 | Illustrious | words=[] | dl=5476
+  vID=1903527 | v2.0 | Illustrious | words=[] | dl=4971
+  vID=1777060 | v1.0 | Illustrious | words=[] | dl=3878
+
+NAME: Nova Reality XL
+URL: https://civitai.red/models/453428
+ID: 453428 TYPE: Checkpoint NSFW: False DL: 104796 UP: 3733
+TAGS: base model, photorealistic, landscape, ponyxl, xl, realism, sdxl, photorealism, fantasy, realistic, model, photo
+  vID=2439763 | IL v9.0 | Illustrious | words=[] | dl=42021
+  vID=2439777 | IL v9.0 DMD2 | Illustrious | words=[] | dl=1460
+  vID=2311163 | Illustrious v8.0 | Illustrious | words=[] | dl=6509
+  vID=2199790 | Illustrious v7.0 | Illustrious | words=[] | dl=5711
+  vID=2108298 | Illustrious v6.0 | Illustrious | words=[] | dl=4364
+  vID=2010654 | Illustrious v5.0 | Illustrious | words=[] | dl=4266
+  vID=1797203 | Illustrious v4.0 | Illustrious | words=[] | dl=4186
+  vID=1605991 | Illustrious v3.0 | NoobAI | words=[] | dl=5596
+
+NAME: Nova Animal XL
+URL: https://civitai.red/models/784543
+ID: 784543 TYPE: Checkpoint NSFW: False DL: 44302 UP: 3386
+TAGS: 3d, sexy, feral, yiff, realism, xl, woman, anthro, sdxl, furry style, base model, furry, animals
+  vID=2814977 | IL v12.0 | Illustrious | words=[] | dl=5830
+  vID=2639195 | IL v11.0 | Illustrious | words=[] | dl=4381
+  vID=2436591 | IL v10.0 | Illustrious | words=[] | dl=3312
+  vID=2356377 | IL v9.0 | Illustrious | words=[] | dl=2472
+  vID=2245910 | Illustrious v8.0 | Illustrious | words=[] | dl=2953
+  vID=2142667 | Illustrious v7.0 | Illustrious | words=[] | dl=2592
+  vID=2048137 | Illustrious v6.0 | Illustrious | words=[] | dl=2616
+  vID=1943204 | Illustrious v5B | Illustrious | words=[] | dl=2368
+
+NAME: Nova Asian XL
+URL: https://civitai.red/models/641919
+ID: 641919 TYPE: Checkpoint NSFW: True DL: 44561 UP: 2677
+TAGS: photo, photorealistic, model, realism, realistic, photorealism, base model, xl, landscape, ponyxl, sdxl, fantasy, asian
+  vID=2311249 | Illustrious v7.0 | Illustrious | words=[] | dl=8042
+  vID=2199835 | Illustrious v6.0 | Illustrious | words=[] | dl=3678
+  vID=2111220 | Illustrious v5.0 | Illustrious | words=[] | dl=3242
+  vID=2017496 | Illustrious v4.0 | Illustrious | words=[] | dl=3262
+  vID=1805431 | Illustrious v3.0 | Illustrious | words=[] | dl=3991
+  vID=1668214 | Illustrious v2.0 | Illustrious | words=[] | dl=2919
+  vID=1546196 | Illustrious v1.0 | NoobAI | words=[] | dl=1937
+  vID=1076213 | v5.0 | Pony | words=[] | dl=8192
+
+NAME: Nova Mature XL
+URL: https://civitai.red/models/1859777
+ID: 1859777 TYPE: Checkpoint NSFW: False DL: 26223 UP: 2538
+TAGS: base model, colorful, landscape, 2d, illustration, anime, digital art, model, fantasy, xl, sdxl, 2.5d
+  vID=2579194 | v4.0 | Illustrious | words=[] | dl=8842
+  vID=2307669 | v3.5 | Illustrious | words=[] | dl=7227
+  vID=2288715 | v3.0 | Illustrious | words=[] | dl=2307
+  vID=2189803 | v2.0 | Illustrious | words=[] | dl=4155
+  vID=2104871 | v1.0 | Illustrious | words=[] | dl=3692
+
+NAME: Nova Kemono XL
+URL: https://civitai.red/models/1641408
+ID: 1641408 TYPE: Checkpoint NSFW: False DL: 32517 UP: 2441
+TAGS: anthro, furry style, base model, animals, 3d, feral, woman, sdxl, xl, sexy, yiff, 2.5, 2d, furry
+  vID=2765021 | v8.0 | Illustrious | words=[] | dl=14000
+  vID=2579173 | v7.0 | Illustrious | words=[] | dl=2701
+  vID=2445442 | v6.5B | Illustrious | words=[] | dl=1610
+  vID=2395207 | v6.0 B | Illustrious | words=[] | dl=1269
+  vID=2362091 | v6.0 | Illustrious | words=[] | dl=1580
+  vID=2268940 | v5.0 | Illustrious | words=[] | dl=2790
+  vID=2176488 | v4.0 | Illustrious | words=[] | dl=2121
+  vID=2100843 | v3.0 | Illustrious | words=[] | dl=1702
+
+NAME: Nova Anime3D XL
+URL: https://civitai.red/models/1518336
+ID: 1518336 TYPE: Checkpoint NSFW: False DL: 28076 UP: 2312
+TAGS: anime, 2.5d, landscape, illustration, gacha, model, base model, xl, sdxl, doll, digital art, colorful, 3d, fantasy, 3dcg, cg
+  vID=2750313 | v7.0 | Illustrious | words=[] | dl=5700
+  vID=2380133 | v6.0 | Illustrious | words=[] | dl=4311
+  vID=2196595 | v5.0 | Illustrious | words=[] | dl=3827
+  vID=2108249 | v4.0 | Illustrious | words=[] | dl=3977
+  vID=2006937 | v3.0 | Illustrious | words=[] | dl=5132
+  vID=1829347 | v2.0 | Illustrious | words=[] | dl=3148
+  vID=1717829 | v1.0 | Illustrious | words=[] | dl=1981
+
+NAME: Nova Flat XL
+URL: https://civitai.red/models/1240874
+ID: 1240874 TYPE: Checkpoint NSFW: False DL: 29033 UP: 2213
+TAGS: fantasy, 2d, anime, landscape, sdxl, base model, xl, digital art, illustration, colorful, model
+  vID=2610015 | v9.0 | Illustrious | words=[] | dl=7095
+  vID=2359319 | v8.0 | Illustrious | words=[] | dl=3089
+  vID=2239607 | v7.0 | Illustrious | words=[] | dl=2507
+  vID=2139444 | v6.0 | Illustrious | words=[] | dl=2671
+  vID=2048108 | v5.0 | Illustrious | words=[] | dl=3233
+  vID=1928606 | v4.0 | Illustrious | words=[] | dl=2906
+  vID=1801281 | v3.0 | Illustrious | words=[] | dl=2518
+  vID=1650576 | v2.0 | Illustrious | words=[] | dl=2710
+
+NAME: Nova Unreal XL
+URL: https://civitai.red/models/982047
+ID: 982047 TYPE: Checkpoint NSFW: False DL: 28098 UP: 2150
+TAGS: colorful, digital art, 2d, semi-realistic, base model, 2.5d, illustration, xl, model, anime, landscape, sdxl, fantasy
+  vID=2410061 | v10.0 | Illustrious | words=[] | dl=5225
+  vID=2203076 | v9.0 | Illustrious | words=[] | dl=2995
+  vID=2111246 | v8.0 | Illustrious | words=[] | dl=1865
+  vID=2031208 | v7.0 | Illustrious | words=[] | dl=2262
+  vID=1813886 | v6.0 | Illustrious | words=[] | dl=2739
+  vID=1688338 | v5.0 | Illustrious | words=[] | dl=2031
+  vID=1445113 | v4.0 | Illustrious | words=[] | dl=2794
+  vID=1322095 | v3.0 | Illustrious | words=[] | dl=2535
+
+NAME: Nova Anime AM
+URL: https://civitai.red/models/2604424
+ID: 2604424 TYPE: Checkpoint NSFW: False DL: 34792 UP: 1482
+TAGS: fantasy, 2d, illustration, model, digital art, colorful, base model, anime, anima, 2.5d, landscape
+  vID=3201770 | v4.0 | Anima | words=[] | dl=4345
+  vID=3145814 | v3.0 A | Anima | words=[] | dl=6434
+  vID=3086321 | v3.0 | Anima | words=[] | dl=5945
+  vID=3018803 | v2.5 | Anima | words=[] | dl=6188
+  vID=2994532 | v2.0 | Anima | words=[] | dl=5041
+  vID=2957298 | v1.5 | Anima | words=[] | dl=4341
+  vID=2924415 | v1.0 | Anima | words=[] | dl=2498
+
+NAME: Nova Cross XL
+URL: https://civitai.red/models/436803
+ID: 436803 TYPE: Checkpoint NSFW: False DL: 15968 UP: 1372
+TAGS: xl, anime, colorful, digital art, illustration, 2.5d, fantasy, landscape, sdxl, base model, model
+  vID=2747469 | IL v.H | Illustrious | words=[] | dl=2884
+  vID=2406996 | IL v.G | Illustrious | words=[] | dl=1605
+  vID=2205956 | IL v.F | Illustrious | words=[] | dl=1809
+  vID=2112679 | IL v.E | Illustrious | words=[] | dl=1378
+  vID=2017427 | IL v.D | Illustrious | words=[] | dl=1762
+  vID=1833171 | IL v.C | Illustrious | words=[] | dl=1811
+  vID=1734155 | IL v.B | Illustrious | words=[] | dl=1378
+  vID=1373044 | IL v.A | Illustrious | words=[] | dl=1801
+
+=== QUERY yiffy pony type=Checkpoint items=2 ===
+
+NAME: Yiffy Dreams - Illustrious
+URL: https://civitai.red/models/2312202
+ID: 2312202 TYPE: Checkpoint NSFW: True DL: 1574 UP: 384
+TAGS: style
+  vID=2828168 | v2.0 | Illustrious | words=[] | dl=833
+  vID=2601390 | v1.0 | Illustrious | words=[] | dl=741
+
+NAME: Yiffy
+URL: https://civitai.red/models/1133
+ID: 1133 TYPE: Checkpoint NSFW: True DL: 1490 UP: 74
+TAGS: hentai, style
+  vID=1150 | E15 | SD 1.5 | words=[] | dl=1072
+  vID=1149 | E18 | SD 1.5 | words=[] | dl=418
+
+=== ID 1083611 ===
+NAME: Furry Deep Throat
+URL: https://civitai.red/models/1083611
+ID: 1083611 TYPE: LORA NSFW: True DL: 1132 UP: 240
+TAGS: anime, furry style, concept, oral, furry, furry male, cartoon, furry female
+  vID=1216753 | v1.0 | Pony | words=['furry_deepthroat'] | dl=1132
+
+=== ID 448716 ===
+NAME: boleromix(Pony)
+URL: https://civitai.red/models/448716
+ID: 448716 TYPE: Checkpoint NSFW: False DL: 48272 UP: 3677
+TAGS: base model
+  vID=2259232 | v2.33 | Pony | words=[] | dl=2958
+  vID=2106327 | v2.20 | Pony | words=[] | dl=1357
+  vID=1458666 | v2.10 | Pony | words=[] | dl=5060
+  vID=1161495 | v1.70 | Pony | words=[] | dl=5492
+  vID=1156233 | v1.51 | Pony | words=[] | dl=767
+  vID=920368 | v1.50(VAE) | Pony | words=[] | dl=8990
+  vID=629179 | v1.41 VAE | Pony | words=[] | dl=9555
+  vID=513252 | v1.4 | Pony | words=[] | dl=12245
+
+=== ID 535982 ===
+NAME: YiffPony
+URL: https://civitai.red/models/535982
+ID: 535982 TYPE: Checkpoint NSFW: False DL: 209 UP: 16
+TAGS: fluffy, rich, furry, assets, model, pony, yiffy, merge
+  vID=595838 | v1.0 | SDXL Lightning | words=[] | dl=209
+
+=== ID 29819 ===
+NAME: NeatNess Fluffy Fur Mix
+URL: https://civitai.red/models/29819
+ID: 29819 TYPE: Checkpoint NSFW: False DL: 19158 UP: 2374
+TAGS: anime, character, female, woman, furry
+  vID=2030380 | Eclipse (Pony XL) | Pony | words=[] | dl=1334
+  vID=920872 | Terra | SD 1.5 | words=['furry'] | dl=1129
+  vID=429527 | Alioth | SD 1.5 | words=[] | dl=1737
+  vID=207802 | Zephyr | SD 1.5 | words=[] | dl=2604
+  vID=134172 | Summer peaches | SD 1.5 | words=[] | dl=1920
+  vID=75878 | Nebula | SD 1.5 | words=[] | dl=3672
+  vID=68547 | Infinity | SD 1.5 | words=[] | dl=1670
+  vID=60649 | Unicorn edition  | SD 1.5 | words=[] | dl=1934
+
+=== ID 503815 ===
+NAME: Nova Furry XL
+URL: https://civitai.red/models/503815
+ID: 503815 TYPE: Checkpoint NSFW: False DL: 278487 UP: 15746
+TAGS: furry, anthro, 3d, sexy, yiff, base model, feral, 2d, sdxl, animals, xl, 2.5, woman, furry style
+  vID=2943166 | IL v18.0 A | Illustrious | words=[] | dl=15815
+  vID=2943191 | IL v18.0 B | Illustrious | words=[] | dl=4435
+  vID=2792241 | IL v17.0 | Illustrious | words=[] | dl=28888
+  vID=2690353 | IL v16.0 | Illustrious | words=[] | dl=19134
+  vID=2642038 | IL v15.5 | Illustrious | words=[] | dl=11221
+  vID=2575904 | IL v15.0 | Illustrious | words=[] | dl=13946
+  vID=2484701 | IL v14.0 | Illustrious | words=[] | dl=16702
+  vID=2395247 | IL v13.5 | Illustrious | words=[] | dl=10485
+
+=== ID 257749 ===
+NAME: Pony Diffusion V6 XL
+URL: https://civitai.red/models/257749
+ID: 257749 TYPE: Checkpoint NSFW: False DL: 1054537 UP: 76512
+TAGS: western art, base model, my little pony
+  vID=290640 | V6 (start with this one) | Pony | words=[] | dl=978923
+  vID=298112 | V6 Turbo DPO merge | Pony | words=[] | dl=23904
+  vID=297064 | V6-1.5 | SD 1.5 | words=[] | dl=34116

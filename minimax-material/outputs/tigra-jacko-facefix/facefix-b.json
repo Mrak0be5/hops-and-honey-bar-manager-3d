@@ -1,0 +1,38 @@
+{
+  "id": "aad20812-dd1b-4384-a89e-598237013e48",
+  "model": "unknown",
+  "inputs": {
+    "prompt": "Use the SAME character from the identity spritesheet and the face expression sheet. Do not redesign her.\n\nPreserve: anthropomorphic tigress, short sleek platinum-blonde bob with bangs, tiger ears through the hair, large amber eyes, pink feline nose, white cream muzzle, orange fur with crisp black stripes matching the spritesheet head close-up.\n\nChange ONLY: replace the incorrect face and long hair on the couch pose photo with this tigress's real face and short bob.\n\nKeep from the pose photo: jack-o inverted pose on the brown leather sofa, ass and hips up toward camera, head down at the bottom looking at the viewer upside-down, hanging breasts, glass anal plug inserted, visible vulva, striped tail aside, hind paws with pink pads beside her head, same living room, same window light, same plants, same picture frame, same camera, same art style.\n\nExpression: playful open-mouthed grin toward the viewer with teeth and tongue visible, amber eyes open and looking at camera, flushed lustful energy from the expression sheet, feline muzzle not a human face.\n\nEnd state: same scene as the pose photo, identity-locked tigress face from the sheets. Single 16:9 illustration, no text, no watermark, no multi-panel.\n",
+    "images_list": [
+      "https://tempfile.redpandaai.co/kieai/1335989/tigra-facefix-jacko/1786669544847-7699skxmrv2.png",
+      "https://tempfile.redpandaai.co/kieai/1335989/tigra-facefix-jacko/1786669542680-pj1rx3088o.png",
+      "https://tempfile.redpandaai.co/kieai/1335989/tigra-facefix-jacko/1786669546414-u2c3blgk4cc.png"
+    ],
+    "aspect_ratio": "16:9",
+    "resolution": "1K",
+    "submit_attempted_at": "2026-08-14T01:10:53.651143+00:00"
+  },
+  "outputs": [
+    "https://cdn.muapi.ai/outputs/generated/6031c08826804ee8bee67a236fc82d26.png"
+  ],
+  "urls": {
+    "get": "https://api.muapi.ai/api/v1/predictions/aad20812-dd1b-4384-a89e-598237013e48/result"
+  },
+  "has_nsfw_contents": [
+    false
+  ],
+  "status": "completed",
+  "created_at": "2026-08-14T01:10:53.602751+00:00",
+  "expires_at": "2026-09-13T01:10:53.602751+00:00",
+  "error": "",
+  "executionTime": 89702.305,
+  "timings": {
+    "inference": 89702.305
+  },
+  "cost": {
+    "amount_usd": 0.051,
+    "amount_credits": 4,
+    "bonus_credits_used": 0,
+    "refunded": false
+  }
+}

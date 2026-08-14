@@ -1,0 +1,25 @@
+{
+  "model": "alibaba/wan-3.0/reference-to-video",
+  "duration": 7,
+  "resolution": "480p",
+  "aspect_ratio": "16:9",
+  "thinking_mode": true,
+  "enable_audio": false,
+  "reference_images": [
+    "https://tempfile.redpandaai.co/kieai/1335989/wan30-jacko-dt-v2/1786648451355-z2bpd5d05dt.png",
+    "https://tempfile.redpandaai.co/kieai/1335989/wan30-jacko-dt-v2/1786648446620-nt1rbgsigp.jpg",
+    "https://tempfile.redpandaai.co/kieai/1335989/wan30-jacko-dt-v2/1786648449028-evvzxbcfu2f.jpg"
+  ],
+  "refs": {
+    "Image 1 pose lock": "https://tempfile.redpandaai.co/kieai/1335989/wan30-jacko-dt-v2/1786648451355-z2bpd5d05dt.png",
+    "Image 2 man": "https://tempfile.redpandaai.co/kieai/1335989/wan30-jacko-dt-v2/1786648446620-nt1rbgsigp.jpg",
+    "Image 3 penis": "https://tempfile.redpandaai.co/kieai/1335989/wan30-jacko-dt-v2/1786648449028-evvzxbcfu2f.jpg"
+  },
+  "local": {
+    "Image 1": "C:\\Users\\hebp\\AppData\\Local\\Temp\\jacko-pose-lock\\jacko-pose-lock-b.png",
+    "Image 2": "C:\\Users\\hebp\\galleries\\tigress-thread-gallery\\images\\refs\\wan30-tigra-r2v-7s-jacko-dt\\02-image-2-man.jpg",
+    "Image 3": "C:\\Users\\hebp\\galleries\\tigress-thread-gallery\\images\\refs\\wan30-tigra-r2v-7s-jacko-dt\\03-image-3-penis.jpg"
+  },
+  "alt_image1_A": "https://tempfile.redpandaai.co/kieai/1335989/jacko-pose-lock/1786647952307-6s4hf8h8ogi.png",
+  "prompt_file": "minimax-material/prompts/wan30-jacko-dt-v2.txt"
+}

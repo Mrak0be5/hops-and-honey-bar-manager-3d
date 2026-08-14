@@ -1,0 +1,317 @@
+Found 122 total models:
+
+=== (Pony+XL) muzzle mask (ID: 480974) ===
+   vID: 944409 | ilxl_v1.0 | Base: Illustrious | Words: ['muzzle']
+   vID: 534902 | pony_v1.0 | Base: Pony | Words: ['muzzle_mask']
+
+=== Liam (Dislyte) [Illustrious / Pony] (ID: 730580) ===
+   vID: 1476242 | Illustrious | Base: Illustrious | Words: ['liam, dislyte', 'anthro, solo, 1boy, weapon, male focus, male, sword, hi res, clothing, long hair, pants, pink hair, pink eyes, colored skin, spikes, abs, armor, shoulder armor, jewelry, furry, furry male, pink claws, muscular, black hair', 'muzzle, mask']
+   vID: 816960 | Pony | Base: Pony | Words: ['Liam', 'Dislyte']
+
+=== Swiper the Fox (Dora the Explorer) (ID: 833461) ===
+   vID: 932448 | V1 | Base: Pony | Words: ['yellow_eyebrows', 'sharp_teeth', 'Swiper_the_fox', 'black_nose', 'black_eyes', 'green_eyes', 'orange_fur', 'yellow_muzzle', 'whiskers', 'yellow_belly', 'blue_bandana_mask', 'blue_gloves', 'bushy_tail']
+
+=== Sonic Characters Pony+Ilustrious Edition (ID: 503140) ===
+   vID: 1354701 | Honey The Cat | Base: Pony | Words: ['Honey The Cat', 'Sonic_The_Hedgehog_(series),Yellow Fur,Black Eyes,Black Hair,Pointy Ears,Thin Cat Tail,Black Tipped Tail,voluminous pigtails']
+   vID: 1201476 | Ilustrious Blaze | Base: Illustrious | Words: ['Blaze The Cat_\\(sonic\\)', 'Golden Eyes, Lavender, violet, white fur, Pointy triangular ears with peach-colored canals, long violet tipped tail, four plumes of hair with violet tips tied-up into a high ponytail by a red hair tie, Red oval gem on forehead, furry cat girl']
+   vID: 1188916 | Ilustrious Rouge | Base: Illustrious | Words: ['Rouge The Bat_\\(Sonic\\)', 'powder-blue eyeshadow,turquoise-green eyes,white fur,Tan Skin,Large pointy ears,pair of dark purple wings on back,Short Pointy Tail,curvy figure']
+   vID: 1185328 | Ilustrious Sally | Base: Illustrious | Words: ['Sally Acorn_\\(Sonic\\)', 'Red Hair,Blue Eyes,Brown Fur,Short Tail,Furry Anthro chipmunk Girl']
+   vID: 1152500 | Queen Aleena | Base: Pony | Words: ['Queen Aleena_\\(sonic Underground\\)', 'Dark Purple Hair,Hedgehog girl,Anthro Furry,Light Purple Skin,Emerald Green Eyes']
+   vID: 917723 | Tangle The Lemur | Base: Pony | Words: ['Tangle The Lemur Form Sonic The Hedgehog_(series)', 'orchid-purple eyes with dark gray eyelids and one thin eyelash each', "a small black nose, and who's fur has a color scheme that leans more to a Coquerel's sifaka", 'Her fur is light gray, with her muzzle, between her eyes and on her round ears are colored in a darker, silver-like shade of gray', 'large bushy tail being striped in two shades of gray', 'Her fur also formed tufts on top of her head, both of her cheeks, and on her chest.(']
+   vID: 1114792 | Cosmo The Plant Girl | Base: Pony | Words: ['Cosmo_(Sonic The Hedgehog series)', 'pale peach skin,Powder Blue Eyes, short bright green hair with a pair of bangs,and a pair of paradise pink rose-like flower buds held,golden hair ties on each side Of The Head']
+   vID: 1006427 | Trip The Sungazer | Base: Pony | Words: ['Trip The Sungaze Form Sonic The Hedgehog_(series)', 'Female Anthro Lizard Furry', 'Tail', 'Multicolored Skin', ' orange and red fur', 'yellow horns across the head', 'Pointy Nose', 'Red Nose', 'Magenta Eyes']
+   vID: 1145330 | Sonia The Hedgehog | Base: Pony | Words: ['Sonia the Hedgehog \\(Sonic Underground\\),', 'Hedgehog Girl,bright fuchsia fur,Pink Hair,Black Eyes']
+   vID: 921914 | Whisper The Wolf | Base: Pony | Words: ['Whisper The Wolf Form Sonic The Hedgehog_(Series)', 'brown fur covering the muzzle', 'thick black eyelashes', 'cloudy white fur mask around her eyes ', 'Biscotti Fur Covering The Body', 'Long bushy tail with tufts sticking out', 'long-pointed ears', 'Black nose']
+   vID: 1138191 | Bunnie Rabbot | Base: Pony | Words: ['Bunnie Rabbot \\(SatAM\\)', 'Light orange-blonde, white Fur,Emerald green eyes, Light Purple Eye Shadow,Dark Purple fur around the eyes, single Mechanical Left arm,Mechanical Legs,Rabbit Girl,Long Ears']
+   vID: 791096 | Metal Sonic | Base: Pony | Words: ['Metal Sonic Form Sonic The Hedgehog_(Series)']
+   vID: 759368 | Chip "whip" | Base: Pony | Words: ['Chip Form Sonic The Hedgehog (Series)']
+   vID: 738161 | Melody Prower | Base: Pony | Words: ['Melody The Mongoose Form Sonic The Hedgehog_(series), ((mongoose))']
+   vID: 722389 | E-123 Omega Robot | Base: Pony | Words: ['E-123 Omega The Robot Form Sonic The Hedgehog (Series)']
+   vID: 719023 | Rosemary Prower | Base: Pony | Words: ['Rosemary The Fox Form Sonic The Hedgehog (Series)']
+   vID: 717000 | Alicia Acorn | Base: Pony | Words: ['Alicia Acorn From Sonic The Hedgehog (Series)']
+   vID: 713596 | Sticks The Badger | Base: Pony | Words: ['Sticks The Badger Form Sonic The Hedgehog (series)']
+   vID: 708529 | Hershey The Cat | Base: Pony | Words: ['Hershey The Cat Form Sonic The Hedgehog (Series)']
+   vID: 706147 | Lupe The Wolf | Base: Pony | Words: ['Lupe The Wolf Form Sonic The Hedgehog (Series),']
+   vID: 698747 | Fiona The Fox | Base: Pony | Words: ['Fiona The Fox Form Sonic The Hedgehog (series)']
+   vID: 698080 | Barby The Koala | Base: Pony | Words: ['Barbie the koala form sonic the hedgehog (series)']
+   vID: 696125 | Julie_Su The Echinda | Base: Pony | Words: ['Julie-su The Echinda form sonic the hedgehog (series),']
+   vID: 692847 | Wave The Swallow | Base: Pony | Words: ['Wave The Swallow_(sonic series)']
+   vID: 687900 | Surge The Tenrec | Base: Pony | Words: ['SurgeXL']
+   vID: 685429 | Shadow The Hedgehog | Base: Pony | Words: ['shadow the hedgehog, furry female gloves, red eyes, white gloves, animal ears, animal nose, female focus, smile, closed mouth, open mouth, black fur, red fur, black body fur, ']
+   vID: 680617 | Sally Acorn | Base: Pony | Words: ['Sally Acorn form sonic the hedgehog (series)']
+   vID: 676375 | Mina The Mongoose | Base: Pony | Words: [',Mina The Mongoose form sonic the hedgehog (series)']
+   vID: 671851 | Marine The Racoon | Base: Pony | Words: ['Marine the raccoon from the Sonic The Hedgehog (series)']
+   vID: 667062 | Tikal The Echinda | Base: Pony | Words: [' tikal the echidna from sonic (series)']
+   vID: 664643 | Vanilla The Rabbit | Base: Pony | Words: ['Vanilia The Rabbit Form Sonic The Hedgehog (series)']
+   vID: 659726 | Sonic The Hedgehog | Base: Pony | Words: ['SonicXL', 'Sonic (sonic the hedgehog series)']
+   vID: 657466 | Miles 'Tails' Prower | Base: Pony | Words: ['Tails_\\(Sonic\\)']
+   vID: 608828 | Nicole The Lynx | Base: Pony | Words: ['LynxXL', 'Nicole the Lynx']
+   vID: 570464 | Blaze The Cat | Base: Pony | Words: ['Blaze The Cat Form Sonic The Hedgehog (series)']
+   vID: 563245 | Amy Rose The Hedgehog | Base: Pony | Words: ['AmyRoseXL']
+   vID: 559232 | Rouge The Bat | Base: Pony | Words: ['Rouge The Bat Form Sonic The Hedgehog (Series)']
+
+=== Lady (Lady and the Tramp 2019) (ID: 1540300) ===
+   vID: 1742806 | V1 | Base: Pony | Words: ['four legs, Tan colored muzzle, real life, lady, Turquoise blue collar, Lady, Dog, black nose, brown fur ears, Cocker Spaniel, tan colored muzzle, gold heart shaped dog tag, cocker spaniel, beige fur']
+
+=== Mawshots Lora (ID: 1502976) ===
+   vID: 1758455 | v1.2 | Base: Illustrious | Words: ['maw_shot']
+   vID: 1709703 | v1.1 | Base: Pony | Words: ['maw_shot']
+   vID: 1700274 | V1 | Base: Pony | Words: ['Maw_Shot']
+
+=== Pony + Illustrious) Open Mouth / Maw Shot (Commission) (ID: 941860) ===
+   vID: 1395881 | v2 PonyXL | Base: Pony | Words: ['open mouth, uvula, tongue, saliva, teeth,', '1girl, solo,', 'close up,', 'bust shot,', "(Make sure to describe the person's appearance at least a little if you don't want it to just be the mouth)", 'tongue out,', 'fangs,']
+   vID: 1352006 | [Illustrious] v2 | Base: Illustrious | Words: ['open mouth, uvula, tongue, saliva, teeth, ', '1girl, solo,', 'close up,', 'bust shot,', "(Make sure to describe the person's appearance at least a little if you don't want it to just be the mouth)", 'tongue out, ', 'fangs,']
+   vID: 1054409 | V1[perfect pony] | Base: Pony | Words: ['open mouth, tongue, teeth, uvula, maw shot,', 'open mouth, tongue, teeth, uvula, face shot, ', 'open mouth, tongue, teeth, uvula, bust shot,', 'looking at viewer, solo,']
+
+=== Rookiex (ID: 866248) ===
+   vID: 969332 | V1 | Base: Pony | Words: ['opening mouth wide, mouth shot, mawshot, uvula, tongue, close up of throat, multiple views, inside throat view, close up of mouth, close up of throat ']
+
+=== Maw Rocket (ID: 1094445) ===
+   vID: 2045518 | IL | Base: Illustrious | Words: ['Ma_R(GotG)', 'raccoon, brown and black fur, white snout, Bushy raccoon tail, blue eyes, black hands, black feet,', 'green body suit, sleeveless,']
+   vID: 1229294 | Pony | Base: Pony | Words: ['Ma_R(GotG)', 'Brown and black fur, white muzzle, bushy tail, blue eyes, black hands, black feet, ', 'Sleeveless, green bodysuit, ']
+
+=== Maw Barker (ID: 1327988) ===
+   vID: 1499371 | V1 | Base: Pony | Words: ['Maw_Barker']
+
+=== Realistic Orca Maws [Concept] (ID: 1037629) ===
+   vID: 1163893 | V1 | Base: Pony | Words: ['orca-maw']
+
+=== FURRY BABES [Pony & illustrious LoRAs] (ID: 1057628) ===
+   vID: 1505512 | Temmie | Base: Illustrious | Words: ['temmie_undertale']
+   vID: 1410685 | Meowscarada | Base: Illustrious | Words: ['meowscarada_illust']
+   vID: 1300201 | Maid Marian | Base: Illustrious | Words: ['maid_marian, 1girl, furry female, furry']
+   vID: 1186941 | Toriel | Base: Pony | Words: ['Toriel']
+   vID: 1505488 | Taokaka | Base: Illustrious | Words: ['taokaka_illust']
+   vID: 1505510 | Nala | Base: Illustrious | Words: ['Nala_lion_king']
+   vID: 1505505 | Ivy Pepper | Base: Illustrious | Words: ['ivy_pepper_illust']
+   vID: 1505502 | Mewtwo | Base: Illustrious | Words: ['mewtwo_illust']
+   vID: 1505495 | Shiboline M'Ress | Base: Illustrious | Words: ["Shiboline_m'ress"]
+   vID: 1505485 | Blaziken | Base: Illustrious | Words: ['blaziken_illust']
+   vID: 1505478 | Espeon | Base: Illustrious | Words: ['espeon_illust']
+   vID: 1505475 | Goodra | Base: Illustrious | Words: ['goodra_illust']
+   vID: 1505469 | Leafeon | Base: Illustrious | Words: ['leafeon_illust']
+   vID: 1505465 | Absol | Base: Illustrious | Words: ['absol_illust']
+   vID: 1505458 | Flareon | Base: Illustrious | Words: ['flareon_illust']
+   vID: 1505455 | Mienshao | Base: Illustrious | Words: ['mienshao_illust']
+   vID: 1505451 | Arcanine | Base: Illustrious | Words: ['arcanine_illust']
+   vID: 1410573 | Diane Foxington | Base: Illustrious | Words: ['diane_foxington_illust']
+   vID: 1410682 | Vaporeon | Base: Illustrious | Words: ['vaporeon_illust, blue_body, tail']
+   vID: 1410678 | Jolteon | Base: Illustrious | Words: ['jolteon_illust, yellow_body, fur, yellow_fur, clothing']
+   vID: 1410674 | Reshiram | Base: Illustrious | Words: ['reshiram_illust, blue_eyes, white_body, white_fur, clothing']
+   vID: 1410671 | Umbreon | Base: Illustrious | Words: ['umbreon_illust, black_body, fur, black_fur, red_sclera, markings, tail, clothing']
+   vID: 1410668 | Sylveon | Base: Illustrious | Words: ['sylveon_illust, fur, pink_body, white_body, pink_fur, white_fur, ribbons, blue_eyes, clothing']
+   vID: 1410664 | Zoroark | Base: Illustrious | Words: ['zoroark_illust, fur, red_hair, grey_body, black_fur, grey_fur, clothing']
+   vID: 1410658 | Midnight Lycanroc | Base: Illustrious | Words: ['midnight_lycanroc_illust, red_body, red_fur, white_body, white_fur, claws, red_eyes']
+   vID: 1410654 | Rumi Usagiyama | Base: Illustrious | Words: ['rumi_usagiyama_illust', 'hero_outfit']
+   vID: 1410639 | Solar Flare | Base: Illustrious | Words: ['solar_flare_pvz, flower, plant, eyewear_on_head, goggles_on_head, freckles, green_body, eyelashes', 'clothed, clothing']
+   vID: 1410637 | Sticks the Jungle Badger | Base: Illustrious | Words: ['sticks_the_jungle_badger, orange_body, blue_eyes', 'clothed, clothing']
+   vID: 1410632 | Kitty Katswell | Base: Illustrious | Words: ['kitty_katswell, green_eyes, black_hair, accessory', 'clothing, clothed']
+   vID: 1410628 | Flora (Twokinds) | Base: Illustrious | Words: ['flora_twokinds, stripes, striped_body, striped_fur, tail, brown_hair, orange_body, orange_fur, white_body, white_fur, yellow_eyes']
+   vID: 1410618 | Spot (Jayrnski) | Base: Illustrious | Words: ['spot_jayrnski, red_clothing, clothed, collar, clothing, dress, floppy_ears, eyelashes, markings, facial_markings, head_markings, red_dress']
+   vID: 1410608 | Lopunny | Base: Illustrious | Words: ['lopunny, brown_body, brown_fur, fur, big_breasts, thick_thighs']
+   vID: 1410604 | Lanya | Base: Illustrious | Words: ['lanya_lcshian, horn, purple_hair, blue_eyes, long_hair', 'kemono, clothed, clothing']
+   vID: 1410600 | Ippan Josei | Base: Illustrious | Words: ['ippan_josei, blonde_hair, blue_eyes, hair_accessory, accessory, hairband, anthro, furry, furry female']
+   vID: 1410589 | Blaze the Cat | Base: Illustrious | Words: ['blaze_the_cat, anthro, furry, furry female']
+   vID: 1410579 | Cinderace | Base: Illustrious | Words: ['cinderace_illust']
+   vID: 1410571 | Gazelle (Zootopia) | Base: Illustrious | Words: ['gazelle_zootopia_illust']
+   vID: 1410549 | Salazzle | Base: Illustrious | Words: ['salazzle_illust']
+   vID: 1410542 | Goat Lucifer | Base: Illustrious | Words: ['goat_lucifer_helltaker']
+   vID: 1410538 | Braixen | Base: Illustrious | Words: ['braixen_illust']
+   vID: 1410531 | Camille (fortnite) | Base: Illustrious | Words: ['camille_fortnite']
+   vID: 1410527 | Kimiko Five Tails | Base: Illustrious | Words: ['kimiko_fivetails']
+   vID: 1300463 | Queen Bee | Base: Illustrious | Words: ['queen_bee-lzebub_helluva_boss, anthro, female, 4_arms']
+   vID: 1300456 | Princess Luna | Base: Illustrious | Words: ['nightmare_moon_mlp, anthro, female']
+   vID: 1300450 | Noelle Holiday | Base: Illustrious | Words: ['noelle_holiday, female, anthro']
+   vID: 1300443 | Mae Borowski | Base: Illustrious | Words: ['mae_borowski, anthro, female']
+   vID: 1300430 | Fang | Base: Illustrious | Words: ['fang_gvh, female, anthro']
+   vID: 1300426 | Anubis | Base: Illustrious | Words: ['anubis, anthro, female']
+   vID: 1300421 | Susie | Base: Illustrious | Words: ['susie_deltarune, anthro, female']
+   vID: 1300411 | Sally Acorn | Base: Illustrious | Words: ['sally_acorn, anthro, female']
+   vID: 1300403 | Rivet | Base: Illustrious | Words: ['rivet_ratchet_and_clank, anthro, female']
+   vID: 1300396 | Nicole Watterson | Base: Illustrious | Words: ['nicole_watterson, anthro, female']
+   vID: 1300392 | Midna | Base: Illustrious | Words: ['midna, female, solo']
+   vID: 1300387 | Master Tigress | Base: Illustrious | Words: ['master_tigress, anthro, female']
+   vID: 1300375 | Cream the Rabbit | Base: Illustrious | Words: ['cream_the_rabbit, anthro, female, clothing']
+   vID: 1300370 | Coco | Base: Illustrious | Words: ['coco_bandicoot, anthro, female']
+   vID: 1300354 | Ankha | Base: Illustrious | Words: ['ankha_animal_crossing, anthro, female']
+   vID: 1300350 | Alphys | Base: Illustrious | Words: ['alphys, anthro, eyewear, female, glasses, white lab coat']
+   vID: 1300343 | Loona | Base: Illustrious | Words: ['loona_helluva_boss, furry, furry female']
+   vID: 1300339 | Wavern | Base: Illustrious | Words: ['bakugan_wavern, furry, furry female']
+   vID: 1300327 | Angela flux | Base: Illustrious | Words: ['angela_flux, furry female, furry']
+   vID: 1300321 | Amy Rose | Base: Illustrious | Words: ['amy_rose, furry female, furry', 'red hairband, red dress, dress']
+   vID: 1300317 | Cynder | Base: Illustrious | Words: ['v1cynder, furry, furry female']
+   vID: 1300311 | Tasque Manager | Base: Illustrious | Words: ['tasque_manager, blue fur, white top, black leggings, blue buttons, furry']
+   vID: 1300303 | Sisu | Base: Illustrious | Words: ['sisu_ratld, solo, horns, 1girl, furry']
+   vID: 1300292 | Scp_1471 | Base: Illustrious | Words: ['scp_1471, 1girl, breasts, animal ears, furry, furry female']
+   vID: 1300264 | Sandy Cheeks | Base: Illustrious | Words: ['sandy_cheeks, furry, full suit']
+   vID: 1300257 | Pirate Tawna | Base: Illustrious | Words: ['pirate_tawna, furry, 1girl, furry female, biker jacket, pink inner shirt, hanging belt']
+   vID: 1300254 | Krystal | Base: Illustrious | Words: ['krystal_star_fox, 1girl, furry, furry female, animal ears, blue fur']
+   vID: 1300249 | Katia Managan | Base: Illustrious | Words: ['katia_managan, furry, furry female']
+   vID: 1300244 | Hornet | Base: Illustrious | Words: ['hornet_hollow_knight']
+   vID: 1300234 | Waai Fu | Base: Illustrious | Words: ['waaifu_arknights, 1girl, animal ears, furry female, furry, tiger ears']
+   vID: 1300222 | Porsha Crystal | Base: Illustrious | Words: ['porsha_crystal, 1girl, furry, furry female']
+   vID: 1300207 | apogee | Base: Illustrious | Words: ['apogee_tinygaypirate, 1girl, solo, animal ears, furry female, furry, long hair']
+   vID: 1300191 | Squirrel Girl | Base: Illustrious | Words: ['squirrel_girl, 1girl, tail, animal ears, shorts']
+   vID: 1232601 | Kindred | Base: Pony | Words: ['kindred_lol, mask, furry female, furry, long hair, body fur']
+   vID: 1232593 | Lolbit | Base: Pony | Words: ['lolbit_fnaf, furry, animal ears']
+   vID: 1232575 | Toy Bonnie | Base: Pony | Words: ['toy_bonnie_fnaf, furry']
+   vID: 1232568 | Bonnie | Base: SD 1.5 | Words: ['bonnie_fnaf, animal ears, breasts, 1girl']
+   vID: 1232566 | Foxy | Base: Pony | Words: ['foxy_fnaf, furry, furry girl']
+   vID: 1232560 | Mangle | Base: Pony | Words: ['mangle_fnaf, furry female, furry']
+   vID: 1232553 | Toy Chica | Base: Pony | Words: ['toy_chica, breasts, teeth, colored skin, yellow skin, joints, furry', 'pink panties']
+   vID: 1232544 | Michiru Kagemori (BNA) | Base: Pony | Words: ['Michiru_Kagemori, animal ears, furry female, furry', 'red jacket, jacket, shorts']
+   vID: 1232539 | Rouge The Bat | Base: Pony | Words: ['rouge_the_bat, furry female, furry']
+   vID: 1232535 | Stella (Helluva Boss) | Base: Pony | Words: ['stella_helluva_boss']
+   vID: 1232528 | Judy Hopps | Base: Pony | Words: ['judy_hopps, furry female, furry, source_furry']
+   vID: 1232519 | Highwire (Fortnite) | Base: Pony | Words: ['highwire_fortnite, furry female, furry']
+   vID: 1232511 | Vanille (Ancesra) | Base: Pony | Words: ['vanille_ancesra, furry, tail, furry female']
+   vID: 1186938 | Gardevoir | Base: Pony | Words: ['Gardevoir']
+   vID: 1186931 | Shikabane | Base: Pony | Words: ['Shikabane']
+   vID: 1186921 | Vanilla The Rabbit | Base: SD 1.5 | Words: ['VanillaTheRabbit, Vanilla The Rabbit']
+   vID: 1186908 | Renamon | Base: Pony | Words: ['Renamon']
+   vID: 1186892 | Raven Team Leader | Base: Pony | Words: ['Raventeamleader']
+   vID: 1186877 | Isabelle (Animal Crossing | Base: Pony | Words: ['Isabelle']
+   vID: 1186863 | Roxanne Wolf | Base: Pony | Words: ['Roxanne Wolf']
+   vID: 1186852 | Lola Bunny | Base: Pony | Words: ['lola bunny']
+   vID: 1186842 | Vanny | Base: Pony | Words: ['Vanny']
+   vID: 1186828 | Muffet | Base: Pony | Words: ['muffet']
+   vID: 1186812 | Meowskulls | Base: Pony | Words: ['Meowskulls']
+   vID: 1186801 | Meowscarada | Base: Pony | Words: ['Meowscarada']
+   vID: 1186790 | Minecraft Enderdragon | Base: Pony | Words: ['Enderdragon']
+
+=== REED_FURRY_MiX_SDXL (ID: 1747234) ===
+   vID: 3195278 | v2.5NAi | Base: NoobAI | Words: ['furry']
+   vID: 2988776 | v2.4NAi | Base: NoobAI | Words: ['furry']
+   vID: 2842500 | v2.3NAi | Base: NoobAI | Words: ['furry']
+   vID: 2778052 | v2.2NAi | Base: NoobAI | Words: ['furry']
+   vID: 2735413 | v2.1NAil | Base: NoobAI | Words: ['furry']
+   vID: 2654094 | v2.0 NAi | Base: NoobAI | Words: ['furry']
+   vID: 2578527 | v1.9NAi | Base: NoobAI | Words: ['Furry']
+   vID: 2510926 | v1.8 NAi | Base: NoobAI | Words: ['furry']
+   vID: 2377740 | v1.7NAi | Base: NoobAI | Words: []
+   vID: 2243123 | v1.6NAi | Base: NoobAI | Words: ['furry']
+   vID: 2185670 | v1.5NAi | Base: NoobAI | Words: ['furry']
+   vID: 2039079 | v1.4 NAi | Base: NoobAI | Words: ['Furry']
+   vID: 1985870 | v1.3 NAi | Base: NoobAI | Words: ['furry']
+   vID: 2016438 | v1.3 NAi Style A | Base: NoobAI | Words: ['furry']
+   vID: 1986627 | v1.2 IL Preview | Base: Illustrious | Words: ['Furry']
+   vID: 1986371 | v1.2 Pony Preview | Base: Pony | Words: ['Furry']
+   vID: 1981050 | v1.1 NAi | Base: NoobAI | Words: ['furry']
+   vID: 1977431 | v1.0 NAi | Base: NoobAI | Words: ['Furry']
+
+=== Furry Support Prefect Pony (ID: 1112632) ===
+   vID: 1250256 | v1.0 | Base: Pony | Words: []
+
+=== Furry Femboy (ID: 679128) ===
+   vID: 1630879 | v1.3 | Base: Pony | Words: ['femboy']
+   vID: 1406345 | v1.2 | Base: Pony | Words: ['femboy']
+   vID: 1403230 | v1.1 | Base: Pony | Words: ['femboy']
+   vID: 940140 | v1.0 | Base: Pony | Words: ['femboy']
+   vID: 768381 | v0.5 | Base: Pony | Words: ['femboy']
+   vID: 763876 | v0.2 | Base: Pony | Words: ['femboy']
+   vID: 760180 | v0.1 | Base: Pony | Words: ['femboy', 'collar', 'bell', 'stockings', ':3c', 'shy']
+
+=== Furry Art Style - Mabit - [ILXL/NoobAi & Pony] (ID: 621105) ===
+   vID: 1572645 | v2 [Illustrious/Noob] | Base: Illustrious | Words: ['m_bit']
+   vID: 694347 | Mabit v1.0 | Base: Pony | Words: ['m_bit']
+
+=== FURRY REALISTIC STYLE (ID: 936672) ===
+   vID: 2623109 | Real Illustrious | Base: Illustrious | Words: ['R1@lis,', 'furry, anthro,']
+   vID: 1048939 | v1 | Base: Pony | Words: [' Realistic, highres, super high resolution, 8k, photo, anthro, furry, furry, anthro, fur, tail, detailed fur, detailed,']
+
+=== Furry Style Kenket  🦊🐺- Anima / Pony / Illustrious (ID: 1063424) ===
+   vID: 3025089 | Anima | Base: Anima | Words: ['kenket style, furry, furry art, digital painting,  painting style is realistic with a touch of impressionism, characterized by visible brushstrokes and a slightly blurred background, textured details']
+   vID: 1193449 | Illustrious / Pony | Base: Illustrious | Words: ['kenket']
+   vID: 1242309 | Illustrious Only | Base: Illustrious | Words: []
+
+=== Furry Paws - helper (ID: 1051182) ===
+   vID: 1179504 | V1 | Base: Pony | Words: ['Canine paws', 'Feline paws', 'digital pads, metacarpal pad, 4toes, claws, detailed paws, [color] paws']
+
+=== Furry Telegram Stickers (Pony) (ID: 1032970) ===
+   vID: 1158550 | v1.0 | Base: Pony | Words: ['telegramstickerxl', 'white outline', 'drop shadow', 'simple background']
+
+=== Anthro/Feral Slider (ID: 341045) ===
+   vID: 449805 | v2.0_1.5 | Base: SD 1.5 | Words: []
+   vID: 398789 | v1.0 Pony XL | Base: Pony | Words: []
+   vID: 381952 | v1.3_eps | Base: SD 1.5 | Words: []
+   vID: 381847 | v1.3_vpred | Base: SD 1.5 | Words: []
+
+=== Anthro birds (for pony) (ID: 385443) ===
+   vID: 655020 | enhanced and reimagined | Base: Pony | Words: ['eagle', 'falcon', 'peafowl', 'stork', 'heron', 'macaw', 'cockatoo', 'parakeet', 'a_grey parrot', 'swan', 'toucan', 'shoebill', 'cardinal', 'victoria_pigeon', 'dove', 'cassowary', 'ostrich', 'ratite', 'hummingbird']
+   vID: 430144 | eagles, storks, peacocks | Base: Pony | Words: ['anthro', 'eagle', 'stork', 'peafowl']
+
+=== Anthro Snake Pony/iLLus (ID: 1385867) ===
+   vID: 1838148 | V1.0 (iLLustrious) | Base: Illustrious | Words: ['Snake', 'Viper', 'Slit Eyes', 'Adder', 'Python', 'Cobra,cobra snake hood']
+   vID: 1566098 | V1.0 (Pony) | Base: Pony | Words: ['Snake', 'Viper', 'Slit Eyes', 'Adder', 'Python', 'Cobra,cobra snake hood']
+
+=== Anthro Horse - Illustrious/Pony (ID: 706912) ===
+   vID: 1357928 | Illustrious - v1.0 | Base: Illustrious | Words: []
+   vID: 790711 | Pony - v1.0 | Base: Pony | Words: ['anthrohorse']
+
+=== Anthro Frog (ID: 1055833) ===
+   vID: 1549992 | Illustrious | Base: Illustrious | Words: ['Anthro, Frog,']
+   vID: 1184723 | Pony | Base: Pony | Words: ['Anthro, frog, tailless,']
+
+=== Anthro Owl Pony/iLLus (ID: 1289640) ===
+   vID: 1887554 | V1.0 (iLLustrious) | Base: Illustrious | Words: ['Owl']
+   vID: 1455199 | V1.0 (Pony) | Base: Pony | Words: ['Owl']
+
+=== Anthro boar daddy (ID: 993837) ===
+   vID: 1390138 | test Illustrious | Base: Illustrious | Words: ['boar']
+   vID: 1113549 | test Pony | Base: Pony | Words: []
+
+=== Anthro Feathered Raptor Pony/iLLus (ID: 1397480) ===
+   vID: 1837328 | V1.0 (iLLustrious) | Base: Illustrious | Words: ['Feathered Raptor']
+   vID: 1579599 | V1.0 (Pony) | Base: Pony | Words: ['Feathered Raptor']
+
+=== Anthro Turtle (ID: 1081538) ===
+   vID: 1562407 | Illustrious | Base: Illustrious | Words: ['Anthro, Turtle, turtle shell, ']
+   vID: 1214388 | Pony | Base: Pony | Words: ['Anthro, Turtle, turtle shell, no_glasses,']
+
+=== Geronimo Stilton - Pony XL (ID: 708673) ===
+   vID: 792666 | v1.0 | Base: Pony | Words: ['Geronimo stilton', 'orange fur', 'white muzzle', 'green jacket', 'green vest', 'glasses']
+
+=== Fang The Sniper - Sonic Series (ID: 1639718) ===
+   vID: 2111492 | Illustrious | Base: Illustrious | Words: ['Fang The Sniper, purple skin, white muzzle, blue nose, blue eyes, fang, long purple tail, brown hat, brown gloves, brown boots, holding gun']
+   vID: 1856007 | Pony | Base: Pony | Words: ['Fang The Sniper, purple skin, white muzzle, blue nose, blue eyes, fang, long purple tail, brown hat, brown gloves, brown boots, holding gun']
+
+=== Lorraine - Big Mouth (Pony/IL) (ID: 1011779) ===
+   vID: 1968495 | Illustrious | Base: Illustrious | Words: ['Lorraine_BM_IL', '1girl, solo, furry, female monster, purple blue eyes, blonde hair, long hair, yellow horns, big ears, thick lips, hot pink lips, brown eyebrows', 'yellow skin, alloy orange body fur, hooves as feet', 'little fangs', 'hot pink nails']
+   vID: 1134192 | Pony | Base: Pony | Words: ['1girl, furry, Solo, female monster, Lorraine_BM, purple blue eyes, blonde hair, long hair, yellow horns, big ears, broad mouth, fluorescent pink lips, little fangs, wide nose, brown eyebrows, yellow skin, alloy orange body fur, hooves as feet']
+
+=== Kitty Bouchet (Big Mouth/Human Resources IL|🐴) (ID: 1987371) ===
+   vID: 2249866 | IL | Base: Illustrious | Words: ['Kitty Bouchet, Kitty_BM, 1girl, solo, female cat, no humans, yellow eyes, purple fur skin, furry, purple lips, whiskers, fangs, stripped tail, fat, obese, barefoot', 'Kitty_HR, 1girl, solo, cat, no humans, yellow eyes, violet hair, violet fur skin, furry, violet lips, whiskers, fangs, tail, obese, barefoot']
+   vID: 2249684 | 🐴 | Base: Pony | Words: ['Kitty Bouchet, Kitty_BM, 1girl, solo, female cat, no humans, yellow eyes, purple fur skin, furry, purple lips, whiskers, fangs, stripped tail, fat, obese, barefoot', 'Kitty_HR, 1girl, solo, cat, no humans, yellow eyes, violet hair, violet fur skin, furry, violet lips, whiskers, fangs, tail, obese, barefoot']
+
+=== Peroro-sama (Blue Archive) ペロロ様（ブルーアーカーブ） SD1.5 & Pony XL (ID: 48346) ===
+   vID: 414229 | Pony v1.0 | Base: Pony | Words: ['source_furry, open mouth, tongue out, no humans, (white bird:1.3), duck, blush stickers, animal focus, (peroro \\(blue archive\\):1.5),']
+   vID: 282372 | v13 | Base: SD 1.5 | Words: ['perorosama, yellow ahoge, open mouth, tongue out, black eyes, animal focus, (white bird, duck, duck feet:1.5), wings, blush stickers,']
+   vID: 52957 | v1.0 | Base: SD 1.5 | Words: ['peroro']
+
+=== Bia (SlipperyT) (ID: 528488) ===
+   vID: 587226 | Bia | Base: Pony | Words: ['furry female', 'bia', 'Minecraft', 'flower in hair', 'zipper mouth']
+
+=== OmegaShoutmon (Digimon Fusion) [Pony & Illustrious] (ID: 1208172) ===
+   vID: 1484473 | V2 (Illustrious) | Base: Illustrious | Words: ['OmegaShoutmon', 'furry, anthro, scalie, wingless dragon, blue eyes, white mouth, armor, gold armor', 'shiny armor', 'sharp teeth']
+   vID: 1360683 | V1 (Pony) | Base: Pony | Words: ['OmegaShoutmon', 'furry, anthro, scalie, wingless dragon, blue eyes, white mouth, armor, gold armor', 'shiny armor', 'sharp teeth']
+
+=== Dark Dragon Season 2 Design (American Dragon: Jake Long) (ID: 810298) ===
+   vID: 906119 | v1.0 | Base: Pony | Words: ['DDS2', 'furry, anthro, scalie, male dragon, black body, blue body, two tone body, red sclera, no pupils, horns, dragon wings, blue mouth, blue tongue, fang, long neck, claws, long tail', 'blue fire, fire manipulation, fire breathing', 'blue magic']
+
+=== Cake [BFDI, BFB, TPOT] | Pony + Illustrious (ID: 1514254) ===
+   vID: 1713077 | Illustrious | Base: Illustrious | Words: ['anthro, cartoon, cake body, brown rectangular body, square-shaped cake, lighter brown frosting layer, pink cherry on back, white whipped cream top, white dot eyes, white mouth, black legs']
+   vID: 1713063 | Pony | Base: Pony | Words: ['anthro, cartoon, cake body, brown rectangular body, square-shaped cake, lighter brown frosting layer, pink cherry on back, white whipped cream top, white dot eyes, white mouth, black legs']
+
+=== Flyte [Dandy's World] | Pony + Illustrious (ID: 1500353) ===
+   vID: 1697251 | Pony | Base: Pony | Words: ['anthro, cartoony, arthropod, antennae, butterfly wings, pink wings, cyan skin, fur collar, no arms, no mouth']
+   vID: 1697269 | Illustrious | Base: Illustrious | Words: ['anthro, cartoony, arthropod, antennae, butterfly wings, pink wings, cyan skin, fur collar, no arms, no mouth']
+
+=== Fanny [BFDI, BFB, TPOT] | Pony + Illustrious (ID: 1566236) ===
+   vID: 1772395 | Pony | Base: Pony | Words: ['electric fan body, anthro, cartoony, fan blade head, round head, blue fan base, black stick legs, black dot eyes, simple face, black mouth']
+   vID: 1772412 | Illustrious | Base: Illustrious | Words: ['electric fan body, anthro, cartoony, fan blade head, round head, blue fan base, black stick legs, black dot eyes, simple face, black mouth']
+
+=== Woof and Lamb Kindred - (League of Legends) - Character LoRA - [Pony] (ID: 676550) ===
+   vID: 757350 | v1.0 | Base: Pony | Words: ['1girl, Wlkindredxl, anthro, white fur, shadow face, pink eyes, no pupils no mouth, animal hood, sidelocks, blue hair  ', 'pajamas, purple onesie, fur tuft, long sleeves, neck bell']
+
+=== Galaxy Cat (ID: 1892225) ===
+   vID: 2141817 | V1 | Base: Pony | Words: ['Galaxy_Cat', 'halo', 'anthro', 'drinking coffee', 'curly hair', 'shart white mouth with small fangs', 'glowing outlined black starry tail', 'cracked broken glass halo', 'glowing outlined black starry ears', 'glowing white sclera', 'no pupils', 'glowing outlined black starry fur']
